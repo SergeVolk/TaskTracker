@@ -1,0 +1,182 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+//using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+using TaskTracker.Model;
+using TaskTracker.Repository;
+
+using TaskTracker.Utils;
+
+namespace TaskTracker.ViewModels
+{
+    public class MainWindowViewModel : INotifyPropertyChanged
+    {
+        private IRepository repository;
+        private Status defaultStatus;
+        private User defaultUser;
+        private IUIService uiService;
+        private TaskViewerViewModel selectedTask;
+        private IEnumerable<TaskViewerViewModel> taskViewerViewModels;
+        private ProjectFilterViewModel projectFilterVM;
+
+
+        public MainWindowViewModel(IUIService uiService)
+        {
+            this.uiService = uiService;
+
+            repository = new RepositoryFactory().CreateRepository(App.DbConnectionString);
+
+            defaultStatus = Status.Open;
+            defaultUser = repository.GetUsers().ToList().Find(u => u.Name == "Admin");
+
+            ProjectFilterVM = new ProjectFilterViewModel(repository.GetProjects().ToList().ConvertAll(p => new ProjectFilterItemViewModel(p)));
+            StatusFilterVM = new StatusFilterViewModel(
+                EnumUtils.ConvertValues<Status, StatusFilterItemViewModel>(s => new StatusFilterItemViewModel(s)));
+            PriorityFilterVM = new PriorityFilterViewModel(
+                EnumUtils.ConvertValues<Priority, PriorityFilterItemViewModel>(p => new PriorityFilterItemViewModel(p)));
+
+            ProjectFilterVM.ItemSelectionChanged += OnFilterItemChanged;
+            StatusFilterVM.ItemSelectionChanged += OnFilterItemChanged;
+            PriorityFilterVM.ItemSelectionChanged += OnFilterItemChanged;
+
+            QueryTasks();
+
+            CreateTaskCommand = new Command<object>(OnButtonCreateTaskClicked);
+
+            ShowAllTasksTaskCommand = new Command<object>(OnButtonAllTasksClicked);                       
+        }
+
+        public void OnFilterItemChanged(object sender, int itemIndex, bool newSelectinoState)
+        {
+            QueryTasks();
+        }
+
+        public ProjectFilterViewModel ProjectFilterVM
+        {
+            get { return projectFilterVM; }
+            set
+            {
+                if (projectFilterVM != value)
+                {
+                    projectFilterVM = value;
+                    NotifyPropertyChanged("ProjectFilterVM");
+                }
+            }
+        }
+        public StatusFilterViewModel StatusFilterVM { get; private set; }
+        public PriorityFilterViewModel PriorityFilterVM { get; private set; }
+
+        public IEnumerable<TaskViewerViewModel> TaskViewerViewModels
+        {
+            get { return taskViewerViewModels; }
+            set
+            {
+                if (taskViewerViewModels != value)
+                {
+                    taskViewerViewModels = value;
+                    NotifyPropertyChanged("TaskViewerViewModels");
+                }
+            }
+        }
+                
+        public ICommand CreateTaskCommand { get; private set; }
+
+        public ICommand ShowAllTasksTaskCommand { get; private set; }
+                
+        public TaskViewerViewModel SelectedTask
+        {
+            get { return selectedTask; }
+            set
+            {
+                if (selectedTask != value)
+                {
+                    selectedTask = value;
+                    QueryTasks();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string name)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void OnButtonCreateTaskClicked(object sender)
+        {
+            var taskCreationVM = new TaskEditorViewModel()
+            {
+                Assignees = repository.GetUsers().Select(u => u.Name),
+                Projects = repository.GetProjects().Select(p => p.Name),
+                Priorities = Enum.GetNames(typeof(Priority)),
+                TaskTypes = repository.GetTaskTypes().Select(tt => tt.Name),
+                SelectedAssignee = "Serge"
+            };
+                        
+            if (uiService.ShowTaskCreationWindow(taskCreationVM).GetValueOrDefault())
+            {
+                Priority priority;
+                if (!Enum.TryParse(taskCreationVM.SelectedPriority, out priority))
+                {
+                    priority = Priority.Normal;
+                }
+
+                double tmp;
+                double? estimation = null;
+                if (Double.TryParse(taskCreationVM.Estimation, out tmp))
+                    estimation = tmp;
+
+                var task = new Task
+                {
+                    Summary = taskCreationVM.Summary,
+                    Description = taskCreationVM.Description,
+                    Priority = priority,
+                    Creator = defaultUser,
+                    Assignee = repository.GetUsers().ToList().Find(u => u.Name == taskCreationVM.SelectedAssignee),
+                    TaskType = repository.GetTaskTypes().ToList().Find(tt => tt.Name == taskCreationVM.SelectedTaskType),
+                    Project = repository.GetProjects().ToList().Find(p => p.Name == taskCreationVM.SelectedProject),
+                    Estimation = estimation,
+                    Status = defaultStatus
+                };
+
+                repository.Add(task);
+            }
+        }
+
+        private void OnButtonAllTasksClicked(object sender)
+        {
+            StatusFilterVM.SetSelection(true);
+            ProjectFilterVM.SetSelection(true);
+            PriorityFilterVM.SetSelection(true);
+
+            QueryTasks();
+        }
+
+        private void QueryTasks()
+        {            
+            var selectedStatuses = (StatusFilterVM != null) ? StatusFilterVM.GetSelectedItems() : new string[] { };
+            var selectedProjects = (ProjectFilterVM != null) ? ProjectFilterVM.GetSelectedItems() : new string[] { };
+            var selectedPriorities = (PriorityFilterVM != null) ? PriorityFilterVM.GetSelectedItems() : new string[] { };            
+
+            Expression<Func<Task, bool>> exp =
+                t => selectedStatuses.Contains(t.Status.ToString()) &&
+                     selectedProjects.Contains(t.Project.Name) &&
+                     selectedPriorities.Contains(t.Priority.ToString());
+
+            
+            repository.GroupOperations(op =>
+            {
+                TaskViewerViewModels = new List<TaskViewerViewModel>((op.GetTasks(exp).Convert(t => new TaskViewerViewModel(t, uiService))));
+            });
+        }   
+    }
+}
