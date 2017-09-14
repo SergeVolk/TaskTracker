@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="TaskTracker.Views.TaskEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             mc:Ignorable="d" MinWidth="307.61" Height="383.889" Width="486.61" MinHeight="383.889">
+    <DockPanel x:Name="pnlTaskParametersLayout">
+        <DockPanel x:Name="pnlTaskParametersLvl1" Height="81" VerticalAlignment="Top" DockPanel.Dock="Top">
+            <Grid x:Name="gridTaskParametersLvl1">
+                <Label x:Name="lblProject" Content="Project:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="cboProject" ItemsSource="{Binding Projects}" SelectedValue="{Binding SelectedProject, Mode=TwoWay}" 
+                          HorizontalAlignment="Left" Margin="90,14,0,0" VerticalAlignment="Top" Width="200" IsEditable="True"/>
+                <Label x:Name="lblTaskType" Content="Task Type:" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="cboTaskType" ItemsSource="{Binding TaskTypes}" SelectedValue="{Binding SelectedTaskType, Mode=TwoWay}" 
+                          HorizontalAlignment="Left" Margin="90,45,0,0" VerticalAlignment="Top" Width="200" IsEditable="True"/>
+            </Grid>
+        </DockPanel>
+        <Separator Margin="10,0" VerticalAlignment="Top" DockPanel.Dock="Top" Height="1"/>
+        <DockPanel x:Name="pnlTaskParametersLvl2" Height="220" VerticalAlignment="Top" DockPanel.Dock="Top">
+            <Grid x:Name="gridTaskParametersLvl2">
+                <Label x:Name="lblSummary" Content="Summary:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="tbxSummary" Text="{Binding Summary, Mode=TwoWay}" Height="23" Margin="90,14,10,0" TextWrapping="Wrap" 
+                         VerticalAlignment="Top"/>
+                <Label x:Name="lblPriority" Content="Priority:" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="cboPriority" ItemsSource="{Binding Priorities}" SelectedValue="{Binding SelectedPriority, Mode=TwoWay}" 
+                          HorizontalAlignment="Left" Margin="90,45,0,0" VerticalAlignment="Top" Width="200" IsEditable="True"/>
+                <Label x:Name="lblDescription" Content="Description:" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="tbxDescription" Text="{Binding Description, Mode=TwoWay}" Height="129" Margin="90,76,10,0" TextWrapping="Wrap" 
+                         VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" AcceptsTab="True"/>
+            </Grid>
+        </DockPanel>
+        <Separator Margin="10,0" VerticalAlignment="Top" DockPanel.Dock="Top"/>
+        <DockPanel x:Name="pnlTaskParametersLvl3" Margin="0">
+            <Grid x:Name="gridTaskParametersLvl3">
+                <Label x:Name="lblAssignee" Content="Assignee:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="cboAssignee" ItemsSource="{Binding Assignees}" SelectedValue="{Binding SelectedAssignee, Mode=TwoWay}" 
+                          HorizontalAlignment="Left" Margin="90,14,0,0" VerticalAlignment="Top" Width="200" IsEditable="True"/>
+                <Label x:Name="lblEstimation" Content="Estimation:" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="tbxEstimation" Text="{Binding Estimation, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="90,45,0,0" 
+                         TextWrapping="Wrap" VerticalAlignment="Top" Width="200"/>
+            </Grid>
+        </DockPanel>
+    </DockPanel>
+</UserControl>
