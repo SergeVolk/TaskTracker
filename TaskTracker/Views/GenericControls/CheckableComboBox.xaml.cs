@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,31 +16,28 @@ using System.Windows.Shapes;
 
 namespace TaskTracker.Views
 {
-    public partial class CheckableComboBox : UserControl
+    public partial class CheckableComboBox : UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register("ItemsSource", typeof(object), typeof(CheckableComboBox), new UIPropertyMetadata(null));
 
-        public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(CheckableComboBox), new UIPropertyMetadata(string.Empty));
-
         public static readonly DependencyProperty DefaultTextProperty =
-            DependencyProperty.Register("DefaultText", typeof(string), typeof(CheckableComboBox), new UIPropertyMetadata(string.Empty));
+            DependencyProperty.Register("DefaultText", typeof(string), typeof(CheckableComboBox), new UIPropertyMetadata(string.Empty));        
 
         public CheckableComboBox()
         {
-            InitializeComponent();
-
-            SetText();                 
+            InitializeComponent();            
         }
 
-        public object ItemsSource
+        public object ItemsSource 
         {
-            get { return (object)GetValue(ItemsSourceProperty); }
+            get
+            {
+                return (object)GetValue(ItemsSourceProperty);
+            }
             set
             {
                 SetValue(ItemsSourceProperty, value);
-                SetText();
             }
         }
 
@@ -48,11 +45,13 @@ namespace TaskTracker.Views
         {
             get
             {
-                return (string)GetValue(TextProperty);
-            }
-            set
-            {
-                SetValue(TextProperty, value);
+                string result = (this.ItemsSource != null) ? this.ItemsSource.ToString() : this.DefaultText;
+
+                if (string.IsNullOrEmpty(result))
+                {
+                    result = this.DefaultText;
+                }
+                return result;
             }
         }
 
@@ -62,61 +61,24 @@ namespace TaskTracker.Views
             {
                 return (string)GetValue(DefaultTextProperty);
             }
-
-            set { SetValue(DefaultTextProperty, value); }
+            set
+            {
+                SetValue(DefaultTextProperty, value);
+            }
         }
 
-        public event EventHandler ComboClosed;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public event CheckableComboBoxSelectionHandler SelectionChanged;
-
-        private void OnSelectionChanged(CheckBox sender)
+        private void NotifyPropertyChanged(string name)
         {
-            var handler = SelectionChanged;
+            var handler = PropertyChanged;
             if (handler != null)
-                handler(this, new CheckableComboBoxSelectionEventArgs(sender, sender.IsChecked.GetValueOrDefault(false)));
-        }        
-
-        private void Popup_Closed(object sender, EventArgs e)
-        {
-            var onComboClosedEvent = ComboClosed;
-            if (onComboClosedEvent != null)
-                onComboClosedEvent(this, EventArgs.Empty);
-        }
-        
-        private void CheckBox_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
-            SetText();
+                handler(this, new PropertyChangedEventArgs(name));
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
-            SetText();
-            OnSelectionChanged(e.Source as CheckBox);
-        }
-
-        private void SetText()
-        {
-            this.Text = (this.ItemsSource != null) ? this.ItemsSource.ToString() : this.DefaultText;
-
-            if (string.IsNullOrEmpty(this.Text))
-            {
-                this.Text = this.DefaultText;
-            }
+            NotifyPropertyChanged("Text");
         }
     }
-
-    public class CheckableComboBoxSelectionEventArgs : EventArgs
-    {
-        public CheckableComboBoxSelectionEventArgs(CheckBox sender, bool newState)
-        {
-            this.Sender = sender;
-            this.NewState = newState;
-
-        }
-        public CheckBox Sender { get; private set; }
-        public bool NewState { get; private set; }
-    }
-
-    public delegate void CheckableComboBoxSelectionHandler(object sender, CheckableComboBoxSelectionEventArgs e);
 }

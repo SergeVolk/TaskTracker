@@ -12,7 +12,7 @@ namespace TaskTracker.ViewModels
 {
     public class CheckableComboBoxItemViewModel : INotifyPropertyChanged
     {
-        private bool isSelected = true;
+        private bool isSelected;
 
         private void OnPropertyChanged(string name)
         {
@@ -23,12 +23,13 @@ namespace TaskTracker.ViewModels
             }
         }
 
-        public CheckableComboBoxItemViewModel(string name)
+        public CheckableComboBoxItemViewModel(string name, bool isSelected = true)
         {
-            Title = name;
+            this.Name = name;
+            this.isSelected = isSelected;
         }
 
-        public string Title { get; set; }
+        public string Name { get; private set; }
 
         public bool IsSelected
         {
@@ -67,7 +68,7 @@ namespace TaskTracker.ViewModels
 
         public CheckableComboBoxViewModel(IEnumerable<T> collection) : base(collection)
         {
-            collection.ForEach(item => item.PropertyChanged += OnItemPropertyChanged);  
+            collection.ForEach(item => item.PropertyChanged += OnItemPropertyChanged);
         }
 
         public override string ToString()
@@ -77,7 +78,7 @@ namespace TaskTracker.ViewModels
             {
                 if (s.IsSelected)
                 {
-                    outString.Append(s.Title);
+                    outString.Append(s.Name);
                     outString.Append(',');
                 }
             }
@@ -90,7 +91,7 @@ namespace TaskTracker.ViewModels
             foreach (var s in this.Items)
             {
                 if (s.IsSelected)
-                    result.Add(s.Title);
+                    result.Add(s.Name);
             }
             return result;
         }
