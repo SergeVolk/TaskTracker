@@ -24,7 +24,11 @@ namespace TaskTracker.Repository
 
         IEnumerable<TaskType> GetTaskTypes();
 
-        IQueryable<Task> GetTasks(Expression<Func<Task, bool>> taskCondition);        
+        IQueryable<Task> GetTasks(Expression<Func<Task, bool>> taskCondition);
+
+        IEnumerable<Task> GetOpenTasksOfUser(int userId);
+
+        IEnumerable<Task> GetOpenTasksOfProject(int projectId);
 
         Task FindTask(int taskId);
 
@@ -35,6 +39,8 @@ namespace TaskTracker.Repository
         void Update(Task task);
 
         void Update(Activity acvtivity);
+
+        void SetTaskStatus(int taskId, Status newStatus);
 
         void GroupOperations(RepositoryOperations operations);
     }
@@ -112,9 +118,14 @@ namespace TaskTracker.Repository
             return taskTypes;
         }
 
-        public List<Task> GetTasksAsList(Expression<Func<Task, bool>> taskCondition)
+        public IEnumerable<Task> GetOpenTasksOfUser(int userId)
         {
-            return DoContextOperations(ctx => GetTasks(taskCondition, ctx).ToList()); 
+            return DoContextOperations(ctx => ctx.GetOpenTasksOfUser(userId));
+        }
+
+        public IEnumerable<Task> GetOpenTasksOfProject(int projectId)
+        {
+            return DoContextOperations(ctx => ctx.GetOpenTasksOfProject(projectId));
         }
 
         public IQueryable<Task> GetTasks(Expression<Func<Task, bool>> taskCondition)
@@ -145,6 +156,11 @@ namespace TaskTracker.Repository
         public void Update(Activity activity)
         {
             DoContextOperations(ctx => Update(activity, ctx));            
+        }
+
+        public void SetTaskStatus(int taskId, Status newStatus)
+        {
+            DoContextOperations(ctx => ctx.SetTaskStatus(taskId, (int)newStatus));
         }
 
         public void GroupOperations(RepositoryOperations operations)
@@ -321,39 +337,33 @@ namespace TaskTracker.Repository
             taskTypes = ctx.TaskTypeSet.ToList();            
         }
 
-        private static bool Cond(bool c)
-        {
-            return !c;
-        }
-
-        private static void Test(Predicate<Task> p, string connectionString)
-        {
-            using (var ctx = CreateContext(connectionString))
-            {
-                var q = ctx.TaskSet.AsEnumerable().Where(t => p(t)).Select(t => t);
-                /*var q = from t in ctx.TaskSet
-                        where p(t)
-                        select t;*/
-
-                var l = q.ToList();
-            }
-        }
-
         private static void Init(string connectionString)
         {
-            //Test(t => true, connectionString);
-
             if (isInitialized)
                 return;
 
             using (var taskTrackerContainer = CreateContext(connectionString))
             {
-                EnsureProjectsGenerated(taskTrackerContainer);
-                EnsureUsersGenerated(taskTrackerContainer);
-                EnsureTaskTypesGenerated(taskTrackerContainer);
-                EnsureTasksGenerated(taskTrackerContainer);
-            }
-            isInitialized = true;
+                using (var transaction = taskTrackerContainer.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        EnsureProjectsGenerated(taskTrackerContainer);
+                        EnsureUsersGenerated(taskTrackerContainer);
+                        EnsureTaskTypesGenerated(taskTrackerContainer);
+                        EnsureTasksGenerated(taskTrackerContainer);
+
+                        transaction.Commit();
+
+                        isInitialized = true;
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }            
         }
     }
 }
