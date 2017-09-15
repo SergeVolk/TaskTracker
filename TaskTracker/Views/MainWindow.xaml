@@ -7,60 +7,72 @@
         xmlns:views="clr-namespace:TaskTracker.Views"
         xmlns:vm="clr-namespace:TaskTracker.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="569.209" Width="1100.569">
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        Title="MainWindow" Height="659.209" Width="1112.569">
     <Window.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-    </Window.Resources>    
+    </Window.Resources>
     <DockPanel x:Name="pnlMainFormLayout" Margin="0">
-        <DockPanel x:Name="pnlHeader" DockPanel.Dock="Top" VerticalAlignment="Top" Height="43" Background="#FFB8E2F5">
-            <Button x:Name="btnCreateRandomTask" Content="Create Task" Margin="10,10,10,0" VerticalAlignment="Top" Command="{Binding CreateTaskCommand}" 
-                    HorizontalAlignment="Left" Width="102"/>
-        </DockPanel>
-        <DockPanel x:Name="pnlFooter" Height="50" VerticalAlignment="Top" DockPanel.Dock="Bottom" Background="#FFC7F7C2"/>
-        <Border x:Name="brdMainPanel" BorderBrush="Black" BorderThickness="1">
-            <DockPanel x:Name="pnlMain" Margin="0">
-                <DockPanel x:Name="pnlFilters" Width="267" HorizontalAlignment="Left">
-                    <Grid x:Name="gridFilters">
-                        <Button x:Name="btnAllTasks" Content="All Tasks" Margin="64,107,23,0" VerticalAlignment="Top" Command="{Binding ShowAllTasksCommand}" 
+        <TabControl x:Name="tabPages">
+            <TabItem x:Name="tabTasksPage" Header="Tasks">
+                <DockPanel x:Name="pnlTasks" Margin="0">
+                    <DockPanel x:Name="pnlHeader" DockPanel.Dock="Top" VerticalAlignment="Top" Height="43" Background="#FFB8E2F5">
+                        <Button x:Name="btnCreateRandomTask" Content="Create Task" Margin="10,10,10,0" VerticalAlignment="Top" Command="{Binding CreateTaskCommand}" 
+                        HorizontalAlignment="Left" Width="102"/>
+                    </DockPanel>
+                    <DockPanel x:Name="pnlFooter" Height="50" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Background="#FFC7F7C2"/>
+                    <Border x:Name="brdMainPanel" BorderBrush="Black" BorderThickness="1">
+                        <DockPanel x:Name="pnlMain" Margin="0">
+                            <DockPanel x:Name="pnlFilters" Width="267" HorizontalAlignment="Left">
+                                <Grid x:Name="gridFilters">
+                                    <Button x:Name="btnAllTasks" Content="All Tasks" Margin="64,107,23,0" VerticalAlignment="Top" Command="{Binding ShowAllTasksCommand}" 
                                 HorizontalAlignment="Center" Width="180" Height="22"/>
-                        <views:CheckableComboBox x:Name="cboStatusFilter" ItemsSource="{Binding StatusFilterVM}" Height="22" DefaultText="Choose statuses..." 
+                                    <views:CheckableComboBox x:Name="cboStatusFilter" ItemsSource="{Binding StatusFilterVM}" Height="22" DefaultText="Choose statuses..." 
                                                  HorizontalAlignment="Left" Margin="64,10,0,0" VerticalAlignment="Top" Width="180"/>
-                        <Label x:Name="lblStatusFilter" Content="Status:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                        <views:CheckableComboBox x:Name="cboProjectFilter" ItemsSource="{Binding ProjectFilterVM}" 
+                                    <Label x:Name="lblStatusFilter" Content="Status:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                                    <views:CheckableComboBox x:Name="cboProjectFilter" ItemsSource="{Binding ProjectFilterVM}" 
                                                  DefaultText="Choose projects..." HorizontalAlignment="Left" VerticalAlignment="Top" Height="22" Width="180"
                                                  Margin="64,41,0,0" />
-                        <Label x:Name="lblProjectFilter" Content="Project:" HorizontalAlignment="Left" Margin="9,41,0,0" VerticalAlignment="Top"/>
-                        <views:CheckableComboBox x:Name="cboPriorityFilter" ItemsSource="{Binding PriorityFilterVM}" Height="22" 
+                                    <Label x:Name="lblProjectFilter" Content="Project:" HorizontalAlignment="Left" Margin="9,41,0,0" VerticalAlignment="Top"/>
+                                    <views:CheckableComboBox x:Name="cboPriorityFilter" ItemsSource="{Binding PriorityFilterVM}" Height="22" 
                                                  DefaultText="Choose priorities..." HorizontalAlignment="Left" Margin="64,71,0,0" VerticalAlignment="Top" 
                                                  Width="180"/>
-                        <Label x:Name="lblPriorityFilter" Content="Priority:" HorizontalAlignment="Left" Margin="9,71,0,0" VerticalAlignment="Top"/>
-                    </Grid>
-                </DockPanel>
-                <DockPanel x:Name="pnlTasksView" Margin="0">
-                    <ListView x:Name="lvTasks" ItemsSource="{Binding TaskViewerViewModels}" 
+                                    <Label x:Name="lblPriorityFilter" Content="Priority:" HorizontalAlignment="Left" Margin="9,71,0,0" VerticalAlignment="Top"/>
+                                </Grid>
+                            </DockPanel>
+                            <DockPanel x:Name="pnlTasksView" Margin="0">
+                                <ListView x:Name="lvTasks" ItemsSource="{Binding TaskViewerViewModels}" 
                               SelectedItem="{Binding SelectedTask, Mode=OneWay}" Margin="10" Width="271" HorizontalAlignment="Left" 
                               IsHitTestVisible="True" IsSynchronizedWithCurrentItem="True">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <StackPanel.Resources>
-                                        <Style TargetType="{x:Type TextBlock}">
-                                            <Setter Property="Margin" Value="0,0,10,0" />
-                                            <Setter Property="FontSize" Value="12" />
-                                        </Style>
-                                    </StackPanel.Resources>
-                                    <TextBlock x:Name="tbTaskId" Text="{Binding TaskId}" FontWeight="Bold"/>
-                                    <TextBlock x:Name="tbSummary" Text="{Binding Summary}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </DockPanel>
-                <DockPanel x:Name="pnlTaskDetails">
-                    <views:TaskViewer x:Name="taskDetailsViewerControl" DataContext="{Binding SelectedItem, ElementName=lvTasks}" Width="Auto" Height="Auto"
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <StackPanel.Resources>
+                                                    <Style TargetType="{x:Type TextBlock}">
+                                                        <Setter Property="Margin" Value="0,0,10,0" />
+                                                        <Setter Property="FontSize" Value="12" />
+                                                    </Style>
+                                                </StackPanel.Resources>
+                                                <TextBlock x:Name="tbTaskId" Text="{Binding TaskId}" FontWeight="Bold"/>
+                                                <TextBlock x:Name="tbSummary" Text="{Binding Summary}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </DockPanel>
+                            <DockPanel x:Name="pnlTaskDetails">
+                                <views:TaskViewer x:Name="taskDetailsViewerControl" DataContext="{Binding SelectedItem, ElementName=lvTasks}" Width="Auto" Height="Auto"
                                       Visibility="{Binding SelectedItem, Converter={StaticResource NullToVisibilityConverter}, ElementName=lvTasks}"/>
+                            </DockPanel>
+                        </DockPanel>
+                    </Border>
                 </DockPanel>
-            </DockPanel>
-        </Border>
+            </TabItem>
+            <TabItem x:Name="tabSchedulePage" Header="Schedule">
+                <DockPanel x:Name="pnlSchedule" LastChildFill="True">
+                    <views:StageTasksEditor x:Name="taskStageEditor" DataContext="{Binding TaskStageEditorVM}" Width="Auto" Height="Auto"/>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </Window>

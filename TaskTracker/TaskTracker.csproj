@@ -73,10 +73,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\StageTasksEditorViewModel.cs" />
+    <Compile Include="Views\StageTasksEditor.xaml.cs">
+      <DependentUpon>StageTasksEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\TaskTrackerManager.cs" />
     <Compile Include="ViewModels\Command.cs" />
     <Compile Include="ViewModels\IUIService.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Converters.cs" />
     <Compile Include="Views\GenericControls\CheckableComboBox.xaml.cs">
       <DependentUpon>CheckableComboBox.xaml</DependentUpon>
@@ -104,6 +109,10 @@
     <Compile Include="ViewModels\StatusFilterViewModel.cs" />
     <Compile Include="ViewModels\TaskViewerViewModel.cs" />
     <Compile Include="ViewModels\TaskEditorViewModel.cs" />
+    <Page Include="Views\StageTasksEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\GenericControls\CheckableComboBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

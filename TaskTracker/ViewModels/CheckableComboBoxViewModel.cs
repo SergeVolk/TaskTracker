@@ -10,19 +10,10 @@ using TaskTracker.Utils;
 
 namespace TaskTracker.ViewModels
 {
-    public class CheckableComboBoxItemViewModel : INotifyPropertyChanged
+    public class CheckableComboBoxItemViewModel : ViewModelBase
     {
         private bool isSelected;
-
-        private void OnPropertyChanged(string name)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
+        
         public CheckableComboBoxItemViewModel(string name, bool isSelected = true)
         {
             this.Name = name;
@@ -39,12 +30,10 @@ namespace TaskTracker.ViewModels
                 if (isSelected != value)
                 {
                     isSelected = value;
-                    OnPropertyChanged("IsSelected");
+                    NotifyPropertyChanged("IsSelected");
                 }
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        }        
     }
 
     public class CheckableComboBoxViewModel<T> : ObservableCollection<T>
