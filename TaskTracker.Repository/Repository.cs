@@ -36,6 +36,10 @@ namespace TaskTracker.Repository
 
         IEnumerable<Stage> GetStages(int level);
 
+        IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit);
+        IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit);
+        double GetTotalActivityTimeOfStage(int stageId);
+
         Task FindTask(int taskId);
 
         Stage FindStage(int stageId);
@@ -150,6 +154,40 @@ namespace TaskTracker.Repository
         public IEnumerable<Stage> GetStages(int level)
         {
             return DoContextOperations(ctx => GetStages(s => s.Level == level, ctx).ToList());
+        }
+
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit)
+        {
+            return DoContextOperations(ctx =>
+            {
+                var maxActStages = ctx.GetStagesWithMaxActivities(stageLimit);
+
+                IEnumerable<Tuple<Stage, int>> result = maxActStages.Select(
+                    e => new Tuple<Stage, int>(FindStage(e.StageId.GetValueOrDefault()), e.ActivityCount.GetValueOrDefault()));
+                return result.ToList();               
+            });
+        }
+
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit)
+        {
+            return DoContextOperations(ctx =>
+            {
+                var taskCountByStageEntries = ctx.GetStagesWithMaxTasks(stageLimit);
+
+                IEnumerable<Tuple<Stage, int>> result = taskCountByStageEntries.Select(
+                    e => new Tuple<Stage, int>(FindStage(e.StageId), e.TaskCount.GetValueOrDefault()));
+
+                return result.ToList();
+            });
+        }
+
+        public double GetTotalActivityTimeOfStage(int stageId)
+        {
+            return DoContextOperations(ctx => 
+            {
+                var result = ctx.GetTotalActivitiesTimeOfStage(stageId).Single().GetValueOrDefault();
+                return (double)result;
+            });
         }
 
         public Task FindTask(int taskId)

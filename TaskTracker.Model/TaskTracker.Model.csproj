@@ -57,6 +57,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
+    <Compile Include="GetStagesWithMaxActivities_Result.cs">
+      <DependentUpon>Entities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetStagesWithMaxTasks_Result.cs">
+      <DependentUpon>Entities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Priority.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>

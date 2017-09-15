@@ -85,5 +85,32 @@ namespace TaskTracker.Repository
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SetTaskStatus", taskIdParameter, newStatusParameter);
         }
+    
+        public virtual ObjectResult<GetStagesWithMaxTasks_Result> GetStagesWithMaxTasks(Nullable<int> stageLimit)
+        {
+            var stageLimitParameter = stageLimit.HasValue ?
+                new ObjectParameter("stageLimit", stageLimit) :
+                new ObjectParameter("stageLimit", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetStagesWithMaxTasks_Result>("GetStagesWithMaxTasks", stageLimitParameter);
+        }
+    
+        public virtual ObjectResult<Nullable<decimal>> GetTotalActivitiesTimeOfStage(Nullable<int> stageId)
+        {
+            var stageIdParameter = stageId.HasValue ?
+                new ObjectParameter("stageId", stageId) :
+                new ObjectParameter("stageId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<decimal>>("GetTotalActivitiesTimeOfStage", stageIdParameter);
+        }
+    
+        public virtual ObjectResult<GetStagesWithMaxActivities_Result> GetStagesWithMaxActivities(Nullable<int> stageLimit)
+        {
+            var stageLimitParameter = stageLimit.HasValue ?
+                new ObjectParameter("stageLimit", stageLimit) :
+                new ObjectParameter("stageLimit", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetStagesWithMaxActivities_Result>("GetStagesWithMaxActivities", stageLimitParameter);
+        }
     }
 }
