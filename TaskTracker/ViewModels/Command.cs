@@ -40,4 +40,44 @@ namespace TaskTracker.ViewModels
             handler((T)parameter);
         }
     }
+
+    public class CompositeCommand : ICommand
+    {
+        private List<ICommand> childCommands;
+
+        public CompositeCommand()
+        {
+            childCommands = new List<ICommand>();
+        }
+
+        public void Add(ICommand command)
+        {
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
+            childCommands.Add(command);
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            foreach (var command in childCommands)
+            {
+                if (!command.CanExecute(parameter))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        public void Execute(object parameter)
+        {
+            foreach (var command in childCommands)
+            {
+                command.Execute(parameter);
+            }
+        }
+
+        public event EventHandler CanExecuteChanged;
+    }
 }

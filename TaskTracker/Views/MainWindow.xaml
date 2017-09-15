@@ -73,6 +73,19 @@
                     <views:StageTasksEditor x:Name="taskStageEditor" DataContext="{Binding TaskStageEditorVM}" Width="Auto" Height="Auto"/>
                 </DockPanel>
             </TabItem>
+            <TabItem x:Name="tabReportsPage" Header="Reports">
+                <DockPanel x:Name="pnlReportsLayout" LastChildFill="True" DataContext="{Binding ReportsVM}" Margin="0">
+                    <StackPanel x:Name="stackReports">
+                        <views:MaxActivitiesStageReport x:Name="maxActivitiesStageReport" DataContext="{Binding MaxActivitiesStageReportVM}" Width="Auto" Height="Auto"/>
+                        <views:MaxTasksStagesReport x:Name="maxTasksStagesReport" DataContext="{Binding MaxTasksStagesReportVM}" />
+                        <views:TotalActivitiesTimeOfStageReport x:Name="timeOfStageReport" DataContext="{Binding TotalActivitiesTimeOfStageReportVM}"/>
+                        <Grid x:Name="gridReport" Margin="0">
+                            <Button x:Name="btnUpdate" Content="Update" Command="{Binding UpdateCommand}" HorizontalAlignment="Left" Margin="10,10,0,0" 
+                                VerticalAlignment="Top" Width="75"/>  
+                        </Grid>
+                    </StackPanel>
+                </DockPanel>
+            </TabItem>
         </TabControl>
     </DockPanel>
 </Window>

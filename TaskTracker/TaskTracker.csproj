@@ -73,7 +73,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\Reports\MaxActivitiesStageReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\MaxTasksStagesReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\ReportsVM.cs" />
+    <Compile Include="ViewModels\Reports\ReportViewModelBase.cs" />
     <Compile Include="ViewModels\StageTasksEditorViewModel.cs" />
+    <Compile Include="ViewModels\Reports\TotalActivitiesTimeOfStageReportViewModel.cs" />
+    <Compile Include="Views\Reports\MaxActivitiesStageReport.xaml.cs">
+      <DependentUpon>MaxActivitiesStageReport.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Reports\MaxTasksStagesReport.xaml.cs">
+      <DependentUpon>MaxTasksStagesReport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\StageTasksEditor.xaml.cs">
       <DependentUpon>StageTasksEditor.xaml</DependentUpon>
     </Compile>
@@ -101,6 +112,9 @@
     <Compile Include="Views\TaskEditorWindow.xaml.cs">
       <DependentUpon>TaskEditorWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Reports\TotalActivitiesTimeOfStageReport.xaml.cs">
+      <DependentUpon>TotalActivitiesTimeOfStageReport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UIService.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ViewModels\CheckableComboBoxViewModel.cs" />
@@ -109,6 +123,14 @@
     <Compile Include="ViewModels\StatusFilterViewModel.cs" />
     <Compile Include="ViewModels\TaskViewerViewModel.cs" />
     <Compile Include="ViewModels\TaskEditorViewModel.cs" />
+    <Page Include="Views\Reports\MaxActivitiesStageReport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Reports\MaxTasksStagesReport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\StageTasksEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -148,6 +170,10 @@
     <Page Include="Views\TaskEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Reports\TotalActivitiesTimeOfStageReport.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

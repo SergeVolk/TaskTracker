@@ -50,7 +50,8 @@ namespace TaskTracker.ViewModels
 
             ShowAllTasksTaskCommand = new Command<object>(OnButtonAllTasksClicked);
 
-            TaskStageEditorVM = new StageTasksEditorViewModel(repository);            
+            TaskStageEditorVM = new StageTasksEditorViewModel(repository);
+            ReportsVM = new ReportsVM(repository);
         }
 
         public void OnFilterItemChanged(object sender, int itemIndex, bool newSelectinoState)
@@ -86,8 +87,10 @@ namespace TaskTracker.ViewModels
             }
         }
 
-        public StageTasksEditorViewModel TaskStageEditorVM { get; private set; }        
-                
+        public StageTasksEditorViewModel TaskStageEditorVM { get; private set; } 
+        
+        public ReportsVM ReportsVM { get; private set; }
+
         public ICommand CreateTaskCommand { get; private set; }
 
         public ICommand ShowAllTasksTaskCommand { get; private set; }
