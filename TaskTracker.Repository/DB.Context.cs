@@ -35,6 +35,7 @@ namespace TaskTracker.Repository
         public virtual DbSet<Project> ProjectSet { get; set; }
         public virtual DbSet<User> UserSet { get; set; }
         public virtual DbSet<TaskType> TaskTypeSet { get; set; }
+        public virtual DbSet<Stage> StageSet { get; set; }
     
         public virtual ObjectResult<Task> GetOpenTasksOfUser(Nullable<int> userId)
         {
