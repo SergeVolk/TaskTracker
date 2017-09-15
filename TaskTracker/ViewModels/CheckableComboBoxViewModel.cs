@@ -10,25 +10,17 @@ using TaskTracker.Utils;
 
 namespace TaskTracker.ViewModels
 {
-    public class CheckableComboBoxItemViewModel : INotifyPropertyChanged
+    public class CheckableComboBoxItemViewModel : ViewModelBase
     {
-        private bool isSelected = true;
-
-        private void OnPropertyChanged(string name)
+        private bool isSelected;
+        
+        public CheckableComboBoxItemViewModel(string name, bool isSelected = true)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
+            this.Name = name;
+            this.isSelected = isSelected;
         }
 
-        public CheckableComboBoxItemViewModel(string name)
-        {
-            Title = name;
-        }
-
-        public string Title { get; set; }
+        public string Name { get; private set; }
 
         public bool IsSelected
         {
@@ -38,12 +30,10 @@ namespace TaskTracker.ViewModels
                 if (isSelected != value)
                 {
                     isSelected = value;
-                    OnPropertyChanged("IsSelected");
+                    NotifyPropertyChanged("IsSelected");
                 }
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        }        
     }
 
     public class CheckableComboBoxViewModel<T> : ObservableCollection<T>
@@ -67,7 +57,7 @@ namespace TaskTracker.ViewModels
 
         public CheckableComboBoxViewModel(IEnumerable<T> collection) : base(collection)
         {
-            collection.ForEach(item => item.PropertyChanged += OnItemPropertyChanged);  
+            collection.ForEach(item => item.PropertyChanged += OnItemPropertyChanged);
         }
 
         public override string ToString()
@@ -77,7 +67,7 @@ namespace TaskTracker.ViewModels
             {
                 if (s.IsSelected)
                 {
-                    outString.Append(s.Title);
+                    outString.Append(s.Name);
                     outString.Append(',');
                 }
             }
@@ -90,7 +80,7 @@ namespace TaskTracker.ViewModels
             foreach (var s in this.Items)
             {
                 if (s.IsSelected)
-                    result.Add(s.Title);
+                    result.Add(s.Name);
             }
             return result;
         }

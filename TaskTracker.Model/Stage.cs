@@ -12,29 +12,26 @@ namespace TaskTracker.Model
     using System;
     using System.Collections.Generic;
     
-    public partial class Task
+    public partial class Stage
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Task()
+        public Stage()
         {
-            this.Activity = new HashSet<Activity>();
-            this.Stage = new HashSet<Stage>();
+            this.Task = new HashSet<Task>();
+            this.SubStages = new HashSet<Stage>();
         }
     
         public int Id { get; set; }
-        public string Summary { get; set; }
+        public Nullable<System.DateTime> StartTime { get; set; }
+        public Nullable<System.DateTime> EndTime { get; set; }
+        public int Level { get; private set; }
         public string Description { get; set; }
-        public Priority Priority { get; set; }
-        public Nullable<double> Estimation { get; set; }
-        public Status Status { get; set; }
-        public int TaskTypeId { get; set; }
+        public string Name { get; set; }
     
-        public virtual Project Project { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Activity> Activity { get; set; }
-        public virtual User Creator { get; set; }
-        public virtual User Assignee { get; set; }
+        public virtual ICollection<Task> Task { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Stage> Stage { get; set; }
+        public virtual ICollection<Stage> SubStages { get; set; }
+        public virtual Stage ParentStage { get; set; }
     }
 }

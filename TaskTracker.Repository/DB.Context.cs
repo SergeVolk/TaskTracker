@@ -15,6 +15,8 @@ namespace TaskTracker.Repository
     
     using TaskTracker.Model;
     
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class TaskTrackerModelContainer : DbContext
     {
@@ -33,5 +35,55 @@ namespace TaskTracker.Repository
         public virtual DbSet<Project> ProjectSet { get; set; }
         public virtual DbSet<User> UserSet { get; set; }
         public virtual DbSet<TaskType> TaskTypeSet { get; set; }
+        public virtual DbSet<Stage> StageSet { get; set; }
+    
+        public virtual ObjectResult<Task> GetOpenTasksOfUser(Nullable<int> userId)
+        {
+            var userIdParameter = userId.HasValue ?
+                new ObjectParameter("userId", userId) :
+                new ObjectParameter("userId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Task>("GetOpenTasksOfUser", userIdParameter);
+        }
+    
+        public virtual ObjectResult<Task> GetOpenTasksOfUser(Nullable<int> userId, MergeOption mergeOption)
+        {
+            var userIdParameter = userId.HasValue ?
+                new ObjectParameter("userId", userId) :
+                new ObjectParameter("userId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Task>("GetOpenTasksOfUser", mergeOption, userIdParameter);
+        }
+    
+        public virtual ObjectResult<Task> GetOpenTasksOfProject(Nullable<int> projectId)
+        {
+            var projectIdParameter = projectId.HasValue ?
+                new ObjectParameter("projectId", projectId) :
+                new ObjectParameter("projectId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Task>("GetOpenTasksOfProject", projectIdParameter);
+        }
+    
+        public virtual ObjectResult<Task> GetOpenTasksOfProject(Nullable<int> projectId, MergeOption mergeOption)
+        {
+            var projectIdParameter = projectId.HasValue ?
+                new ObjectParameter("projectId", projectId) :
+                new ObjectParameter("projectId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Task>("GetOpenTasksOfProject", mergeOption, projectIdParameter);
+        }
+    
+        public virtual int SetTaskStatus(Nullable<int> taskId, Nullable<int> newStatus)
+        {
+            var taskIdParameter = taskId.HasValue ?
+                new ObjectParameter("taskId", taskId) :
+                new ObjectParameter("taskId", typeof(int));
+    
+            var newStatusParameter = newStatus.HasValue ?
+                new ObjectParameter("newStatus", newStatus) :
+                new ObjectParameter("newStatus", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SetTaskStatus", taskIdParameter, newStatusParameter);
+        }
     }
 }

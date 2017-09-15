@@ -11,6 +11,8 @@
     <EntitySet Name="ProjectSet" EntityType="TaskTrackerModel.Store.ProjectSet" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="UserSet" EntityType="TaskTrackerModel.Store.UserSet" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="TaskTypeSet" EntityType="TaskTrackerModel.Store.TaskTypeSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="StageSet" EntityType="TaskTrackerModel.Store.StageSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="StageTask" EntityType="TaskTrackerModel.Store.StageTask" store:Type="Tables" Schema="dbo" />
     <AssociationSet Name="TaskProjects" Association="TaskTrackerModel.Store.TaskProjects">
       <End Role="Task" EntitySet="TaskSet" />
       <End Role="Projects" EntitySet="ProjectSet" />
@@ -23,10 +25,6 @@
       <End Role="Task" EntitySet="TaskSet" />
       <End Role="User" EntitySet="UserSet" />
     </AssociationSet>
-    <AssociationSet Name="TaskTypeTask" Association="TaskTrackerModel.Store.TaskTypeTask">
-      <End Role="TaskType" EntitySet="TaskTypeSet" />
-      <End Role="Task" EntitySet="TaskSet" />
-    </AssociationSet>
     <AssociationSet Name="UserTask" Association="TaskTrackerModel.Store.UserTask">
       <End Role="User" EntitySet="UserSet" />
       <End Role="Task" EntitySet="TaskSet" />
@@ -34,6 +32,22 @@
     <AssociationSet Name="ActivityUser" Association="TaskTrackerModel.Store.ActivityUser">
       <End Role="Activity" EntitySet="ActivitySet" />
       <End Role="User" EntitySet="UserSet" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StageTask_Stage" Association="TaskTrackerModel.Store.FK_StageTask_Stage">
+      <End Role="Stage" EntitySet="StageSet" />
+      <End Role="StageTask" EntitySet="StageTask" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StageTask_Task" Association="TaskTrackerModel.Store.FK_StageTask_Task">
+      <End Role="Task" EntitySet="TaskSet" />
+      <End Role="StageTask" EntitySet="StageTask" />
+    </AssociationSet>
+    <AssociationSet Name="StageStage" Association="TaskTrackerModel.Store.StageStage">
+      <End Role="Stage" EntitySet="StageSet" />
+      <End Role="Stage1" EntitySet="StageSet" />
+    </AssociationSet>
+    <AssociationSet Name="TaskTaskType" Association="TaskTrackerModel.Store.TaskTaskType">
+      <End Role="Task" EntitySet="TaskSet" />
+      <End Role="TaskType" EntitySet="TaskTypeSet" />
     </AssociationSet>
   </EntityContainer>
   <EntityType Name="TaskSet">
@@ -46,9 +60,9 @@
     <Property Name="Priority" Type="tinyint" Nullable="false" />
     <Property Name="Estimation" Type="float" Nullable="true" />
     <Property Name="Status" Type="tinyint" Nullable="false" />
+    <Property Name="TaskTypeId" Type="int" Nullable="false" />
     <Property Name="Project_Id" Type="int" Nullable="false" />
     <Property Name="Creator_Id" Type="int" Nullable="false" />
-    <Property Name="TaskType_Id" Type="int" Nullable="false" />
     <Property Name="Assignee_Id" Type="int" Nullable="false" />
   </EntityType>
   <EntityType Name="ActivitySet">
@@ -83,6 +97,26 @@
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="StageSet">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="StartTime" Type="datetime" Nullable="true" />
+    <Property Name="EndTime" Type="datetime" Nullable="true" />
+    <Property Name="Level" Type="int" Nullable="false" />
+    <Property Name="Description" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="ParentStage_Id" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="StageTask">
+    <Key>
+      <PropertyRef Name="Stage_Id" />
+      <PropertyRef Name="Task_Id" />
+    </Key>
+    <Property Name="Stage_Id" Type="int" Nullable="false" />
+    <Property Name="Task_Id" Type="int" Nullable="false" />
   </EntityType>
   <Association Name="TaskProjects">
     <End Role="Task" Type="TaskTrackerModel.Store.TaskSet" Multiplicity="*" />
@@ -120,18 +154,6 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="TaskTypeTask">
-    <End Role="TaskType" Type="TaskTrackerModel.Store.TaskTypeSet" Multiplicity="1" />
-    <End Role="Task" Type="TaskTrackerModel.Store.TaskSet" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="TaskType">
-        <PropertyRef Name="Id" />
-      </Principal>
-      <Dependent Role="Task">
-        <PropertyRef Name="TaskType_Id" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
   <Association Name="UserTask">
     <End Role="User" Type="TaskTrackerModel.Store.UserSet" Multiplicity="1" />
     <End Role="Task" Type="TaskTrackerModel.Store.TaskSet" Multiplicity="*" />
@@ -153,6 +175,54 @@
       </Principal>
       <Dependent Role="Activity">
         <PropertyRef Name="User_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="StageStage">
+    <End Role="Stage" Type="TaskTrackerModel.Store.StageSet" Multiplicity="0..1" />
+    <End Role="Stage1" Type="TaskTrackerModel.Store.StageSet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Stage">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Stage1">
+        <PropertyRef Name="ParentStage_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="TaskTaskType">
+    <End Role="Task" Type="TaskTrackerModel.Store.TaskSet" Multiplicity="*" />
+    <End Role="TaskType" Type="TaskTrackerModel.Store.TaskTypeSet" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="TaskType">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Task">
+        <PropertyRef Name="TaskTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StageTask_Stage">
+    <End Role="Stage" Type="TaskTrackerModel.Store.StageSet" Multiplicity="1" />
+    <End Role="StageTask" Type="TaskTrackerModel.Store.StageTask" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Stage">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="StageTask">
+        <PropertyRef Name="Stage_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StageTask_Task">
+    <End Role="StageTask" Type="TaskTrackerModel.Store.StageTask" Multiplicity="*" />
+    <End Role="Task" Type="TaskTrackerModel.Store.TaskSet" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Task">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="StageTask">
+        <PropertyRef Name="Task_Id" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -178,10 +248,6 @@
             <End Role="User" EntitySet="UserSet" />
           </AssociationSet>
           <EntitySet Name="TaskTypeSet" EntityType="TaskTrackerModel.TaskType" />
-          <AssociationSet Name="TaskTypeTask" Association="TaskTrackerModel.TaskTypeTask">
-            <End Role="TaskType" EntitySet="TaskTypeSet" />
-            <End Role="Task" EntitySet="TaskSet" />
-          </AssociationSet>
           <AssociationSet Name="UserTask" Association="TaskTrackerModel.UserTask">
             <End Role="User" EntitySet="UserSet" />
             <End Role="Task" EntitySet="TaskSet" />
@@ -190,33 +256,57 @@
             <End Role="Activity" EntitySet="ActivitySet" />
             <End Role="User" EntitySet="UserSet" />
           </AssociationSet>
+          <FunctionImport Name="GetOpenTasksOfUser" EntitySet="TaskSet" ReturnType="Collection(TaskTrackerModel.Task)">
+          <Parameter Name="userId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="GetOpenTasksOfProject" EntitySet="TaskSet" ReturnType="Collection(TaskTrackerModel.Task)">
+          <Parameter Name="projectId" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="SetTaskStatus">
+            <Parameter Name="taskId" Mode="In" Type="Int32" />
+            <Parameter Name="newStatus" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="StageSet" EntityType="TaskTrackerModel.Stage" />
+          <AssociationSet Name="StageTask" Association="TaskTrackerModel.StageTask">
+            <End Role="Stage" EntitySet="StageSet" />
+            <End Role="Task" EntitySet="TaskSet" />
+          </AssociationSet>
+          <AssociationSet Name="StageStage" Association="TaskTrackerModel.StageStage">
+            <End Role="Stage" EntitySet="StageSet" />
+            <End Role="Stage1" EntitySet="StageSet" />
+          </AssociationSet>
+          <AssociationSet Name="TaskTaskType" Association="TaskTrackerModel.TaskTaskType">
+            <End Role="Task" EntitySet="TaskSet" />
+            <End Role="TaskType" EntitySet="TaskTypeSet" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="Task">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Summary" Type="String" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" />
+          <Property Name="Summary" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="Description" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
           <Property Name="Priority" Type="TaskTrackerModel.Priority" Nullable="false" />
           <NavigationProperty Name="Project" Relationship="TaskTrackerModel.TaskProjects" FromRole="Task" ToRole="Projects" />
           <NavigationProperty Name="Activity" Relationship="TaskTrackerModel.ActivityTask" FromRole="Task" ToRole="Activity" />
           <NavigationProperty Name="Creator" Relationship="TaskTrackerModel.TaskUser" FromRole="Task" ToRole="User" />
-          <NavigationProperty Name="TaskType" Relationship="TaskTrackerModel.TaskTypeTask" FromRole="Task" ToRole="TaskType" />
           <NavigationProperty Name="Assignee" Relationship="TaskTrackerModel.UserTask" FromRole="Task" ToRole="User" />
           <Property Name="Estimation" Type="Double" Nullable="true" />
           <Property Name="Status" Type="TaskTrackerModel.Status" Nullable="false" />
+          <NavigationProperty Name="Stage" Relationship="TaskTrackerModel.StageTask" FromRole="Task" ToRole="Stage" />
+          <Property Name="TaskTypeId" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Activity">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="StartTime" Type="DateTime" Nullable="false" />
-          <Property Name="EndTime" Type="DateTime" Nullable="true" />
+          <Property Name="StartTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="EndTime" Type="DateTime" Nullable="true" Precision="3" />
           <NavigationProperty Name="Task" Relationship="TaskTrackerModel.ActivityTask" FromRole="Activity" ToRole="Task" />
           <NavigationProperty Name="User" Relationship="TaskTrackerModel.ActivityUser" FromRole="Activity" ToRole="User" />
-          <Property Name="Description" Type="String" Nullable="true" />
+          <Property Name="Description" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
         </EntityType>
         <EnumType Name="Priority" UnderlyingType="Byte">
           <Member Name="Normal" Value="0" />
@@ -228,9 +318,9 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
           <NavigationProperty Name="Task" Relationship="TaskTrackerModel.TaskProjects" FromRole="Projects" ToRole="Task" />
-          <Property Name="ShortName" Type="String" Nullable="false" />
+          <Property Name="ShortName" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
         </EntityType>
         <Association Name="TaskProjects">
           <End Type="TaskTrackerModel.Task" Role="Task" Multiplicity="*" />
@@ -245,7 +335,7 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
           <NavigationProperty Name="CreatedTask" Relationship="TaskTrackerModel.TaskUser" FromRole="User" ToRole="Task" />
           <NavigationProperty Name="Task" Relationship="TaskTrackerModel.UserTask" FromRole="User" ToRole="Task" />
           <NavigationProperty Name="Activity" Relationship="TaskTrackerModel.ActivityUser" FromRole="User" ToRole="Activity" />
@@ -259,13 +349,8 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
-          <NavigationProperty Name="Task" Relationship="TaskTrackerModel.TaskTypeTask" FromRole="TaskType" ToRole="Task" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
         </EntityType>
-        <Association Name="TaskTypeTask">
-          <End Type="TaskTrackerModel.TaskType" Role="TaskType" Multiplicity="1" />
-          <End Type="TaskTrackerModel.Task" Role="Task" Multiplicity="*" />
-        </Association>
         <Association Name="UserTask">
           <End Type="TaskTrackerModel.User" Role="User" Multiplicity="1" />
           <End Type="TaskTrackerModel.Task" Role="Task" Multiplicity="*" />
@@ -279,6 +364,40 @@
           <Member Name="InProgress" Value="1" />
           <Member Name="Closed" Value="2" />
         </EnumType>
+        <EntityType Name="Stage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="StartTime" Type="DateTime" Nullable="true" />
+          <Property Name="EndTime" Type="DateTime" Nullable="true" />
+          <Property Name="Level" Type="Int32" Nullable="false" cg:SetterAccess="Private" />
+          <NavigationProperty Name="Task" Relationship="TaskTrackerModel.StageTask" FromRole="Stage" ToRole="Task" />
+          <Property Name="Description" Type="String" Nullable="true" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="SubStages" Relationship="TaskTrackerModel.StageStage" FromRole="Stage" ToRole="Stage1" />
+          <NavigationProperty Name="ParentStage" Relationship="TaskTrackerModel.StageStage" FromRole="Stage1" ToRole="Stage" />
+          </EntityType>
+        <Association Name="StageTask">
+          <End Type="TaskTrackerModel.Stage" Role="Stage" Multiplicity="*" />
+          <End Type="TaskTrackerModel.Task" Role="Task" Multiplicity="*" />
+        </Association>
+        <Association Name="StageStage">
+          <End Type="TaskTrackerModel.Stage" Role="Stage" Multiplicity="0..1" />
+          <End Type="TaskTrackerModel.Stage" Role="Stage1" Multiplicity="*" />
+        </Association>
+        <Association Name="TaskTaskType">
+          <End Type="TaskTrackerModel.Task" Role="Task" Multiplicity="*" />
+          <End Type="TaskTrackerModel.TaskType" Role="TaskType" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="TaskType">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Task">
+              <PropertyRef Name="TaskTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -294,6 +413,7 @@
           <ScalarProperty Name="Priority" ColumnName="Priority" />
           <ScalarProperty Name="Estimation" ColumnName="Estimation" />
           <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="TaskTypeId" ColumnName="TaskTypeId" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -332,6 +452,18 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="StageSet">
+      <EntityTypeMapping TypeName="IsTypeOf(TaskTrackerModel.Stage)">
+        <MappingFragment StoreEntitySet="StageSet">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+          <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+          <ScalarProperty Name="Level" ColumnName="Level" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <AssociationSetMapping Name="TaskProjects" TypeName="TaskTrackerModel.TaskProjects" StoreEntitySet="TaskSet">
       <EndProperty Name="Projects">
         <ScalarProperty Name="Id" ColumnName="Project_Id" />
@@ -356,14 +488,6 @@
         <ScalarProperty Name="Id" ColumnName="Id" />
       </EndProperty>
     </AssociationSetMapping>
-    <AssociationSetMapping Name="TaskTypeTask" TypeName="TaskTrackerModel.TaskTypeTask" StoreEntitySet="TaskSet">
-      <EndProperty Name="TaskType">
-        <ScalarProperty Name="Id" ColumnName="TaskType_Id" />
-      </EndProperty>
-      <EndProperty Name="Task">
-        <ScalarProperty Name="Id" ColumnName="Id" />
-      </EndProperty>
-    </AssociationSetMapping>
     <AssociationSetMapping Name="UserTask" TypeName="TaskTrackerModel.UserTask" StoreEntitySet="TaskSet">
       <EndProperty Name="User">
         <ScalarProperty Name="Id" ColumnName="Assignee_Id" />
@@ -379,6 +503,23 @@
       <EndProperty Name="Activity">
         <ScalarProperty Name="Id" ColumnName="Id" />
       </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="StageTask" TypeName="TaskTrackerModel.StageTask" StoreEntitySet="StageTask">
+      <EndProperty Name="Stage">
+        <ScalarProperty Name="Id" ColumnName="Stage_Id" />
+      </EndProperty>
+      <EndProperty Name="Task">
+        <ScalarProperty Name="Id" ColumnName="Task_Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="StageStage" TypeName="TaskTrackerModel.StageStage" StoreEntitySet="StageSet">
+      <EndProperty Name="Stage">
+        <ScalarProperty Name="Id" ColumnName="ParentStage_Id" />
+      </EndProperty>
+      <EndProperty Name="Stage1">
+        <ScalarProperty Name="Id" ColumnName="Id" />
+      </EndProperty>
+      <Condition ColumnName="ParentStage_Id" IsNull="false" />
     </AssociationSetMapping>
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
@@ -396,6 +537,7 @@
         <DesignerProperty Name="EnablePluralization" Value="False" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
         <DesignerProperty Name="UseLegacyProvider" Value="False" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
       </DesignerInfoPropertySet>
     </edmx:Options>
     <!-- Diagram content (shape and connector positions) -->

@@ -66,6 +66,9 @@
     <None Include="TaskTrackerModel.edmx.diagram">
       <DependentUpon>TaskTrackerModel.edmx</DependentUpon>
     </None>
+    <Content Include="TaskTrackerModel.edmx.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

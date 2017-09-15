@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 //using System.Threading.Tasks;
 
 using TaskTracker.Model;
 using TaskTracker.Repository;
+using TaskTracker.Utils;
 
 namespace TaskTracker
 {
-    public class TaskTrackerManager //: IDisposable
+    public class TaskTrackerManager
     {
         private IRepository repository;
 
-        /*void IDisposable.Dispose()
-        {
-            ctx.Dispose();
-            ctx = null;
-        }*/
-
-        public TaskTrackerManager(string connectionString) 
+        public TaskTrackerManager(string connectionString)
         {
             repository = new RepositoryFactory().CreateRepository(connectionString);
+        }
+
+        public TaskTrackerManager(IRepository repository)
+        {
+            this.repository = repository;
         }
 
         public void StartTaskProgress(int taskId)
@@ -39,9 +40,7 @@ namespace TaskTracker
                     StartTime = DateTime.Now
                 };
                 repo.Add(activity);
-
-                task.Status = Status.InProgress;
-                repo.Update(task);                
+                repo.SetTaskStatus(taskId, Status.InProgress);
             });
         }
 
@@ -57,14 +56,14 @@ namespace TaskTracker
 
                 DateTime now = DateTime.Now;
 
-                var activityDescription = (progressDescriptionProvider != null) ? progressDescriptionProvider.GetDescription(task) : "";
+                var activityDescription = (progressDescriptionProvider != null) ?
+                    progressDescriptionProvider.GetDescription(task) : "";
 
                 activity.Description = activityDescription;
                 activity.EndTime = now;
                 repo.Update(activity);
 
-                task.Status = Status.Open;
-                repo.Update(task);
+                repo.SetTaskStatus(taskId, Status.Open);
             });
         }
 
@@ -87,8 +86,7 @@ namespace TaskTracker
                     activity.EndTime = now;
                     repo.Update(activity);
 
-                    task.Status = Status.Closed;
-                    repo.Update(task);
+                    repo.SetTaskStatus(taskId, Status.Closed);
                 }
                 else if (task.Status == Status.Open)
                 {
@@ -104,9 +102,7 @@ namespace TaskTracker
                             repo.Add(activity);
                         }
                     }
-
-                    task.Status = Status.Closed;
-                    repo.Update(task);
+                    repo.SetTaskStatus(taskId, Status.Closed);
                 }
                 else
                 {
@@ -123,9 +119,20 @@ namespace TaskTracker
                 if ((task == null) || (task.Status != Status.Closed))
                     throw new InvalidOperationException();
 
-                task.Status = Status.Open;
-                repo.Update(task);
+                repo.SetTaskStatus(taskId, Status.Open);
             });
+        }
+
+        public void AddTaskToStage(Task task, Stage stage)
+        {
+            stage.Task.Add(task);
+            repository.AddTaskToStage(task.Id, stage.Id);
+        }
+
+        public void RemoveTaskFromStage(Task task, Stage stage)
+        {
+            stage.Task.Remove(task);
+            repository.RemoveTaskFromStage(task.Id, stage.Id);
         }
     }
 

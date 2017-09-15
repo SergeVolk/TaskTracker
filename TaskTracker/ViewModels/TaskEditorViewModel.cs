@@ -7,20 +7,8 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.ViewModels
 {
-    /*public interface ITaskEditViewModelProvider
+    public class TaskEditorViewModel : ViewModelBase
     {
-        TaskEditorViewModel GetViewModel(int taskId);
-    }*/
-
-    public class TaskEditorViewModel : INotifyPropertyChanged
-    {
-        private void Changed(string name)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(name));
-        }
-
         public string Summary { get; set; }
 
         public string Description { get; set; }
@@ -41,8 +29,6 @@ namespace TaskTracker.ViewModels
 
         public IEnumerable<string> Priorities { get; set; }
 
-        public IEnumerable<string> Assignees { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        public IEnumerable<string> Assignees { get; set; }        
     }
 }

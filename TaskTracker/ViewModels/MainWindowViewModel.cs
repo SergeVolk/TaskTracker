@@ -15,7 +15,7 @@ using TaskTracker.Utils;
 
 namespace TaskTracker.ViewModels
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : ViewModelBase
     {
         private IRepository repository;
         private Status defaultStatus;
@@ -24,8 +24,7 @@ namespace TaskTracker.ViewModels
         private TaskViewerViewModel selectedTask;
         private IEnumerable<TaskViewerViewModel> taskViewerViewModels;
         private ProjectFilterViewModel projectFilterVM;
-
-
+        
         public MainWindowViewModel(IUIService uiService)
         {
             this.uiService = uiService;
@@ -33,9 +32,9 @@ namespace TaskTracker.ViewModels
             repository = new RepositoryFactory().CreateRepository(App.DbConnectionString);
 
             defaultStatus = Status.Open;
-            defaultUser = repository.GetUsers().ToList().Find(u => u.Name == "Admin");
+            defaultUser = repository.GetUsers().First(u => u.Name == "Admin");
 
-            ProjectFilterVM = new ProjectFilterViewModel(repository.GetProjects().ToList().ConvertAll(p => new ProjectFilterItemViewModel(p)));
+            ProjectFilterVM = new ProjectFilterViewModel(repository.GetProjects().Convert(p => new ProjectFilterItemViewModel(p)));
             StatusFilterVM = new StatusFilterViewModel(
                 EnumUtils.ConvertValues<Status, StatusFilterItemViewModel>(s => new StatusFilterItemViewModel(s)));
             PriorityFilterVM = new PriorityFilterViewModel(
@@ -49,7 +48,9 @@ namespace TaskTracker.ViewModels
 
             CreateTaskCommand = new Command<object>(OnButtonCreateTaskClicked);
 
-            ShowAllTasksTaskCommand = new Command<object>(OnButtonAllTasksClicked);                       
+            ShowAllTasksTaskCommand = new Command<object>(OnButtonAllTasksClicked);
+
+            TaskStageEditorVM = new StageTasksEditorViewModel(repository);            
         }
 
         public void OnFilterItemChanged(object sender, int itemIndex, bool newSelectinoState)
@@ -84,6 +85,8 @@ namespace TaskTracker.ViewModels
                 }
             }
         }
+
+        public StageTasksEditorViewModel TaskStageEditorVM { get; private set; }        
                 
         public ICommand CreateTaskCommand { get; private set; }
 
@@ -100,15 +103,6 @@ namespace TaskTracker.ViewModels
                     QueryTasks();
                 }
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string name)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(name));
         }
 
         private void OnButtonCreateTaskClicked(object sender)
@@ -141,9 +135,9 @@ namespace TaskTracker.ViewModels
                     Description = taskCreationVM.Description,
                     Priority = priority,
                     Creator = defaultUser,
-                    Assignee = repository.GetUsers().ToList().Find(u => u.Name == taskCreationVM.SelectedAssignee),
-                    TaskType = repository.GetTaskTypes().ToList().Find(tt => tt.Name == taskCreationVM.SelectedTaskType),
-                    Project = repository.GetProjects().ToList().Find(p => p.Name == taskCreationVM.SelectedProject),
+                    Assignee = repository.GetUsers().First(u => u.Name == taskCreationVM.SelectedAssignee),
+                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name == taskCreationVM.SelectedTaskType).Id,
+                    Project = repository.GetProjects().First(p => p.Name == taskCreationVM.SelectedProject),
                     Estimation = estimation,
                     Status = defaultStatus
                 };

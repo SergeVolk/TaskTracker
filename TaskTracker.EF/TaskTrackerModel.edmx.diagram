@@ -13,9 +13,16 @@
         <EntityTypeShape EntityType="TaskTrackerModel.User" Width="1.5" PointX="5" PointY="4.25" />
         <AssociationConnector Association="TaskTrackerModel.TaskUser" />
         <EntityTypeShape EntityType="TaskTrackerModel.TaskType" Width="1.5" PointX="5.125" PointY="0.5" />
-        <AssociationConnector Association="TaskTrackerModel.TaskTypeTask" />
         <AssociationConnector Association="TaskTrackerModel.UserTask" />
         <AssociationConnector Association="TaskTrackerModel.ActivityUser" />
+        <EntityTypeShape EntityType="TaskTrackerModel.Stage" Width="1.5" PointX="8.75" PointY="4.5" IsExpanded="true" />
+        <AssociationConnector Association="TaskTrackerModel.StageTask" />
+        <AssociationConnector Association="TaskTrackerModel.StageStage" />
+        <AssociationConnector Association="TaskTrackerModel.TaskTaskType" ManuallyRouted="true" >
+          <ConnectorPoint PointX="2.625" PointY="1.75" />
+          <ConnectorPoint PointX="2.625" PointY="1.0653397160139768" />
+          <ConnectorPoint PointX="5.125" PointY="1.0653397160139768" />
+        </AssociationConnector>
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

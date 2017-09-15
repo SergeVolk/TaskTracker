@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,22 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using TaskTracker.Utils;
-using TaskTracker.ViewModels;
-using TaskTracker.Views;
-
 namespace TaskTracker.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for StageTasksEditor.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class StageTasksEditor : UserControl
     {
-        public MainWindow()
+        public StageTasksEditor()
         {
             InitializeComponent();
-
-            DataContext = new MainWindowViewModel(new UIService());
-        }        
+        }
     }
 }
