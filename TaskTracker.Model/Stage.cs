@@ -11,27 +11,47 @@ namespace TaskTracker.Model
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Linq;
+    using System.Runtime.Serialization;
+
+    [Serializable]
+    [DataContract(IsReference = true)]
     public partial class Stage
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Stage()
         {
-            this.Task = new HashSet<Task>();
-            this.SubStages = new HashSet<Stage>();
+            this.Task = new HashSet<Task>().ToList();
+            this.SubStages = new HashSet<Stage>().ToList();
         }
-    
+
+        [DataMember]
         public int Id { get; set; }
+
+        [DataMember]
         public Nullable<System.DateTime> StartTime { get; set; }
+
+        [DataMember]
         public Nullable<System.DateTime> EndTime { get; set; }
+
+        [DataMember]
         public int Level { get; private set; }
+
+        [DataMember]
         public string Description { get; set; }
+
+        [DataMember]
         public string Name { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Task> Task { get; set; }
+        [DataMember]
+        public virtual List<Task> Task { get; set; }
+
+        [DataMember]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Stage> SubStages { get; set; }
+        public virtual List<Stage> SubStages { get; set; }
+
+        [DataMember]
         public virtual Stage ParentStage { get; set; }
     }
 }

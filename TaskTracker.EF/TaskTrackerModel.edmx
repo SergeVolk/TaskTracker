@@ -249,7 +249,7 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="TaskTrackerModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
-        <EntityContainer Name="TaskTrackerModelContainer" annotation:LazyLoadingEnabled="true">
+        <EntityContainer Name="TaskTrackerModelContainer" annotation:LazyLoadingEnabled="true" cg:TypeAccess="Internal">
           <EntitySet Name="TaskSet" EntityType="TaskTrackerModel.Task" />
           <EntitySet Name="ActivitySet" EntityType="TaskTrackerModel.Activity" />
           <EntitySet Name="ProjectSet" EntityType="TaskTrackerModel.Project" />
@@ -305,7 +305,7 @@
           <Parameter Name="stageId" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="GetStagesWithMaxActivities" ReturnType="Collection(TaskTrackerModel.GetStagesWithMaxActivities_Result)">
-            <Parameter Name="stageLimit" Mode="In" Type="Int32" />
+          <Parameter Name="stageLimit" Mode="In" Type="Int32" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="Task">
@@ -559,7 +559,14 @@
     </AssociationSetMapping>
           <FunctionImportMapping FunctionImportName="GetOpenTasksOfProject" FunctionName="TaskTrackerModel.Store.GetOpenTasksOfProject" />
           <FunctionImportMapping FunctionImportName="GetOpenTasksOfUser" FunctionName="TaskTrackerModel.Store.GetOpenTasksOfUser" />
-          <FunctionImportMapping FunctionImportName="SetTaskStatus" FunctionName="TaskTrackerModel.Store.SetTaskStatus" />
+          <FunctionImportMapping FunctionImportName="GetStagesWithMaxActivities" FunctionName="TaskTrackerModel.Store.GetStagesWithMaxActivities">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TaskTrackerModel.GetStagesWithMaxActivities_Result">
+                <ScalarProperty Name="StageId" ColumnName="StageId" />
+                <ScalarProperty Name="ActivityCount" ColumnName="ActivityCount" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="GetStagesWithMaxTasks" FunctionName="TaskTrackerModel.Store.GetStagesWithMaxTasks">
             <ResultMapping>
               <ComplexTypeMapping TypeName="TaskTrackerModel.GetStagesWithMaxTasks_Result">
@@ -569,14 +576,7 @@
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="GetTotalActivitiesTimeOfStage" FunctionName="TaskTrackerModel.Store.GetTotalActivitiesTimeOfStage" />
-          <FunctionImportMapping FunctionImportName="GetStagesWithMaxActivities" FunctionName="TaskTrackerModel.Store.GetStagesWithMaxActivities">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="TaskTrackerModel.GetStagesWithMaxActivities_Result">
-                <ScalarProperty Name="StageId" ColumnName="StageId" />
-                <ScalarProperty Name="ActivityCount" ColumnName="ActivityCount" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="SetTaskStatus" FunctionName="TaskTrackerModel.Store.SetTaskStatus" />
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
   </edmx:Runtime>
