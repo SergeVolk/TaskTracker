@@ -11,25 +11,37 @@ namespace TaskTracker.Model
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Linq;
+    using System.Runtime.Serialization;
+
+    [Serializable]
+    [DataContract(IsReference = true)]
     public partial class User
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
-            this.CreatedTask = new HashSet<Task>();
-            this.Task = new HashSet<Task>();
-            this.Activity = new HashSet<Activity>();
+            this.CreatedTask = new HashSet<Task>().ToList();
+            this.Task = new HashSet<Task>().ToList();
+            this.Activity = new HashSet<Activity>().ToList();
         }
-    
+
+        [DataMember]
         public int Id { get; set; }
+
+        [DataMember]
         public string Name { get; set; }
-    
+
+        [DataMember]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Task> CreatedTask { get; set; }
+        public virtual List<Task> CreatedTask { get; set; }
+
+        [DataMember]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Task> Task { get; set; }
+        public virtual List<Task> Task { get; set; }
+        
+        [DataMember]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Activity> Activity { get; set; }
+        public virtual List<Activity> Activity { get; set; }
     }
 }

@@ -10,10 +10,16 @@
 namespace TaskTracker.Model
 {
     using System;
-    
+    using System.Runtime.Serialization;
+
+    [Serializable]
+    [DataContract]
     public partial class GetStagesWithMaxActivities_Result
     {
+        [DataMember]
         public Nullable<int> StageId { get; set; }
+
+        [DataMember]
         public Nullable<int> ActivityCount { get; set; }
     }
 }

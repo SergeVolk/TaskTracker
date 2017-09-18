@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="TaskTracker.Client.WPF.Views.TotalActivitiesTimeOfStageReport"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TaskTracker.Client.WPF.Views"
+             mc:Ignorable="d">
+    <Grid x:Name="gridLayout" Margin="10">
+        <TextBox x:Name="tbxStageId" Text="{Binding StageId, Mode=TwoWay}" HorizontalAlignment="Left" Height="23" Margin="92,0,0,0" 
+                                 TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="label" Content="Input Stage Id:" HorizontalAlignment="Left" Margin="0,-3,0,0" VerticalAlignment="Top"/>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="234,2,0,0" TextWrapping="Wrap" VerticalAlignment="Top">
+            <Run Text="Total time on this stage (logged via &quot;Activities&quot;) is "/>
+            <InlineUIContainer>
+                <TextBlock Text="{Binding TotalStageTime}"/>
+            </InlineUIContainer>
+            <Run Text=" minutes"/>
+        </TextBlock>
+    </Grid>
+</UserControl>

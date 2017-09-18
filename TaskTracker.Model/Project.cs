@@ -11,20 +11,30 @@ namespace TaskTracker.Model
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Linq;
+    using System.Runtime.Serialization;
+
+    [Serializable]
+    [DataContract(IsReference = true)]
     public partial class Project
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Project()
         {
-            this.Task = new HashSet<Task>();
+            this.Task = new HashSet<Task>().ToList();
         }
-    
+
+        [DataMember]
         public int Id { get; set; }
+
+        [DataMember]
         public string Name { get; set; }
+
+        [DataMember]
         public string ShortName { get; set; }
-    
+
+        [DataMember]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Task> Task { get; set; }
+        public virtual List<Task> Task { get; set; }
     }
 }
