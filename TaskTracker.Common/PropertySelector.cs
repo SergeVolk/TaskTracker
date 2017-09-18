@@ -4,23 +4,22 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace TaskTracker.Common
 {   
     [Serializable]
     [DataContract]
-    public class SelectedProperties<T>
+    public class PropertySelector<T>
     {
         [DataMember]
         private List<string> properties;
 
-        public SelectedProperties()
+        public PropertySelector()
         {
             properties = new List<string>();
         }
-
-        public SelectedProperties<T> Select(string propertyPath)
+                
+        public PropertySelector<T> Select(string propertyPath)
         {
             Type parent = typeof(T);            
 
@@ -42,7 +41,7 @@ namespace TaskTracker.Common
             return this;
         }
 
-        public SelectedProperties<T> Select<TProperty>(Expression<Func<T, TProperty>> property)
+        public PropertySelector<T> Select<TProperty>(Expression<Func<T, TProperty>> property)
         {
             var member = property.Body as MemberExpression;
             if (member == null || member.Member.MemberType != MemberTypes.Property)

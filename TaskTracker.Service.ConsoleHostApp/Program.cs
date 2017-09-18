@@ -46,7 +46,7 @@ namespace TaskTracker.Service.ConsoleHostApp
 
         public object GetInstance(InstanceContext instanceContext, Message message)
         {            
-            return new TaskTrackerService(new SqlRepositoryFactory().CreateRepository(dbConnectionString));            
+            return new TaskTrackerService(new SqlRepositoryFactory(false).CreateRepository(dbConnectionString));            
         }
 
         public void ReleaseInstance(InstanceContext instanceContext, object instance)

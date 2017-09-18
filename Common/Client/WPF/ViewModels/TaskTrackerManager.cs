@@ -21,7 +21,7 @@ namespace TaskTracker.Client.WPF.ViewModels
         {
             repository.GroupOperations(repo =>
             {
-                var task = repo.FindTask(taskId, new SelectedProperties<Task>().Select(t => t.Assignee));
+                var task = repo.FindTask(taskId, new PropertySelector<Task>().Select(t => t.Assignee));
                 if ((task == null) || (task.Status != Status.Open))
                     throw new InvalidOperationException();
 
@@ -40,7 +40,7 @@ namespace TaskTracker.Client.WPF.ViewModels
         {
             repository.GroupOperations(repo =>
             {
-                var task = repo.FindTask(taskId, new SelectedProperties<Task>().Select(t => t.Activity));
+                var task = repo.FindTask(taskId, new PropertySelector<Task>().Select(t => t.Activity));
                 if ((task == null) || (task.Status != Status.InProgress))
                     throw new InvalidOperationException();
 
@@ -63,7 +63,7 @@ namespace TaskTracker.Client.WPF.ViewModels
         {
             repository.GroupOperations(repo =>
             {
-                var task = repo.FindTask(taskId, new SelectedProperties<Task>().Select(t => t.Activity).Select(t => t.Assignee));
+                var task = repo.FindTask(taskId, new PropertySelector<Task>().Select(t => t.Activity).Select(t => t.Assignee));
                 if ((task == null) || (task.Status == Status.Closed))
                     throw new InvalidOperationException();
 

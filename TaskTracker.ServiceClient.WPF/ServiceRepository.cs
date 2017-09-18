@@ -42,12 +42,12 @@ namespace TaskTracker.ServiceClient.WPF
             service.AddTaskToStage(taskId, stageId);
         }
 
-        public Stage FindStage(int stageId, SelectedProperties<Stage> propertiesToInclude = null)
+        public Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null)
         {
             return service.FindStage(stageId, propertiesToInclude);
         }
 
-        public Task FindTask(int taskId, SelectedProperties<Task> propertiesToInclude = null)
+        public Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null)
         {
             return service.FindTask(taskId, propertiesToInclude);
         }
@@ -57,38 +57,37 @@ namespace TaskTracker.ServiceClient.WPF
             return service.FindTaskType(taskTypeId);
         }
 
-        public IEnumerable<Task> GetOpenTasksOfProject(int projectId, SelectedProperties<Task> propertiesToInclude = null)
+        public IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null)
         {
             return service.GetOpenTasksOfProject(projectId, propertiesToInclude);
         }
 
-        public IEnumerable<Task> GetOpenTasksOfUser(int userId, SelectedProperties<Task> propertiesToInclude = null)
+        public IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null)
         {
             return service.GetOpenTasksOfUser(userId, propertiesToInclude);
         }
 
-        public IEnumerable<Project> GetProjects(SelectedProperties<Project> propertiesToInclude = null)
+        public IEnumerable<Project> GetProjects(PropertySelector<Project> propertiesToInclude = null)
         {
             return service.GetProjects(propertiesToInclude);
         }
 
-        public IEnumerable<Stage> GetStages(int level, SelectedProperties<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
+        public IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
         {
             return service.GetStages(level, propertiesToInclude, applySelectionToEntireGraph);
         }
 
-        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null)
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             return service.GetStagesWithMaxActivities(stageLimit, propertiesToInclude);
         }
 
-        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null)
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {         
             return service.GetStagesWithMaxTasks(stageLimit, propertiesToInclude);
         }
 
-
-        public IEnumerable<Task> GetTasks(TaskFilter filter = null, SelectedProperties<Task> sel = null)
+        public IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null)
         {
             return service.GetTasks(filter, sel);
         }
@@ -103,7 +102,7 @@ namespace TaskTracker.ServiceClient.WPF
             return service.GetTotalActivityTimeOfStage(stageId);
         }
 
-        public IEnumerable<User> GetUsers(SelectedProperties<User> propertiesToInclude = null)
+        public IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null)
         {
             return service.GetUsers(propertiesToInclude);
         }

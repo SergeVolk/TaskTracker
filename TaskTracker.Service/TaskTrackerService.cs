@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using System.Threading;
+
 using TaskTracker.Common;
 using TaskTracker.Model;
 using TaskTracker.Repository;
@@ -81,12 +76,12 @@ namespace TaskTracker.Service
             repository.AddTaskToStage(taskId, stageId);
         }
 
-        public Stage FindStage(int stageId, SelectedProperties<Stage> propertiesToInclude = null)
+        public Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null)
         {
             return repository.FindStage(stageId, propertiesToInclude);
         }
 
-        public Task FindTask(int taskId, SelectedProperties<Task> propertiesToInclude = null)
+        public Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null)
         {
             return repository.FindTask(taskId, propertiesToInclude);
         }
@@ -96,37 +91,37 @@ namespace TaskTracker.Service
             return repository.FindTaskType(taskTypeId);
         }
 
-        public IEnumerable<Task> GetOpenTasksOfProject(int projectId, SelectedProperties<Task> propertiesToInclude = null)
+        public IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null)
         {
             return repository.GetOpenTasksOfProject(projectId, propertiesToInclude);
         }
 
-        public IEnumerable<Task> GetOpenTasksOfUser(int userId, SelectedProperties<Task> propertiesToInclude = null)
+        public IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null)
         {
             return repository.GetOpenTasksOfUser(userId, propertiesToInclude);
         }
 
-        public IEnumerable<Project> GetProjects(SelectedProperties<Project> propertiesToInclude = null)
+        public IEnumerable<Project> GetProjects(PropertySelector<Project> propertiesToInclude = null)
         {
             return repository.GetProjects(propertiesToInclude);
         }
 
-        public IEnumerable<Stage> GetStages(int level, SelectedProperties<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
+        public IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
         {
             return repository.GetStages(level, propertiesToInclude, applySelectionToEntireGraph);
         }
 
-        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null)
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             return repository.GetStagesWithMaxActivities(stageLimit, propertiesToInclude);
         }
 
-        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null)
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             return repository.GetStagesWithMaxTasks(stageLimit, propertiesToInclude);
         }        
 
-        public IEnumerable<Task> GetTasks(TaskFilter filter = null, SelectedProperties<Task> sel = null)
+        public IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null)
         {
             return repository.GetTasks(filter, sel);
         }
@@ -141,7 +136,7 @@ namespace TaskTracker.Service
             return repository.GetTotalActivityTimeOfStage(stageId);
         }
 
-        public IEnumerable<User> GetUsers(SelectedProperties<User> propertiesToInclude = null)
+        public IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null)
         {
             return repository.GetUsers(propertiesToInclude);            
         }        
@@ -153,6 +148,7 @@ namespace TaskTracker.Service
 
         public void EndGroupOperation(Guid operationId)
         {            
+            // empty
         }
 
         public void Dispose()

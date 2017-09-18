@@ -171,7 +171,7 @@ namespace TaskTracker.Client.WPF.ViewModels
                 taskFilter.Priorities = new List<string>(selectedPriorities);
                 
                 var tasks = op.GetTasks(taskFilter, 
-                    new SelectedProperties<Task>().
+                  new PropertySelector<Task>().
                         Select(t => t.Project).
                         Select(t => t.Assignee).
                         Select(t => t.Creator).

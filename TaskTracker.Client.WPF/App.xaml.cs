@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+
 using TaskTracker.Client.WPF.ViewModels;
 using TaskTracker.Client.WPF.Views;
 using TaskTracker.Repository.Sql;
@@ -21,7 +18,7 @@ namespace TaskTracker.Client.WPF
 
             var mainWindowVM = new MainWindowViewModel(
                 new UIService(), 
-                new SqlRepositoryFactory().CreateRepository(dbConnectionString));
+                new SqlRepositoryFactory(true).CreateRepository(dbConnectionString));
             var mainWindow = new MainWindow { DataContext = mainWindowVM };
             mainWindow.Show();
         }        

@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Core.EntityClient;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Infrastructure;
-using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using TaskTracker.Common;
-//using System.Threading.Tasks;
 
+using TaskTracker.Common;
 using TaskTracker.Model;
-using TaskTracker.Repository;
 
 // Workaround: otherwise "EntityFramework.SqlServer.dll" is not copyied to client-app's "bin" along with "Repository.dll"
 using SqlProviderServices = System.Data.Entity.SqlServer.SqlProviderServices;
@@ -22,31 +17,38 @@ namespace TaskTracker.Repository.Sql
 {
     public class SqlRepositoryFactory : RepositoryFactory
     {
+        private bool proxyCreationEnabled;
+
+        public SqlRepositoryFactory(bool proxyCreationEnabled)
+        {
+            this.proxyCreationEnabled = proxyCreationEnabled;
+        }
+
         public override IRepository CreateRepository(string connectionString)
         {
-            return new SqlRepository(connectionString);
+            return new SqlRepository(connectionString, proxyCreationEnabled);
         }
     }
+
     internal partial class TaskTrackerModelContainer : DbContext
     {
         public TaskTrackerModelContainer(string connectionString) : base(connectionString)
-        {
-        }
+        { }
     }
 
     internal static class ConnectionStringManager
     {
-        private static readonly string EFDir = @"d:\Projects\sv-soft\Projects\TaskTracker\TaskTracker.EF";
-
-        public static string EmdAwareConnectionString(string srcConnectionString)
+        public static string GetEmdAwareConnectionString(string srcConnectionString)
         {
             EntityConnectionStringBuilder entityBuilder = new EntityConnectionStringBuilder();
 
+            var entityFrameworkDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDi‌​rectory, @"..\..\..\TaskTracker.EF"));
+
             entityBuilder.Provider = "System.Data.SqlClient"; 
             entityBuilder.ProviderConnectionString = srcConnectionString;
-            entityBuilder.Metadata = $@"{EFDir}\TaskTrackerModel.csdl|" + 
-                                     $@"{EFDir}\TaskTrackerModel.ssdl|" +
-                                     $@"{EFDir}\TaskTrackerModel.msl";
+            entityBuilder.Metadata = $@"{entityFrameworkDir}\TaskTrackerModel.csdl|" + 
+                                     $@"{entityFrameworkDir}\TaskTrackerModel.ssdl|" +
+                                     $@"{entityFrameworkDir}\TaskTrackerModel.msl";
             return entityBuilder.ToString();            
         }
     }    
@@ -60,7 +62,7 @@ namespace TaskTracker.Repository.Sql
                 return new PropertySelectionQueryBuilder<T>(items);
             }
 
-            public static IQueryable<T> Select<T>(IQueryable<T> originalQuery, SelectedProperties<T> propertiesToInclude)
+            public static IQueryable<T> Select<T>(IQueryable<T> originalQuery, PropertySelector<T> propertiesToInclude)
             {
                 return PropertySelectionQueryBuilder<T>.Select(originalQuery, propertiesToInclude);                
             }
@@ -83,7 +85,7 @@ namespace TaskTracker.Repository.Sql
 
             public IQueryable<T> CurrentQuery { get; private set; }
 
-            public static IQueryable<T> Select(IQueryable<T> originalQuery, SelectedProperties<T> propertiesToInclude)
+            public static IQueryable<T> Select(IQueryable<T> originalQuery, PropertySelector<T> propertiesToInclude)
             {
                 var propertySelector = new PropertySelectionQueryBuilder<T>(originalQuery);
                 foreach (var item in propertiesToInclude.GetProperties())
@@ -94,6 +96,9 @@ namespace TaskTracker.Repository.Sql
             }
         }
 
+        private static readonly string DefaultReporter = "Admin";
+        private static readonly string DefaultAssignee = "Serge";
+
         private delegate void ContextOperation(TaskTrackerModelContainer context);
         private delegate TResult ContextOperation<TResult>(TaskTrackerModelContainer context);
 
@@ -103,23 +108,25 @@ namespace TaskTracker.Repository.Sql
 
         private string connectionString;
         private TaskTrackerModelContainer context;
+        private bool proxyCreationEnabled;
 
         private SqlRepository(TaskTrackerModelContainer context)
         {
             this.context = context;            
         }
 
-        public SqlRepository(string connectionString)
+        public SqlRepository(string connectionString, bool proxyCreationEnabled)
         {
             this.connectionString = connectionString;
+            this.proxyCreationEnabled = proxyCreationEnabled;
             Init(connectionString);
         }
 
-        public IEnumerable<Project> GetProjects(SelectedProperties<Project> propertiesToInclude = null)
+        public IEnumerable<Project> GetProjects(PropertySelector<Project> propertiesToInclude = null)
         {
             return DoContextOperations(ctx =>
             {
-                ctx.Configuration.ProxyCreationEnabled = false;
+                ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
 
                 IQueryable<Project> projects = ctx.ProjectSet;
 
@@ -130,11 +137,11 @@ namespace TaskTracker.Repository.Sql
             });
         }
 
-        public IEnumerable<User> GetUsers(SelectedProperties<User> propertiesToInclude = null)
+        public IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null)
         {
             return DoContextOperations(ctx =>
             {
-                ctx.Configuration.ProxyCreationEnabled = false;
+                ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
 
                 IQueryable<User> users = ctx.UserSet;
 
@@ -150,17 +157,17 @@ namespace TaskTracker.Repository.Sql
             return DoContextOperations(ctx => ctx.TaskTypeSet.ToList());
         }
 
-        public IEnumerable<Task> GetOpenTasksOfUser(int userId, SelectedProperties<Task> propertiesToInclude = null)
+        public IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null)
         {
             return DoContextOperations(ctx => ctx.GetOpenTasksOfUser(userId));            
         }
 
-        public IEnumerable<Task> GetOpenTasksOfProject(int projectId, SelectedProperties<Task> propertiesToInclude = null)
+        public IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null)
         {
             return DoContextOperations(ctx => ctx.GetOpenTasksOfProject(projectId));
         }
         
-        public IEnumerable<Task> GetTasks(TaskFilter filter = null, SelectedProperties<Task> sel = null)
+        public IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null)
         {
             return DoContextOperations(ctx =>
             {
@@ -190,7 +197,7 @@ namespace TaskTracker.Repository.Sql
             });
         }
 
-        public IEnumerable<Stage> GetStages(int level, SelectedProperties<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
+        public IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
         {
             return DoContextOperations(ctx =>
             {
@@ -198,7 +205,7 @@ namespace TaskTracker.Repository.Sql
             });
         }
 
-        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null)
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             return DoContextOperations(ctx =>
             {
@@ -214,7 +221,7 @@ namespace TaskTracker.Repository.Sql
             });
         }
 
-        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null)
+        public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             return DoContextOperations(ctx =>
             {
@@ -239,12 +246,12 @@ namespace TaskTracker.Repository.Sql
             });
         }
 
-        public Task FindTask(int taskId, SelectedProperties<Task> propertiesToInclude = null)
+        public Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null)
         {
             return DoContextOperations(ctx => GetTasks(t => t.Id == taskId, propertiesToInclude, ctx).First());
         }
 
-        public Stage FindStage(int stageId, SelectedProperties<Stage> propertiesToInclude = null)
+        public Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null)
         {
             return DoContextOperations(ctx => GetStages(s => s.Id == stageId, propertiesToInclude, true, ctx).First());
         }
@@ -309,7 +316,7 @@ namespace TaskTracker.Repository.Sql
 
         private static TaskTrackerModelContainer CreateContext(string connectionString)
         {
-            return new TaskTrackerModelContainer(ConnectionStringManager.EmdAwareConnectionString(connectionString));
+            return new TaskTrackerModelContainer(ConnectionStringManager.GetEmdAwareConnectionString(connectionString));
         }
 
         private void DoContextOperations(ContextOperation operations)
@@ -348,10 +355,10 @@ namespace TaskTracker.Repository.Sql
             return taskTypeCondition != null ? tts.Where(taskTypeCondition) : tts;
         }
 
-        private IQueryable<Task> GetTasks(Expression<Func<Task, bool>> taskCondition,
-            SelectedProperties<Task> propertiesToInclude, TaskTrackerModelContainer ctx)
+        private IQueryable<Task> GetTasks(Expression<Func<Task, bool>> taskCondition, 
+            PropertySelector<Task> propertiesToInclude, TaskTrackerModelContainer ctx)
         {            
-            ctx.Configuration.ProxyCreationEnabled = false;
+            ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
 
             IQueryable<Task> taskQuery = ctx.TaskSet;
             if (taskCondition != null)
@@ -365,9 +372,9 @@ namespace TaskTracker.Repository.Sql
             return taskQuery;
         }
 
-        private IQueryable<Task> GetTasks(IQueryable<Task> tasks, SelectedProperties<Task> propertiesToInclude, TaskTrackerModelContainer ctx)
+        private IQueryable<Task> GetTasks(IQueryable<Task> tasks, PropertySelector<Task> propertiesToInclude, TaskTrackerModelContainer ctx)
         {
-            ctx.Configuration.ProxyCreationEnabled = false;
+            ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
             
             if (propertiesToInclude != null)
                 tasks = PropertySelectionQueryBuilder<Task>.Select(tasks, propertiesToInclude);
@@ -378,9 +385,9 @@ namespace TaskTracker.Repository.Sql
         }
         
         private IQueryable<Stage> GetStages(Expression<Func<Stage, bool>> stageCondition,
-            SelectedProperties<Stage> propertiesToInclude, bool applySelectionToEntireGraph, TaskTrackerModelContainer ctx)
+            PropertySelector<Stage> propertiesToInclude, bool applySelectionToEntireGraph, TaskTrackerModelContainer ctx)
         {
-            ctx.Configuration.ProxyCreationEnabled = false;
+            ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
 
             IQueryable<Stage> stages = ctx.StageSet;             
             
@@ -390,7 +397,7 @@ namespace TaskTracker.Repository.Sql
 
                 if (applySelectionToEntireGraph)
                 {
-                    var requiredProps = new SelectedProperties<Stage>().
+                    var requiredProps = new PropertySelector<Stage>().
                         Select(s => s.SubStages).
                         Select(s => s.ParentStage);
                     stages = PropertySelectionQueryBuilder.Select(stages, requiredProps);                    
@@ -399,9 +406,7 @@ namespace TaskTracker.Repository.Sql
             }
 
             if (stageCondition != null)
-            {
-                stages = stages.Where(stageCondition);
-            }            
+                stages = stages.Where(stageCondition);            
 
             return stages;
         }
@@ -523,15 +528,15 @@ namespace TaskTracker.Repository.Sql
             //ctx.SaveChanges();
         }*/
 
-        private static void AddTask(string summary, string desc, string prio, string assignee, string tt, string project, double? estimation,
-          TaskTrackerModelContainer ctx)
+        private static void AddTask(string summary, string desc, string prio, string assignee, string reporter, string tt, string project, 
+            double? estimation, TaskTrackerModelContainer ctx)
         {
             var task = new Task()
             {
                 Summary = summary,
                 Description = desc,
                 Priority = (Priority)Enum.Parse(typeof(Priority), prio),
-                Creator = ctx.UserSet.FirstOrDefault(u => u.Name == "Admin"),
+                Creator = ctx.UserSet.FirstOrDefault(u => u.Name == reporter), 
                 Assignee = ctx.UserSet.FirstOrDefault(u => u.Name == assignee),
                 TaskTypeId = ctx.TaskTypeSet.FirstOrDefault(ttype => ttype.Name == tt).Id,
                 Project = ctx.ProjectSet.FirstOrDefault(p => p.Name == project),
@@ -547,12 +552,12 @@ namespace TaskTracker.Repository.Sql
             if (ctx.TaskSet.Count() != 0)
                 return;
 
-            AddTask("DO 1", "Do 1.1 ... do 1.2", "Normal", "Serge", "Accomplishable", "Project 1", 12, ctx);
-            AddTask("DO 2", "Do 2.1 ... do 2.2", "High", "Admin", "Continuous", "Project 2", 1, ctx);
-            AddTask("DO 3", "Do 3.1 ... do 3.2", "Low", "Serge", "Accomplishable", "Project 3", 120, ctx);
-            AddTask("DO 4", "Do 4.1 ... do 4.2", "High", "Serge", "Accomplishable", "Project 1", null, ctx);
-            AddTask("DO 5", "Do 5.1 ... do 5.2", "High", "Serge", "Accomplishable", "Project 1", 1, ctx);
-            AddTask("DO 6", "Do 6.1 ... do 6.2", "Normal", "Serge", "Accomplishable", "Project 2", 1, ctx);
+            AddTask("DO 1", "Do 1.1 ... do 1.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 12,   ctx);
+            AddTask("DO 2", "Do 2.1 ... do 2.2", "High",   DefaultReporter, DefaultReporter, "Continuous",     "Project 2", 1,    ctx);
+            AddTask("DO 3", "Do 3.1 ... do 3.2", "Low",    DefaultAssignee, DefaultReporter, "Accomplishable", "Project 3", 120,  ctx);
+            AddTask("DO 4", "Do 4.1 ... do 4.2", "High",   DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", null, ctx);
+            AddTask("DO 5", "Do 5.1 ... do 5.2", "High",   DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 1,    ctx);
+            AddTask("DO 6", "Do 6.1 ... do 6.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 2", 1,    ctx);
 
             ctx.SaveChanges();
         }
@@ -588,16 +593,16 @@ namespace TaskTracker.Repository.Sql
         {
             if (ctx.UserSet.Count() == 0)
             {
-                defaultUser = new User { Name = "Admin" };
+                defaultUser = new User { Name = DefaultReporter };
                 var users = new List<User>()
                 {
                     defaultUser,
-                    new User() { Name = "Serge" }
+                    new User() { Name = DefaultAssignee }
                 };
                 ctx.UserSet.AddRange(users);
                 ctx.SaveChanges();
             }
-            defaultUser = ctx.UserSet.Where(u => u.Name == "Admin").FirstOrDefault(); 
+            defaultUser = ctx.UserSet.Where(u => u.Name == DefaultReporter).FirstOrDefault(); 
         }
 
         private static void EnsureTaskTypesGenerated(TaskTrackerModelContainer ctx)
@@ -677,18 +682,4 @@ namespace TaskTracker.Repository.Sql
             }            
         }
     }
-
-    internal class TaskComparer : IEqualityComparer<Task>
-    {
-        public bool Equals(Task x, Task y)
-        {
-            return x.Id == y.Id;
-        }
-
-        public int GetHashCode(Task obj)
-        {
-            return obj.GetHashCode();
-        }
-    }
-
 }
