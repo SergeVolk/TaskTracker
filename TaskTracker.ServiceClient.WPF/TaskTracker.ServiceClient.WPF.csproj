@@ -115,57 +115,57 @@
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\GenericControls\CheckableComboBox.xaml.cs">
       <Link>Views\GenericControls\CheckableComboBox.xaml.cs</Link>
-	  <DependentUpon>CheckableComboBox.xaml</DependentUpon>
+      <DependentUpon>CheckableComboBox.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\GenericControls\InputBox.xaml.cs">
       <Link>Views\GenericControls\InputBox.xaml.cs</Link>
-	  <DependentUpon>InputBox.xaml</DependentUpon>
+      <DependentUpon>InputBox.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\MainWindow.xaml.cs">
       <Link>Views\MainWindow.xaml.cs</Link>
-	  <DependentUpon>MainWindow.xaml</DependentUpon>
+      <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\Reports\MaxActivitiesStageReport.xaml.cs">
       <Link>Views\Reports\MaxActivitiesStageReport.xaml.cs</Link>
-	  <DependentUpon>MaxActivitiesStageReport.xaml</DependentUpon>
+      <DependentUpon>MaxActivitiesStageReport.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\Reports\MaxTasksStagesReport.xaml.cs">
       <Link>Views\Reports\MaxTasksStagesReport.xaml.cs</Link>
-	  <DependentUpon>MaxTasksStagesReport.xaml</DependentUpon>
+      <DependentUpon>MaxTasksStagesReport.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\Reports\TotalActivitiesTimeOfStageReport.xaml.cs">
       <Link>Views\Reports\TotalActivitiesTimeOfStageReport.xaml.cs</Link>
-	  <DependentUpon>TotalActivitiesTimeOfStageReport.xaml</DependentUpon>
+      <DependentUpon>TotalActivitiesTimeOfStageReport.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\StageTasksEditor.xaml.cs">
       <Link>Views\StageTasksEditor.xaml.cs</Link>
-	  <DependentUpon>StageTasksEditor.xaml</DependentUpon>
+      <DependentUpon>StageTasksEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\TaskCreationWindow.xaml.cs">
       <Link>Views\TaskCreationWindow.xaml.cs</Link>
-	  <DependentUpon>TaskCreationWindow.xaml</DependentUpon>
+      <DependentUpon>TaskCreationWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\TaskEditor.xaml.cs">
       <Link>Views\TaskEditor.xaml.cs</Link>
-	  <DependentUpon>TaskEditor.xaml</DependentUpon>
+      <DependentUpon>TaskEditor.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\TaskEditorWindow.xaml.cs">
       <Link>Views\TaskEditorWindow.xaml.cs</Link>
-	  <DependentUpon>TaskEditorWindow.xaml</DependentUpon>
+      <DependentUpon>TaskEditorWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\TaskViewer.xaml.cs">
       <Link>Views\TaskViewer.xaml.cs</Link>
-	  <DependentUpon>TaskViewer.xaml</DependentUpon>
+      <DependentUpon>TaskViewer.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\UIService.cs">

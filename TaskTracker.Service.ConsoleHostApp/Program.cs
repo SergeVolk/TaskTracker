@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
-using System.Text;
 
 using TaskTracker.Repository.Sql;
 
@@ -20,8 +17,8 @@ namespace TaskTracker.Service.ConsoleHostApp
             using (var host = new TaskTrackerServiceHost(typeof(TaskTrackerService)))
             {
                 host.Open();
-                Console.WriteLine("TaskTracker service is open.");
-                Console.WriteLine("<Press Enter to close>");
+                Console.WriteLine("TaskTracker service is running.");
+                Console.WriteLine("<Press Enter to stop>");
                 Console.ReadLine();
             }
         }
@@ -29,17 +26,17 @@ namespace TaskTracker.Service.ConsoleHostApp
 
     public class DependencyInjectionInstanceProvider : IInstanceProvider
     {
-        private Type _serviceType;
-        private static string DbConnectionString;
+        private Type serviceType;
+        private static string dbConnectionString;
 
         static DependencyInjectionInstanceProvider()
         {
-            DbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerModelContainer"].ConnectionString;
+            dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerModelContainer"].ConnectionString;
         }
 
         public DependencyInjectionInstanceProvider(Type serviceType)
         {
-            _serviceType = serviceType;
+            this.serviceType = serviceType;
         }
 
         public object GetInstance(InstanceContext instanceContext)
@@ -49,10 +46,11 @@ namespace TaskTracker.Service.ConsoleHostApp
 
         public object GetInstance(InstanceContext instanceContext, Message message)
         {            
-            return new TaskTrackerService(new SqlRepositoryFactory().CreateRepository(DbConnectionString));            
+            return new TaskTrackerService(new SqlRepositoryFactory().CreateRepository(dbConnectionString));            
         }
 
-        public void ReleaseInstance(InstanceContext instanceContext, object instance) { }
+        public void ReleaseInstance(InstanceContext instanceContext, object instance)
+        { }
     }
 
     public class DependencyInjectionServiceBehavior : IServiceBehavior
@@ -76,12 +74,14 @@ namespace TaskTracker.Service.ConsoleHostApp
         public void AddBindingParameters(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase,
                 Collection<ServiceEndpoint> endpoints, BindingParameterCollection bindingParameters)
         { }
+
         public void Validate(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase) { }
     }
 
     public class TaskTrackerServiceHost : ServiceHost
     {
-        public TaskTrackerServiceHost(Type serviceType, params Uri[] baseAddresses) : base(serviceType, baseAddresses) { }
+        public TaskTrackerServiceHost(Type serviceType, params Uri[] baseAddresses) : base(serviceType, baseAddresses)
+        { }
 
         protected override void OnOpening()
         {
