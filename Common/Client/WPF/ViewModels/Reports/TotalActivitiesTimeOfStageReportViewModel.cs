@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
+
+using TaskTracker.Common;
+using TaskTracker.Model;
 using TaskTracker.Repository;
 
 namespace TaskTracker.Client.WPF.ViewModels
@@ -11,32 +11,52 @@ namespace TaskTracker.Client.WPF.ViewModels
     public class TotalActivitiesTimeOfStageReportViewModel : ReportViewModelBase
     {
         private double totalStageTime;
+        private StageTreeViewModel selectedStage;
 
         public TotalActivitiesTimeOfStageReportViewModel(IRepository repository) : base(repository)
-        {}
-
-        public int StageId { get; set; }
-
+        {
+            StageSelectedCommand = new Command<object>(OnStageSelected);
+        }
+                
         public double TotalStageTime
         {
             get
             {
                 return totalStageTime;
             }
-
-            private set
+            private set { SetProperty(ref totalStageTime, value, nameof(TotalStageTime)); }
+        }
+        
+        public object TopLevelStages
+        {
+            get
             {
-                if (totalStageTime != value)
-                {
-                    totalStageTime = value;
-                    NotifyPropertyChanged(nameof(TotalStageTime));
-                }
+                var stages = Repository.GetStages(0, new PropertySelector<Stage>().Select(s => s.Task), true);
+                return stages.Select(s => new StageTreeViewModel(s, true));
             }
-        }        
+        }
+
+        public ICommand StageSelectedCommand { get; private set; }
 
         protected override void OnUpdateCommand(object sender)
-        {            
-            TotalStageTime = Repository.GetTotalActivityTimeOfStage(StageId);
+        {
+            SetSelectedStage(selectedStage);
+        }
+
+        private void OnStageSelected(object sender)
+        {
+            var stageVM = sender as StageTreeViewModel;
+            if (stageVM != null)
+                SetSelectedStage(stageVM);
+        }
+
+        private void SetSelectedStage(StageTreeViewModel stage)
+        {
+            if (selectedStage != stage)
+            {
+                selectedStage = stage;
+                TotalStageTime = selectedStage != null ? Repository.GetTotalActivityTimeOfStage(selectedStage.Stage.Id) : 0;
+            }
         }
     }
 }

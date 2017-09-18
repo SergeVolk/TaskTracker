@@ -8,7 +8,7 @@
     <DockPanel Margin="0">
         <StackPanel x:Name="stackControls" VerticalAlignment="Top" DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft">
             <Button x:Name="btnCancel" Content="Cancel" Width="75" Height="22" Margin="0,0,10,0" IsCancel="True" Click="btnCancel_Click"/>
-            <Button x:Name="btnOK" Content="OK" Width="75" Margin="0,0,10,0" Click="btnOK_Click"/>
+            <Button x:Name="btnOK" Content="OK" Width="75" Margin="0,0,10,0" Click="btnOK_Click" IsDefault="True"/>
         </StackPanel>
         <Label x:Name="lblTitle" Content="{Binding Message}" VerticalAlignment="Top" DockPanel.Dock="Top"/>
         <DockPanel x:Name="pnlInput">

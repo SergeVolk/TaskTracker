@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
+
 using TaskTracker.Repository;
 
 namespace TaskTracker.Client.WPF.ViewModels
@@ -17,8 +14,11 @@ namespace TaskTracker.Client.WPF.ViewModels
             this.Repository = repository;
             UpdateCommand = new Command<object>(OnUpdateCommand);
         }
+
         protected virtual void OnUpdateCommand(object sender)
-        { }
+        {
+            // empty
+        }
 
         protected void Update()
         {

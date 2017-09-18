@@ -1,34 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using TaskTracker.Client.WPF.ViewModels;
 
 namespace TaskTracker.Client.WPF.Views
 {
     public class UIService : IUIService
     {
-        bool? IUIService.ShowTaskCreationWindow(object dataContext)
+        bool IUIService.ShowTaskCreationWindow(object dataContext)
         {
             var wnd = new TaskCreationWindow();
             wnd.DataContext = dataContext;
-            return wnd.ShowDialog();
+            return wnd.ShowDialog().GetValueOrDefault();
         }
 
-        bool? IUIService.ShowTaskEditorWindow(object dataContext)
+        bool IUIService.ShowTaskEditorWindow(object dataContext)
         {
             var editor = new TaskEditorWindow();
             editor.DataContext = dataContext;
-            return editor.ShowDialog();
+            return editor.ShowDialog().GetValueOrDefault();
         }
 
-        bool? IUIService.ShowInputDialog(string message, out string input)
+        bool IUIService.ShowInputDialog(string message, out string input)
         {
-            var inputDialog = new InputBox(message);
-            var result = inputDialog.ShowDialog();
-            input = result.GetValueOrDefault() ? inputDialog.Input : "";
+            var dc = new InputDialogDataContext()
+            {
+                Message = message,
+                Input = ""                
+            };
+
+            var inputDialog = new InputBox();
+            inputDialog.DataContext = dc;
+            var result = inputDialog.ShowDialog().GetValueOrDefault();
+            input = dc.Input; 
             return result;
+        }
+
+        private class InputDialogDataContext
+        {
+            public string Message { get; set; }
+            public string Input { get; set; }
         }
     }
 }

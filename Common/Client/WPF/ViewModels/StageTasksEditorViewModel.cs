@@ -3,54 +3,33 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-//using System.Threading.Tasks;
 using System.Windows.Input;
+
 using TaskTracker.Model;
 using TaskTracker.Repository;
-using TaskTracker.Client.WPF.Utils;
 using TaskTracker.Common;
-using System.Diagnostics;
 
 namespace TaskTracker.Client.WPF.ViewModels
 {
-    public class StageViewModel : ViewModelBase
+    public class StageViewModel : SelectionItemViewModel
     {
-        private bool isSelected;
         private bool isExpanded;
-
         private StageViewModel parent;
         private Stage stage;
         private ObservableCollection<StageTaskViewModel> stageTasks;
         private StageTaskViewModel selectedStageTask;
         private IRepository repository;
 
-        public StageViewModel(Stage stage, StageViewModel parent, Action<StageViewModel> selectionHandler, IRepository repository)
+        public StageViewModel(Stage stage, StageViewModel parent, Action<StageViewModel> selectionHandler, IRepository repository, bool isExpanded = false)
         {
             this.stage = stage;
-            this.parent = parent;
-            this.Selected += selectionHandler;
+            this.parent = parent;            
             this.repository = repository;
-                        
+            this.isExpanded = isExpanded;
+            this.Selected += selectionHandler;
             this.SubStagesVM = stage.SubStages.Select(s => new StageViewModel(s, this, selectionHandler, repository)).ToList();
             this.stageTasks = new ObservableCollection<StageTaskViewModel>(stage.Task.Select(t => new StageTaskViewModel(t)).ToList());
-        }
-
-        public bool IsSelected
-        {
-            get { return isSelected; }
-            set
-            {
-                if (value != isSelected)
-                {
-                    isSelected = value;
-                    NotifyPropertyChanged("IsSelected");
-
-                    if (isSelected)
-                        NotifySelected();
-                }
-            }
-        }
+        }        
 
         public bool IsExpanded
         {
@@ -60,7 +39,7 @@ namespace TaskTracker.Client.WPF.ViewModels
                 if (value != isExpanded)
                 {
                     isExpanded = value;
-                    NotifyPropertyChanged("IsExpanded");
+                    NotifyPropertyChanged(nameof(IsExpanded));
                 }
 
                 // Expand all the way up to the root.
@@ -100,17 +79,18 @@ namespace TaskTracker.Client.WPF.ViewModels
         public StageTaskViewModel SelectedStageTask
         {
             get { return selectedStageTask; }
-            set
-            {
-                if (selectedStageTask != value)
-                {
-                    selectedStageTask = value;
-                    NotifyPropertyChanged(nameof(SelectedStageTask));
-                }
-            }
+            set { SetProperty(ref selectedStageTask, value, nameof(SelectedStageTask)); }
         }
 
         public event Action<StageViewModel> Selected;
+
+        protected override void AfterSelectedChanged(bool newIsSelected)
+        {
+            base.AfterSelectedChanged(newIsSelected);
+
+            if (newIsSelected)
+                NotifySelected();
+        }
 
         private void NotifySelected()
         {
@@ -125,12 +105,14 @@ namespace TaskTracker.Client.WPF.ViewModels
         public StageTaskViewModel(Task task)
         {
             this.Task = task;
-            this.TaskPreviewLine = $"{Task.Project.ShortName}-{Task.Id}: {Task.Summary}";
         }
 
         public Task Task { get; private set; }
 
-        public string TaskPreviewLine { get; private set; }        
+        public string TaskPreviewLine
+        {
+            get { return $"{Task.Project.ShortName}-{Task.Id}: {Task.Summary}"; }
+        }        
     }
 
     public class StageTasksEditorViewModel : ViewModelBase
@@ -171,20 +153,13 @@ namespace TaskTracker.Client.WPF.ViewModels
         public IEnumerable<StageViewModel> TopLevelStagesVM
         {
             get { return topLevelStagesVM; }
-            set
-            {
-                if (topLevelStagesVM != value)
-                {
-                    topLevelStagesVM = value;
-                    NotifyPropertyChanged(nameof(TopLevelStagesVM));
-                }
-            }
+            private set { SetProperty(ref topLevelStagesVM, value, nameof(TopLevelStagesVM)); }
         }
 
         public StageViewModel SelectedStageVM
         {
             get { return selectedStageVM; }
-            set
+            private set
             {
                 if (selectedStageVM != value)
                 {
@@ -205,14 +180,7 @@ namespace TaskTracker.Client.WPF.ViewModels
         public StageTaskViewModel SelectedTask
         {
             get { return selectedTask; }
-            set
-            {
-                if (selectedTask != value)
-                {
-                    selectedTask = value;
-                    NotifyPropertyChanged(nameof(SelectedTask));
-                }
-            }
+            private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
         public StageTaskViewModel SelectedStageTask

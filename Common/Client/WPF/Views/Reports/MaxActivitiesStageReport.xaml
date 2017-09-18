@@ -5,16 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TaskTracker.Client.WPF.Views"
              mc:Ignorable="d">
-    <Grid x:Name="gridLayout">
-        <TextBlock x:Name="txtBlockMaxActivitiesStage" HorizontalAlignment="Left" Margin="10" TextWrapping="Wrap" VerticalAlignment="Top">
-            <Run Text="The stage &quot;"/>
-            <InlineUIContainer>
-                <TextBlock Text="{Binding Stage}"/>
-            </InlineUIContainer>
-            <Run Text="&quot; includes maximum activities: "/>
-            <InlineUIContainer>
-                <TextBlock Text="{Binding ActivityCount}"/>
-            </InlineUIContainer>            
+    <Grid x:Name="gridLayout" Margin="0,0,0,19">
+        <TextBlock x:Name="txtBlockMaxActivitiesStage" HorizontalAlignment="Left" Margin="19,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top">
+            Stage: <TextBlock Text="{Binding Stage}"/> <LineBreak/>
+            The number of activities: <TextBlock Text="{Binding ActivityCount}"/>                
         </TextBlock>
+        <Label x:Name="lblHint" Content="What stage does include a maximal number of activities?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
     </Grid>
 </UserControl>

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+
 using TaskTracker.Repository;
 
 namespace TaskTracker.Client.WPF.ViewModels
@@ -14,26 +11,18 @@ namespace TaskTracker.Client.WPF.ViewModels
         private int? activityCount;
 
         public MaxActivitiesStageReportViewModel(IRepository repository) : base(repository)
-        {
-        }
+        { }
 
         public string Stage
         {
             get
             {
-                if (stage == null)
+                if (String.IsNullOrEmpty(stage))
                     Update();
                 
                 return stage;
             }
-            private set
-            {
-                if (stage != value)
-                {
-                    stage = value;
-                    NotifyPropertyChanged(nameof(Stage));
-                }
-            }
+            private set { SetProperty(ref stage, value, nameof(Stage)); }
         }
 
         public int ActivityCount
@@ -45,14 +34,7 @@ namespace TaskTracker.Client.WPF.ViewModels
 
                 return activityCount.GetValueOrDefault();
             }
-            private set
-            {
-                if (activityCount != value)
-                {
-                    activityCount = value;
-                    NotifyPropertyChanged(nameof(ActivityCount));
-                }
-            }
+            private set { SetProperty(ref activityCount, value, nameof(ActivityCount)); }
         }        
 
         protected override void OnUpdateCommand(object sender)

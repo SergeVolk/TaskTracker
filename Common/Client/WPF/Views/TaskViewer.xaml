@@ -7,6 +7,7 @@
              mc:Ignorable="d" Width="489" Height="315">
     <UserControl.Resources>
         <converters:StatusToStringConverter x:Key="StatusToStringConverter"/>
+        <converters:PriorityToStringConverter x:Key="PriorityToStringConverter"/>        
         <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
         <converters:ProgressOperationStatusToStringConverter x:Key="ProgressOperationStatusToStringConverter"/>
         <converters:CloseTaskStatusToStringConverter x:Key="CloseTaskStatusToStringConverter"/>
@@ -16,7 +17,7 @@
             <StackPanel x:Name="stackProjectTask" DockPanel.Dock="Top" VerticalAlignment="Center" Orientation="Horizontal" Margin="10,10,10,0">
                 <Label x:Name="lblProject" Content="{Binding Project}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <Label x:Name="lblProjectTaskSeparator" Content="/"/>
-                <Label x:Name="lblTaskId" Content="{Binding TaskId}"/>
+                <Label x:Name="lblShortTaskName" Content="{Binding ShortTaskName}"/>
             </StackPanel>
             <Grid x:Name="gridSummary">
                 <Label x:Name="lblSummary" Content="{Binding Summary}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" FontSize="20" 
@@ -79,7 +80,7 @@
                         <TextBlock x:Name="tbTaskType" HorizontalAlignment="Left" Margin="55,15,0,0" TextWrapping="Wrap" VerticalAlignment="Top" 
                                    Text="{Binding TaskType}" Height="16"/>
                         <TextBlock x:Name="tbPriority" HorizontalAlignment="Left" Margin="55,46,0,0" TextWrapping="Wrap" VerticalAlignment="Top" 
-                                   Text="{Binding Priority}" Height="16"/>
+                                   Text="{Binding Priority, Converter={StaticResource PriorityToStringConverter}}" Height="16"/>
                         <TextBlock x:Name="tbStatus" HorizontalAlignment="Left" Margin="221,15,0,0" TextWrapping="Wrap" VerticalAlignment="Top" 
                                    Text="{Binding Status, Converter={StaticResource StatusToStringConverter}}" Height="16"/>
                     </Grid>

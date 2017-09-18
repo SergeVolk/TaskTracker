@@ -92,8 +92,14 @@
     <Compile Include="..\Common\Client\WPF\ViewModels\Reports\TotalActivitiesTimeOfStageReportViewModel.cs">
       <Link>ViewModels\Reports\TotalActivitiesTimeOfStageReportViewModel.cs</Link>
     </Compile>
+    <Compile Include="..\Common\Client\WPF\ViewModels\SelectionItemViewModel.cs">
+      <Link>ViewModels\SelectionItemViewModel.cs</Link>
+    </Compile>
     <Compile Include="..\Common\Client\WPF\ViewModels\StageTasksEditorViewModel.cs">
       <Link>ViewModels\StageTasksEditorViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\Client\WPF\ViewModels\StageTreeViewModel.cs">
+      <Link>ViewModels\StageTreeViewModel.cs</Link>
     </Compile>
     <Compile Include="..\Common\Client\WPF\ViewModels\StatusFilterViewModel.cs">
       <Link>ViewModels\StatusFilterViewModel.cs</Link>
@@ -122,6 +128,10 @@
       <Link>Views\GenericControls\InputBox.xaml.cs</Link>
       <DependentUpon>InputBox.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Common\Client\WPF\Views\GenericControls\TreeComboBox.xaml.cs">
+      <Link>Views\GenericControls\TreeComboBox.xaml.cs</Link>
+      <DependentUpon>TreeComboBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="..\Common\Client\WPF\Views\MainWindow.xaml.cs">
       <Link>Views\MainWindow.xaml.cs</Link>
@@ -231,6 +241,11 @@
     </Page>
     <Page Include="..\Common\Client\WPF\Views\GenericControls\InputBox.xaml">
       <Link>Views\GenericControls\InputBox.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\Common\Client\WPF\Views\GenericControls\TreeComboBox.xaml">
+      <Link>Views\GenericControls\TreeComboBox.xaml</Link>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-//using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
@@ -103,6 +100,19 @@ namespace TaskTracker.Client.WPF.Converters
         }
     }
 
+    public class PriorityToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return ((Priority)value).ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Enum.Parse(typeof(Priority), (String)value);
+        }
+    }
+
     public class StageToTimeIntervalStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -157,6 +167,22 @@ namespace TaskTracker.Client.WPF.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    // For debug purposes
+    public class ObjToObjConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Debugger.Break();
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Debugger.Break();
+            return value;
         }
     }
 }

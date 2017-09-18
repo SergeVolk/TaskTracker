@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+
 using TaskTracker.Model;
 using TaskTracker.Repository;
 
@@ -38,14 +36,7 @@ namespace TaskTracker.Client.WPF.ViewModels
                 return stages;
             }
 
-            private set
-            {
-                if (stages != value)
-                {
-                    stages = value;
-                    NotifyPropertyChanged(nameof(Stages));
-                }
-            }
+            private set { SetProperty(ref stages, value, nameof(Stages)); }
         }        
 
         protected override void OnUpdateCommand(object sender)

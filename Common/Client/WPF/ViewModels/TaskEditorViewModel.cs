@@ -1,34 +1,86 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TaskTracker.Client.WPF.ViewModels
 {
     public class TaskEditorViewModel : ViewModelBase
     {
-        public string Summary { get; set; }
+        private string summary;
+        private string description;
+        private string estimation;
+        private string selectedProject;
+        private string selectedTaskType;
+        private string selectedPriority;
+        private string selectedAssignee;
+        private IEnumerable<string> projects;
+        private IEnumerable<string> taskTypes;
+        private IEnumerable<string> priorities;
+        private IEnumerable<string> assignees;
 
-        public string Description { get; set; }
+        public string Summary
+        {
+            get { return summary; }
+            set { SetProperty(ref summary, value, nameof(Summary)); }
+        }
 
-        public string Estimation { get; set; }
+        public string Description
+        {
+            get { return description; }
+            set { SetProperty(ref description, value, nameof(Description)); }
+        }
 
-        public string SelectedProject { get; set; }
+        public string Estimation
+        {
+            get { return estimation; }
+            set { SetProperty(ref estimation, value, nameof(Estimation)); }
+        }
 
-        public string SelectedTaskType { get; set; }
+        public string SelectedProject
+        {
+            get { return selectedProject; }
+            set { SetProperty(ref selectedProject, value, nameof(SelectedProject)); }
+        }
 
-        public string SelectedPriority { get; set; }
+        public string SelectedTaskType
+        {
+            get { return selectedTaskType; }
+            set { SetProperty(ref selectedTaskType, value, nameof(SelectedTaskType)); }
+        }
 
-        public string SelectedAssignee { get; set; }
+        public string SelectedPriority
+        {
+            get { return selectedPriority; }
+            set { SetProperty(ref selectedPriority, value, nameof(SelectedPriority)); }
+        }
 
-        public IEnumerable<string> Projects { get; set; }
+        public string SelectedAssignee
+        {
+            get { return selectedAssignee; }
+            set { SetProperty(ref selectedAssignee, value, nameof(SelectedAssignee)); }
+        }
 
-        public IEnumerable<string> TaskTypes { get; set; }
+        public IEnumerable<string> Projects
+        {
+            get { return projects; }
+            set { SetProperty(ref projects, value, nameof(Projects)); }
+        }
 
-        public IEnumerable<string> Priorities { get; set; }
+        public IEnumerable<string> TaskTypes
+        {
+            get { return taskTypes; }
+            set { SetProperty(ref taskTypes, value, nameof(TaskTypes)); }
+        }
 
-        public IEnumerable<string> Assignees { get; set; }        
+        public IEnumerable<string> Priorities
+        {
+            get { return priorities; }
+            set { SetProperty(ref priorities, value, nameof(Priorities)); }
+        }
+
+        public IEnumerable<string> Assignees
+        {
+            get { return assignees; }
+            set { SetProperty(ref assignees, value, nameof(Assignees)); }
+        }
     }
 }

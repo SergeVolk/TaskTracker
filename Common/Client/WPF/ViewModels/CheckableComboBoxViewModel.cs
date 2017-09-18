@@ -1,78 +1,33 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using TaskTracker.Client.WPF.Utils;
 
 namespace TaskTracker.Client.WPF.ViewModels
 {
-    public class CheckableComboBoxItemViewModel : ViewModelBase
-    {
-        private bool isSelected;
-        
-        public CheckableComboBoxItemViewModel(string name, bool isSelected = true)
+    public class CheckableComboBoxItemViewModel : SelectionItemViewModel
+    {        
+        public CheckableComboBoxItemViewModel(string name, bool isSelected = false)
         {
             this.Name = name;
-            this.isSelected = isSelected;
+            this.IsSelected = isSelected;
         }
 
-        public string Name { get; private set; }
-
-        public bool IsSelected
-        {
-            get { return isSelected; }
-            set
-            {
-                if (isSelected != value)
-                {
-                    isSelected = value;
-                    NotifyPropertyChanged("IsSelected");
-                }
-            }
-        }        
+        public string Name { get; private set; }        
     }
 
-    public class CheckableComboBoxViewModel<T> : ObservableCollection<T>
+    public class CheckableComboBoxViewModel<T> : BindingList<T>
         where T : CheckableComboBoxItemViewModel
     {
-        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if ((e.PropertyName == "IsSelected") && (sender is T))
-            {
-                var item = (T)sender;
-                OnItemSelectionChanged(IndexOf(item), item.IsSelected);
-            }
-        }
+        public static readonly string IsItemSelectedPropName = "IsSelected";
 
-        private void OnItemSelectionChanged(int itemIndex, bool newSelectinoState)
+        public CheckableComboBoxViewModel(IEnumerable<T> collection) : base(collection.ToList())
         {
-            var handler = ItemSelectionChanged;
-            if (handler != null)
-                handler(this, itemIndex, newSelectinoState);
-        }
-
-        public CheckableComboBoxViewModel(IEnumerable<T> collection) : base(collection)
-        {
-            collection.ForEach(item => item.PropertyChanged += OnItemPropertyChanged);
-        }
-
-        public override string ToString()
-        {
-            StringBuilder outString = new StringBuilder();
-            foreach (var s in this.Items)
-            {
-                if (s.IsSelected)
-                {
-                    outString.Append(s.Name);
-                    outString.Append(',');
-                }
-            }
-            return outString.ToString().TrimEnd(new char[] { ',' });
-        }
+            ListChanged += OnItemsChanged;
+        }          
 
         public IEnumerable<string> GetSelectedItems()
         {
@@ -93,7 +48,33 @@ namespace TaskTracker.Client.WPF.ViewModels
             }
         }
 
-        public event CheckableComboBoxItemSelectionChangeHandler ItemSelectionChanged;
+        public void SetSelection(bool selState, IEnumerable<string> items)
+        {
+            this.Items.ForEach(item =>
+            {                
+                if (items.Contains(item.Name))
+                    item.IsSelected = selState;
+            });            
+        }
+
+        public event CheckableComboBoxItemSelectionChangeHandler ItemSelectionChanged;        
+
+        private void OnItemsChanged(object sender, ListChangedEventArgs e)
+        {
+            if ((e.ListChangedType == ListChangedType.ItemChanged) && (e.PropertyDescriptor.Name == IsItemSelectedPropName))
+            {
+                var item = (sender as IList)?[e.NewIndex];
+                if (item != null)
+                    OnItemSelectionChanged(e.NewIndex, (bool)e.PropertyDescriptor.GetValue(item));
+            }
+        }
+
+        private void OnItemSelectionChanged(int itemIndex, bool newSelectinoState)
+        {
+            var handler = ItemSelectionChanged;
+            if (handler != null)
+                handler(this, itemIndex, newSelectinoState);
+        }        
     }
 
     public delegate void CheckableComboBoxItemSelectionChangeHandler(object sender, int itemIndex, bool newSelectinoState);

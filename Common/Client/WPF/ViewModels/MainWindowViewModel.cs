@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-//using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 using TaskTracker.Model;
@@ -17,13 +12,15 @@ namespace TaskTracker.Client.WPF.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        private static readonly string DefaultReporter = "Admin";
+        private static readonly string DefaultAssignee = "Serge";
+
         private IRepository repository;
         private Status defaultStatus;
         private User defaultUser;
         private IUIService uiService;
         private TaskViewerViewModel selectedTask;
         private IEnumerable<TaskViewerViewModel> taskViewerViewModels;
-        private ProjectFilterViewModel projectFilterVM;
         
         public MainWindowViewModel(IUIService uiService, IRepository repository)
         {
@@ -31,7 +28,7 @@ namespace TaskTracker.Client.WPF.ViewModels
             this.repository = repository; 
 
             defaultStatus = Status.Open;
-            defaultUser = repository.GetUsers().First(u => u.Name == "Admin");
+            defaultUser = repository.GetUsers().First(u => u.Name == DefaultReporter);
 
             ProjectFilterVM = new ProjectFilterViewModel(repository.GetProjects().Select(p => new ProjectFilterItemViewModel(p)));
             StatusFilterVM = new StatusFilterViewModel(EnumUtils.GetValues<Status>().Select(s => new StatusFilterItemViewModel(s)));
@@ -41,11 +38,16 @@ namespace TaskTracker.Client.WPF.ViewModels
             StatusFilterVM.ItemSelectionChanged += OnFilterItemChanged;
             PriorityFilterVM.ItemSelectionChanged += OnFilterItemChanged;
 
-            QueryTasks();
+            ProjectFilterVM.SetSelection(true);
 
+            var statusesToDisplay = new[] { Status.Open, Status.InProgress };
+            StatusFilterVM.SetSelection(true, statusesToDisplay.Select(s => s.ToString()));
+
+            var prioritiesToDisplay = new[] { Priority.High, Priority.Normal };
+            PriorityFilterVM.SetSelection(true, prioritiesToDisplay.Select(p => p.ToString()));
+                        
             CreateTaskCommand = new Command<object>(OnButtonCreateTaskClicked);
-
-            ShowAllTasksTaskCommand = new Command<object>(OnButtonAllTasksClicked);
+            ShowAllTasksCommand = new Command<object>(OnButtonAllTasksClicked);
 
             TaskStageEditorVM = new StageTasksEditorViewModel(repository);
             ReportsVM = new ReportsVM(repository);
@@ -56,32 +58,16 @@ namespace TaskTracker.Client.WPF.ViewModels
             QueryTasks();
         }
 
-        public ProjectFilterViewModel ProjectFilterVM
-        {
-            get { return projectFilterVM; }
-            set
-            {
-                if (projectFilterVM != value)
-                {
-                    projectFilterVM = value;
-                    NotifyPropertyChanged("ProjectFilterVM");
-                }
-            }
-        }
+        public ProjectFilterViewModel ProjectFilterVM { get; private set; }       
+
         public StatusFilterViewModel StatusFilterVM { get; private set; }
+
         public PriorityFilterViewModel PriorityFilterVM { get; private set; }
 
         public IEnumerable<TaskViewerViewModel> TaskViewerViewModels
         {
             get { return taskViewerViewModels; }
-            set
-            {
-                if (taskViewerViewModels != value)
-                {
-                    taskViewerViewModels = value;
-                    NotifyPropertyChanged("TaskViewerViewModels");
-                }
-            }
+            private set { SetProperty(ref taskViewerViewModels, value, nameof(TaskViewerViewModels)); }
         }
 
         public StageTasksEditorViewModel TaskStageEditorVM { get; private set; } 
@@ -90,19 +76,12 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public ICommand CreateTaskCommand { get; private set; }
 
-        public ICommand ShowAllTasksTaskCommand { get; private set; }
+        public ICommand ShowAllTasksCommand { get; private set; }
                 
         public TaskViewerViewModel SelectedTask
         {
             get { return selectedTask; }
-            set
-            {
-                if (selectedTask != value)
-                {
-                    selectedTask = value;
-                    QueryTasks();
-                }
-            }
+            private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
         private void OnButtonCreateTaskClicked(object sender)
@@ -113,16 +92,14 @@ namespace TaskTracker.Client.WPF.ViewModels
                 Projects = repository.GetProjects().Select(p => p.Name),
                 Priorities = Enum.GetNames(typeof(Priority)),
                 TaskTypes = repository.GetTaskTypes().Select(tt => tt.Name),
-                SelectedAssignee = "Serge"
+                SelectedAssignee = DefaultAssignee
             };
                         
-            if (uiService.ShowTaskCreationWindow(taskCreationVM).GetValueOrDefault())
+            if (uiService.ShowTaskCreationWindow(taskCreationVM))
             {
                 Priority priority;
                 if (!Enum.TryParse(taskCreationVM.SelectedPriority, out priority))
-                {
-                    priority = Priority.Normal;
-                }
+                    priority = Priority.Normal;                
 
                 double tmp;
                 double? estimation = null;
@@ -174,6 +151,7 @@ namespace TaskTracker.Client.WPF.ViewModels
                     Select("Stage.Task"));            
 
             TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository));
+            SelectedTask = TaskViewerViewModels.FirstOrDefault();
         }   
     }
 }

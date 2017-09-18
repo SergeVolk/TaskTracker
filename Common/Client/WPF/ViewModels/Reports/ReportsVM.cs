@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using TaskTracker.Model;
+
 using TaskTracker.Repository;
 
 namespace TaskTracker.Client.WPF.ViewModels

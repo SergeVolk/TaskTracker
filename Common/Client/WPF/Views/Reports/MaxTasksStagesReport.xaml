@@ -9,9 +9,18 @@
     <UserControl.Resources>
         <converters:StageToTimeIntervalStringConverter x:Key="StageToTimeIntervalStringConverter"/>
     </UserControl.Resources>
-    
-    <DockPanel x:Name="pnlLayout">
-        <DataGrid x:Name="dataGrid" ItemsSource="{Binding Stages}" AutoGenerateColumns="False" Margin="10">
+
+    <Grid x:Name="pnlLayout" Margin="0,0,0,19">
+        <DataGrid x:Name="dataGrid" ItemsSource="{Binding Stages}" HeadersVisibility="Column" AutoGenerateColumns="False" Margin="19,44,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" CanUserReorderColumns="False" CanUserResizeRows="False">
+            <DataGrid.VerticalGridLinesBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
+            </DataGrid.VerticalGridLinesBrush>
+            <DataGrid.HorizontalGridLinesBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
+            </DataGrid.HorizontalGridLinesBrush>
+            <DataGrid.BorderBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+            </DataGrid.BorderBrush>
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Stage.Name}" Header="Stage"/>
                 <DataGridTextColumn Binding="{Binding Stage.Level}" Header="Level"/>
@@ -19,5 +28,6 @@
                 <DataGridTextColumn Binding="{Binding TaskCount}" Header="Task Count"/>
             </DataGrid.Columns>
         </DataGrid>
-    </DockPanel>
+        <Label x:Name="lblReportHint" Content="What stages do include a maximal number of tasks?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold"/>
+    </Grid>
 </UserControl>

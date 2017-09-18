@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using TaskTracker.Client.WPF.Utils;
 
 namespace TaskTracker.Client.WPF.ViewModels
 {
@@ -15,6 +14,15 @@ namespace TaskTracker.Client.WPF.ViewModels
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        protected void SetProperty<TProp>(ref TProp orgValue, TProp newValue, params string[] changedProperties)
+        {
+            if (!EqualityComparer<TProp>.Default.Equals(orgValue, newValue))
+            {
+                orgValue = newValue;
+                changedProperties.ForEach(p => NotifyPropertyChanged(p));  
             }
         }
 
