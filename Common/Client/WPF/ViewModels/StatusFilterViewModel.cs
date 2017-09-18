@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using TaskTracker.Common;
 using TaskTracker.Model;
 
 namespace TaskTracker.Client.WPF.ViewModels

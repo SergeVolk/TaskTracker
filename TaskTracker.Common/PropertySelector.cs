@@ -21,6 +21,8 @@ namespace TaskTracker.Common
                 
         public PropertySelector<T> Select(string propertyPath)
         {
+            ArgumentValidation.ThrowIfNullOrEmpty(propertyPath, nameof(propertyPath));
+
             Type parent = typeof(T);            
 
             foreach (var prop in propertyPath.Split('.'))
@@ -43,9 +45,11 @@ namespace TaskTracker.Common
 
         public PropertySelector<T> Select<TProperty>(Expression<Func<T, TProperty>> property)
         {
+            ArgumentValidation.ThrowIfNull(property, nameof(property));
+
             var member = property.Body as MemberExpression;
             if (member == null || member.Member.MemberType != MemberTypes.Property)
-                throw new InvalidOperationException("Provided expression can not be used for selecting the property.");
+                throw new InvalidOperationException("Provided expression cannot be used for selecting the property.");
 
             properties.Add(member.Member.Name);            
 

@@ -24,6 +24,9 @@ namespace TaskTracker.Client.WPF.ViewModels
         
         public MainWindowViewModel(IUIService uiService, IRepository repository)
         {
+            ArgumentValidation.ThrowIfNull(uiService, nameof(uiService));
+            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+
             this.uiService = uiService;
             this.repository = repository; 
 
@@ -53,11 +56,6 @@ namespace TaskTracker.Client.WPF.ViewModels
             ReportsVM = new ReportsVM(repository);
         }
 
-        public void OnFilterItemChanged(object sender, int itemIndex, bool newSelectinoState)
-        {
-            QueryTasks();
-        }
-
         public ProjectFilterViewModel ProjectFilterVM { get; private set; }       
 
         public StatusFilterViewModel StatusFilterVM { get; private set; }
@@ -84,6 +82,12 @@ namespace TaskTracker.Client.WPF.ViewModels
             private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
+        private Double? SafeParseDouble(string str)
+        {
+            double tmp;
+            return Double.TryParse(str, out tmp) ? tmp : (double?)null;
+        }
+
         private void OnButtonCreateTaskClicked(object sender)
         {
             var taskCreationVM = new TaskEditorViewModel()
@@ -101,11 +105,8 @@ namespace TaskTracker.Client.WPF.ViewModels
                 if (!Enum.TryParse(taskCreationVM.SelectedPriority, out priority))
                     priority = Priority.Normal;                
 
-                double tmp;
-                double? estimation = null;
-                if (Double.TryParse(taskCreationVM.Estimation, out tmp))
-                    estimation = tmp;
-
+                double? estimation = SafeParseDouble(taskCreationVM.Estimation);
+                                
                 var task = new Task
                 {
                     Summary = taskCreationVM.Summary,
@@ -134,14 +135,14 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         private void QueryTasks()
         {                
-            var selectedStatuses = (StatusFilterVM != null) ? StatusFilterVM.GetSelectedItems() : new string[] { };
-            var selectedProjects = (ProjectFilterVM != null) ? ProjectFilterVM.GetSelectedItems() : new string[] { };
-            var selectedPriorities = (PriorityFilterVM != null) ? PriorityFilterVM.GetSelectedItems() : new string[] { };         
-                        
+            var selectedStatuses = (StatusFilterVM != null) ? StatusFilterVM.GetSelectedItems() : Enumerable.Empty<string>();
+            var selectedProjects = (ProjectFilterVM != null) ? ProjectFilterVM.GetSelectedItems() : Enumerable.Empty<string>();
+            var selectedPriorities = (PriorityFilterVM != null) ? PriorityFilterVM.GetSelectedItems() : Enumerable.Empty<string>();
+
             var taskFilter = new TaskFilter();
-            taskFilter.Statuses = new List<string>(selectedStatuses);
-            taskFilter.Projects = new List<string>(selectedProjects);
-            taskFilter.Priorities = new List<string>(selectedPriorities);
+            taskFilter.Statuses = selectedStatuses.ToList();
+            taskFilter.Projects = selectedProjects.ToList();
+            taskFilter.Priorities = selectedPriorities.ToList();
                 
             var tasks = repository.GetTasks(taskFilter, 
                 new PropertySelector<Task>().
@@ -152,6 +153,11 @@ namespace TaskTracker.Client.WPF.ViewModels
 
             TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository));
             SelectedTask = TaskViewerViewModels.FirstOrDefault();
-        }   
+        }
+
+        private void OnFilterItemChanged(object sender, int itemIndex, bool newSelectinoState)
+        {
+            QueryTasks();
+        }
     }
 }

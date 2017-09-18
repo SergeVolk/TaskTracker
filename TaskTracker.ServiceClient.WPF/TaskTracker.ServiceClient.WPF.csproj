@@ -107,6 +107,9 @@
     <Compile Include="..\Common\Client\WPF\ViewModels\TaskEditorViewModel.cs">
       <Link>ViewModels\TaskEditorViewModel.cs</Link>
     </Compile>
+    <Compile Include="..\Common\Client\WPF\ViewModels\TaskTrackerExceptions.cs">
+      <Link>ViewModels\TaskTrackerExceptions.cs</Link>
+    </Compile>
     <Compile Include="..\Common\Client\WPF\ViewModels\TaskTrackerManager.cs">
       <Link>ViewModels\TaskTrackerManager.cs</Link>
     </Compile>

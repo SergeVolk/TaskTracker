@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using TaskTracker.Common;
 using TaskTracker.Model;
 using TaskTracker.Repository;
 
@@ -11,6 +12,9 @@ namespace TaskTracker.Client.WPF.ViewModels
     {
         public StageWithTaskCountVM(Stage stage, int taskCount)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
+            ArgumentValidation.ThrowIfLess(taskCount, 0, nameof(taskCount));
+
             this.Stage = stage;
             this.TaskCount = taskCount;
         }

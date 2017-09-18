@@ -16,54 +16,62 @@ namespace TaskTracker.ServiceClient.WPF
 
         public ServiceRepository(ITaskTrackerService service)
         {
-            if (service == null)
-                throw new ArgumentNullException(nameof(service));
-
+            ArgumentValidation.ThrowIfNull(service, nameof(service));
             this.service = service;
         }        
 
         public void Add(Activity activity)
         {
+            ArgumentValidation.ThrowIfNull(activity, nameof(activity));
             service.Add(activity);
         }
 
         public void Add(Stage stage)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
             service.Add(stage);
         }
 
         public void Add(Task task)
         {
+            ArgumentValidation.ThrowIfNull(task, nameof(task));
             service.Add(task);
         }
 
         public void AddTaskToStage(int taskId, int stageId)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             service.AddTaskToStage(taskId, stageId);
         }
 
         public Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             return service.FindStage(stageId, propertiesToInclude);
         }
 
         public Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
             return service.FindTask(taskId, propertiesToInclude);
         }
 
         public TaskType FindTaskType(int taskTypeId)
         {
+            ArgumentValidation.ThrowIfLess(taskTypeId, 0, nameof(taskTypeId));
             return service.FindTaskType(taskTypeId);
         }
 
         public IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(projectId, 0, nameof(projectId));
             return service.GetOpenTasksOfProject(projectId, propertiesToInclude);
         }
 
         public IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(userId, 0, nameof(userId));
             return service.GetOpenTasksOfUser(userId, propertiesToInclude);
         }
 
@@ -74,16 +82,19 @@ namespace TaskTracker.ServiceClient.WPF
 
         public IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
         {
+            ArgumentValidation.ThrowIfLess(level, 0, nameof(level));
             return service.GetStages(level, propertiesToInclude, applySelectionToEntireGraph);
         }
 
         public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(stageLimit, 0, nameof(stageLimit));
             return service.GetStagesWithMaxActivities(stageLimit, propertiesToInclude);
         }
 
         public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
-        {         
+        {
+            ArgumentValidation.ThrowIfLess(stageLimit, 0, nameof(stageLimit));
             return service.GetStagesWithMaxTasks(stageLimit, propertiesToInclude);
         }
 
@@ -99,6 +110,7 @@ namespace TaskTracker.ServiceClient.WPF
 
         public double GetTotalActivityTimeOfStage(int stageId)
         {
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             return service.GetTotalActivityTimeOfStage(stageId);
         }
 
@@ -109,6 +121,7 @@ namespace TaskTracker.ServiceClient.WPF
 
         public void GroupOperations(RepositoryOperations operations)
         {
+            ArgumentValidation.ThrowIfNull(operations, nameof(operations));
             var opId = service.BeginGroupOperation();
             try
             {
@@ -122,26 +135,32 @@ namespace TaskTracker.ServiceClient.WPF
 
         public void RemoveTaskFromStage(int taskId, int stageId)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             service.RemoveTaskFromStage(taskId, stageId);
         }
 
         public void SetTaskStatus(int taskId, Status newStatus)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
             service.SetTaskStatus(taskId, newStatus);
         }
 
         public void Update(Stage stage)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
             service.Update(stage);
         }
 
         public void Update(Activity activity)
         {
+            ArgumentValidation.ThrowIfNull(activity, nameof(activity));
             service.Update(activity);
         }
 
         public void Update(Task task)
         {
+            ArgumentValidation.ThrowIfNull(task, nameof(task));
             service.Update(task);
         }
     }

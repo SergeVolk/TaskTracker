@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
+using TaskTracker.Common;
 using TaskTracker.Repository;
 
 namespace TaskTracker.Client.WPF.ViewModels
@@ -12,6 +13,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public ReportsVM(IRepository repository)
         {
+            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+
             this.repository = repository;            
 
             MaxActivitiesStageReportVM = new MaxActivitiesStageReportViewModel(repository);

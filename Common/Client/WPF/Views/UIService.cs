@@ -1,6 +1,7 @@
 ﻿using System;
 
 using TaskTracker.Client.WPF.ViewModels;
+using TaskTracker.Common;
 
 namespace TaskTracker.Client.WPF.Views
 {
@@ -22,6 +23,8 @@ namespace TaskTracker.Client.WPF.Views
 
         bool IUIService.ShowInputDialog(string message, out string input)
         {
+            ArgumentValidation.ThrowIfNullOrEmpty(message, nameof(message));
+
             var dc = new InputDialogDataContext()
             {
                 Message = message,

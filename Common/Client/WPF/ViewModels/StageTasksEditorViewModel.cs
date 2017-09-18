@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using System.Diagnostics;
 
 using TaskTracker.Model;
 using TaskTracker.Repository;
@@ -22,6 +23,10 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public StageViewModel(Stage stage, StageViewModel parent, Action<StageViewModel> selectionHandler, IRepository repository, bool isExpanded = false)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
+            ArgumentValidation.ThrowIfNull(selectionHandler, nameof(selectionHandler));
+            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+
             this.stage = stage;
             this.parent = parent;            
             this.repository = repository;
@@ -55,6 +60,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public void Remove(StageTaskViewModel taskVM)
         {
+            ArgumentValidation.ThrowIfNull(taskVM, nameof(taskVM));            
+
             stageTasks.Remove(taskVM);
 
             var ttMgr = new TaskTrackerManager(repository);
@@ -63,6 +70,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public void Add(StageTaskViewModel taskVM)
         {
+            ArgumentValidation.ThrowIfNull(taskVM, nameof(taskVM));
+
             stageTasks.Add(taskVM);
 
             var ttMgr = new TaskTrackerManager(repository);
@@ -104,6 +113,8 @@ namespace TaskTracker.Client.WPF.ViewModels
     {
         public StageTaskViewModel(Task task)
         {
+            ArgumentValidation.ThrowIfNull(task, nameof(task));
+
             this.Task = task;
         }
 
@@ -124,6 +135,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public StageTasksEditorViewModel(IRepository repository)
         {
+            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+
             this.repository = repository;
 
             IEnumerable<Stage> topLevelStages = null;
@@ -195,18 +208,21 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         private void OnRemoveTaskCommand(object sender)
         {
-            var selTaskVM = SelectedStageVM?.SelectedStageTask;
-            if (selTaskVM != null)
-            {
-                SelectedStageVM.Remove(selTaskVM);
-                SelectedStageVM.SelectedStageTask = null;
-            }
+            Debug.Assert(SelectedStageVM != null, "No stage selected.");
+
+            var selTaskVM = SelectedStageVM.SelectedStageTask;
+            Debug.Assert(selTaskVM != null, "No tasks selected in the stage.");            
+            
+            SelectedStageVM.Remove(selTaskVM);
+            SelectedStageVM.SelectedStageTask = null;            
         }
 
         private void OnAddTaskCommand(object sender)
         {
-            if (SelectedStageVM != null && SelectedTask != null)
-                SelectedStageVM.Add(SelectedTask);
+            Debug.Assert(SelectedStageVM != null, "No stage selected.");
+            Debug.Assert(SelectedTask != null, "No task selected.");
+
+            SelectedStageVM.Add(SelectedTask);
         }
 
         private void OnStageSelected(StageViewModel stage)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
+using TaskTracker.Common;
 using TaskTracker.Repository;
 
 namespace TaskTracker.Client.WPF.ViewModels
@@ -11,6 +12,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         protected ReportViewModelBase(IRepository repository)
         {
+            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+
             this.Repository = repository;
             UpdateCommand = new Command<object>(OnUpdateCommand);
         }

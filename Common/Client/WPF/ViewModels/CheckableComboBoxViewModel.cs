@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 
 using TaskTracker.Client.WPF.Utils;
+using TaskTracker.Common;
 
 namespace TaskTracker.Client.WPF.ViewModels
 {
@@ -12,6 +13,8 @@ namespace TaskTracker.Client.WPF.ViewModels
     {        
         public CheckableComboBoxItemViewModel(string name, bool isSelected = false)
         {
+            ArgumentValidation.ThrowIfNullOrEmpty(name, nameof(name));
+
             this.Name = name;
             this.IsSelected = isSelected;
         }
@@ -26,6 +29,7 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public CheckableComboBoxViewModel(IEnumerable<T> collection) : base(collection.ToList())
         {
+            ArgumentValidation.ThrowIfNull(collection, nameof(collection));
             ListChanged += OnItemsChanged;
         }          
 
@@ -50,6 +54,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public void SetSelection(bool selState, IEnumerable<string> items)
         {
+            ArgumentValidation.ThrowIfNull(items, nameof(items));
+
             this.Items.ForEach(item =>
             {                
                 if (items.Contains(item.Name))

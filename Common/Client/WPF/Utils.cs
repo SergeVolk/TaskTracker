@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using TaskTracker.Common;
+
 namespace TaskTracker.Client.WPF.Utils
 {
     public static class EnumUtils
@@ -18,6 +20,8 @@ namespace TaskTracker.Client.WPF.Utils
     {
         public static void ForEach<T>(this IEnumerable<T> target, Action<T> action)
         {
+            ArgumentValidation.ThrowIfNull(action, nameof(action));
+
             foreach (var item in target)
             {
                 action(item);

@@ -49,55 +49,65 @@ namespace TaskTracker.Service
 
         public TaskTrackerService(IRepository repository)
         {
-            if (repository == null)
-                throw new ArgumentNullException(nameof(repository));
-
+            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            
             this.repository = repository;
             //this.groupOperations = new ThreadSafeList<Guid>();
         }
 
         public void Add(Activity activity)
         {
+            ArgumentValidation.ThrowIfNull(activity, nameof(activity));
             repository.Add(activity);
         }
 
         public void Add(Stage stage)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
             repository.Add(stage);
         }
 
         public void Add(Task task)
         {
+            ArgumentValidation.ThrowIfNull(task, nameof(task));
             repository.Add(task);
         }
 
         public void AddTaskToStage(int taskId, int stageId)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
+
             repository.AddTaskToStage(taskId, stageId);
         }
 
         public Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             return repository.FindStage(stageId, propertiesToInclude);
         }
 
         public Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
             return repository.FindTask(taskId, propertiesToInclude);
         }
 
         public TaskType FindTaskType(int taskTypeId)
         {
+            ArgumentValidation.ThrowIfLess(taskTypeId, 0, nameof(taskTypeId));
             return repository.FindTaskType(taskTypeId);
         }
 
         public IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(projectId, 0, nameof(projectId));
             return repository.GetOpenTasksOfProject(projectId, propertiesToInclude);
         }
 
         public IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(userId, 0, nameof(userId));
             return repository.GetOpenTasksOfUser(userId, propertiesToInclude);
         }
 
@@ -108,16 +118,19 @@ namespace TaskTracker.Service
 
         public IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
         {
+            ArgumentValidation.ThrowIfLess(level, 0, nameof(level));
             return repository.GetStages(level, propertiesToInclude, applySelectionToEntireGraph);
         }
 
         public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(stageLimit, 0, nameof(stageLimit));
             return repository.GetStagesWithMaxActivities(stageLimit, propertiesToInclude);
         }
 
         public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
+            ArgumentValidation.ThrowIfLess(stageLimit, 0, nameof(stageLimit));
             return repository.GetStagesWithMaxTasks(stageLimit, propertiesToInclude);
         }        
 
@@ -133,6 +146,7 @@ namespace TaskTracker.Service
 
         public double GetTotalActivityTimeOfStage(int stageId)
         {
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             return repository.GetTotalActivityTimeOfStage(stageId);
         }
 
@@ -147,7 +161,11 @@ namespace TaskTracker.Service
         }
 
         public void EndGroupOperation(Guid operationId)
-        {            
+        {
+            ArgumentValidation.ThrowIf(
+                operationId.Equals(Guid.Empty), 
+                () => new[] { $"Argument '{operationId}' has invalid value: {operationId.ToString()}." });
+
             // empty
         }
 
@@ -158,26 +176,32 @@ namespace TaskTracker.Service
 
         public void RemoveTaskFromStage(int taskId, int stageId)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
+            ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             repository.RemoveTaskFromStage(taskId, stageId);
         }
 
         public void SetTaskStatus(int taskId, Status newStatus)
         {
+            ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
             repository.SetTaskStatus(taskId, newStatus);
         }
 
         public void Update(Stage stage)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
             repository.Update(stage);
         }
 
         public void Update(Activity activity)
         {
+            ArgumentValidation.ThrowIfNull(activity, nameof(activity));
             repository.Update(activity);
         }
 
         public void Update(Task task)
         {
+            ArgumentValidation.ThrowIfNull(task, nameof(task));
             repository.Update(task);
         }
     }

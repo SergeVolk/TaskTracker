@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using TaskTracker.Common;
 using TaskTracker.Model;
 
 namespace TaskTracker.Client.WPF.ViewModels
@@ -12,6 +13,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public StageTreeViewModel(Stage stage, bool isExpanded = false)
         {
+            ArgumentValidation.ThrowIfNull(stage, nameof(stage));
+
             this.isExpanded = isExpanded;
             this.Stage = stage;
             this.ChildItems = stage.SubStages.Select(s => new StageTreeViewModel(s));

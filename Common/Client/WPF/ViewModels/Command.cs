@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 
+using TaskTracker.Common;
+
 namespace TaskTracker.Client.WPF.ViewModels
 {
     public class Command<T> : ICommand
@@ -14,9 +16,8 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public Command(Action<T> handler, Predicate<T> canExecutePredicate)
         {
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
-
+            ArgumentValidation.ThrowIfNull(handler, nameof(handler));
+            
             this.handler = handler;
             this.canExecutePredicate = canExecutePredicate;
         }
@@ -49,9 +50,7 @@ namespace TaskTracker.Client.WPF.ViewModels
 
         public void Add(ICommand command)
         {
-            if (command == null)
-                throw new ArgumentNullException(nameof(command));
-
+            ArgumentValidation.ThrowIfNull(command, nameof(command));            
             childCommands.Add(command);
         }
 
