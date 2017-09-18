@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TaskTracker.Model
 {
@@ -27,12 +23,12 @@ namespace TaskTracker.Model
             return result;
         }
 
-        public void ForAll(Action<Stage> action)
+        public void VisitAll(Action<Stage> action)
         {
             action(this);
             foreach (var item in SubStages)
             {
-                item.ForAll(action);
+                item.VisitAll(action);
             }
         }
     }

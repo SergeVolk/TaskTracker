@@ -32,8 +32,8 @@ namespace TaskTracker.Client.WPF.ViewModels
             this.Selected += selectionHandler;
             this.repository = repository;
                         
-            this.SubStagesVM = new ReadOnlyCollection<StageViewModel>(stage.SubStages.Convert(s => new StageViewModel(s, this, selectionHandler, repository)));
-            this.stageTasks = new ObservableCollection<StageTaskViewModel>(stage.Task.Convert(t => new StageTaskViewModel(t)));
+            this.SubStagesVM = stage.SubStages.Select(s => new StageViewModel(s, this, selectionHandler, repository)).ToList();
+            this.stageTasks = new ObservableCollection<StageTaskViewModel>(stage.Task.Select(t => new StageTaskViewModel(t)).ToList());
         }
 
         public bool IsSelected
@@ -144,25 +144,25 @@ namespace TaskTracker.Client.WPF.ViewModels
         {
             this.repository = repository;
 
+            IEnumerable<Stage> topLevelStages = null;
+            IEnumerable<Task> tasks = null;
+
             repository.GroupOperations(op =>
             {
-                var stagePropsSelector = new SelectedProperties<Stage>().Select("Task.Stage").Select("Task.Project");
-
-                var topLevelStages = op.GetStages(0, stagePropsSelector, true);
-                topLevelStagesVM = new List<StageViewModel>(topLevelStages.Convert(s => new StageViewModel(s, null, OnStageSelected, op)));
+                var stagePropsSelector = new PropertySelector<Stage>().Select("Task.Stage").Select("Task.Project");
+                topLevelStages = op.GetStages(0, stagePropsSelector, true);                
 
                 var taskFilter = new TaskFilter();
                 taskFilter.Statuses = new List<string> { "Open", "InProgress" };
 
-                var tasks = op.GetTasks(taskFilter, new SelectedProperties<Task>().
+                tasks = op.GetTasks(taskFilter, new PropertySelector<Task>().
                     Select(t => t.Project).
                     Select(t => t.Assignee).
-                    Select("Stage.Task"));
-
-                AllTasks = new List<StageTaskViewModel>(tasks.Convert(t => new StageTaskViewModel(t)));
+                    Select("Stage.Task"));                
             });
 
-            topLevelStagesVM.ForEach(s => s.IsExpanded = true);
+            TopLevelStagesVM = topLevelStages.Select(s => new StageViewModel(s, null, OnStageSelected, repository, true)).ToList();
+            AllTasks = tasks.Select(t => new StageTaskViewModel(t)).ToList();
 
             RemoveTaskCommand = new Command<object>(OnRemoveTaskCommand);
             AddTaskCommand = new Command<object>(OnAddTaskCommand);

@@ -432,16 +432,15 @@ namespace TaskTracker.Repository.Sql
 
         private void Add(Stage stage, TaskTrackerModelContainer ctx)
         {
-            stage.ForAll(
-                s => 
+            stage.VisitAll(s => 
+            {
+                foreach (var task in s.Task)
                 {
-                    foreach (var task in s.Task)
-                    {
-                        ctx.TaskSet.Attach(task);
-                    }
+                    ctx.TaskSet.Attach(task);
+                }
 
-                    ctx.StageSet.Add(s);
-                });
+                ctx.StageSet.Add(s);
+            });
 
             ctx.SaveChanges();
         }
@@ -648,7 +647,7 @@ namespace TaskTracker.Repository.Sql
                     dayStage.EndTime = startTime + TimeSpan.FromDays(1);
                 }
             }            
-            stage2.ForAll(s => ctx.StageSet.Add(s));
+            stage2.VisitAll(s => ctx.StageSet.Add(s));
             ctx.SaveChanges();            
         }
 
