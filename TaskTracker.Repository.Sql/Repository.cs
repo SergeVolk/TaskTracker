@@ -635,10 +635,10 @@ namespace TaskTracker.Repository.Sql
                 Summary = summary,
                 Description = desc,
                 Priority = (Priority)Enum.Parse(typeof(Priority), prio),
-                Creator = ctx.UserSet.First(u => u.Name == reporter), 
-                Assignee = !String.IsNullOrEmpty(assignee) ? ctx.UserSet.First(u => u.Name == assignee) : null,
-                TaskTypeId = ctx.TaskTypeSet.First(ttype => ttype.Name == tt).Id,
-                Project = ctx.ProjectSet.First(p => p.Name == project),
+                Creator = ctx.UserSet.First(u => u.Name.Equals(reporter)),
+                Assignee = !String.IsNullOrEmpty(assignee) ? ctx.UserSet.First(u => u.Name.Equals(assignee)) : null,
+                TaskTypeId = ctx.TaskTypeSet.First(ttype => ttype.Name.Equals(tt)).Id,
+                Project = ctx.ProjectSet.First(p => p.Name.Equals(project)),
                 Estimation = estimation,
                 Status = defaultStatus
             };
@@ -701,7 +701,7 @@ namespace TaskTracker.Repository.Sql
                 ctx.UserSet.AddRange(users);
                 ctx.SaveChanges();
             }
-            defaultUser = ctx.UserSet.Where(u => u.Name == DefaultReporter).First(); 
+            defaultUser = ctx.UserSet.Where(u => u.Name.Equals(DefaultReporter)).First(); 
         }
 
         private static void EnsureTaskTypesGenerated(TaskTrackerModelContainer ctx)

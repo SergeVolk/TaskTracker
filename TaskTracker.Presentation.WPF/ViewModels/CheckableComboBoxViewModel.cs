@@ -67,7 +67,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         private void OnItemsChanged(object sender, ListChangedEventArgs e)
         {
-            if ((e.ListChangedType == ListChangedType.ItemChanged) && (e.PropertyDescriptor.Name == IsItemSelectedPropName))
+            if ((e.ListChangedType == ListChangedType.ItemChanged) && (e.PropertyDescriptor.Name.Equals(IsItemSelectedPropName)))
             {
                 var item = (sender as IList)?[e.NewIndex];
                 if (item != null)

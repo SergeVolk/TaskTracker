@@ -234,7 +234,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SelectedStageTask))
+            if (e.PropertyName.Equals(nameof(SelectedStageTask)))
                 NotifyPropertyChanged(nameof(SelectedStageTask));
         }
     }

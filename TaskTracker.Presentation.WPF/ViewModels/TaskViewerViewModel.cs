@@ -6,6 +6,7 @@ using System.Windows.Input;
 using TaskTracker.Model;
 using TaskTracker.Repository;
 using TaskTracker.ExceptionUtils;
+using TaskTracker.Presentation.WPF.Utils;
 
 namespace TaskTracker.Presentation.WPF.ViewModels
 {
@@ -134,18 +135,21 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
             if (uiService.ShowTaskEditorWindow(taskEditorVM))
             {
-                double? estimation = null;
-                if (taskEditorVM.Estimation != null)
-                    estimation = Double.Parse(taskEditorVM.Estimation);                             
+                Debug.Assert(!String.IsNullOrEmpty(taskEditorVM.SelectedProject));
+                Debug.Assert(!String.IsNullOrEmpty(taskEditorVM.SelectedTaskType));
+                Debug.Assert(!String.IsNullOrEmpty(taskEditorVM.SelectedPriority));
+
+                double? estimation = ConversionUtils.SafeParseDouble(taskEditorVM.Estimation);                
+                string selAssignee = taskEditorVM.SelectedAssignee;
 
                 var task = new Task
                 {
                     Id = TaskId,
                     Priority = (Priority)Enum.Parse(typeof(Priority), taskEditorVM.SelectedPriority),
-                    Assignee = repository.GetUsers().First(u => u.Name == taskEditorVM.SelectedAssignee),
-                    Creator = repository.GetUsers().First(u => u.Name == Reporter),
-                    Project = repository.GetProjects().First(p => p.Name == taskEditorVM.SelectedProject),
-                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name == taskEditorVM.SelectedTaskType).Id,
+                    Assignee = !String.IsNullOrEmpty(selAssignee) ? repository.GetUsers().First(u => u.Name.Equals(selAssignee)) : null,
+                    Creator = repository.GetUsers().First(u => u.Name.Equals(Reporter)),
+                    Project = repository.GetProjects().First(p => p.Name.Equals(taskEditorVM.SelectedProject)),
+                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name.Equals(taskEditorVM.SelectedTaskType)).Id,
                     Description = taskEditorVM.Description,
                     Estimation = estimation,
                     Summary = taskEditorVM.Summary
@@ -167,7 +171,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                     SetTaskStatus(Status.Open);
                     break;
                 default:
-                    throw new InvalidOperationException();
+                    throw ExceptionFactory.NotSupported(Status);
             }
         }
 
@@ -182,7 +186,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                     SetTaskStatus(Status.Open);
                     break;
                 default:
-                    throw new InvalidOperationException();
+                    throw ExceptionFactory.NotSupported(Status);
             }
         }
 

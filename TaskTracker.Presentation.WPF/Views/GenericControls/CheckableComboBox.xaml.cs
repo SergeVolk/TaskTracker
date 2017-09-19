@@ -49,7 +49,7 @@ namespace TaskTracker.Presentation.WPF.Views
 
         private void OnItemsChanged(object sender, ListChangedEventArgs e)
         {
-            if ((e.ListChangedType == ListChangedType.ItemChanged) && (e.PropertyDescriptor.Name == IsItemSelectedPropName))
+            if ((e.ListChangedType == ListChangedType.ItemChanged) && (e.PropertyDescriptor.Name.Equals(IsItemSelectedPropName)))
             {
                 NotifyPropertyChanged(nameof(Text));
             }

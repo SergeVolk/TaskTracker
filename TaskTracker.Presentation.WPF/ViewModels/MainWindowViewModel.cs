@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using System.Diagnostics;
 
 using TaskTracker.Model;
 using TaskTracker.Repository;
@@ -33,7 +34,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             this.repository = repository; 
 
             defaultStatus = Status.Open;
-            defaultUser = repository.GetUsers().First(u => u.Name == DefaultReporter);
+            defaultUser = repository.GetUsers().First(u => u.Name.Equals(DefaultReporter));
 
             ProjectFilterVM = new ProjectFilterViewModel(repository.GetProjects().Select(p => new ProjectFilterItemViewModel(p)));
             StatusFilterVM = new StatusFilterViewModel(EnumUtils.GetValues<Status>().Select(s => new StatusFilterItemViewModel(s)));
@@ -84,12 +85,6 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
-        private Double? SafeParseDouble(string str)
-        {
-            double tmp;
-            return Double.TryParse(str, out tmp) ? tmp : (double?)null;
-        }
-
         private void OnButtonCreateTaskClicked(object sender)
         {
             var taskCreationVM = new TaskEditorViewModel()
@@ -103,21 +98,24 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                         
             if (uiService.ShowTaskCreationWindow(taskCreationVM))
             {
-                Priority priority;
-                if (!Enum.TryParse(taskCreationVM.SelectedPriority, out priority))
-                    priority = Priority.Normal;                
+                Debug.Assert(!String.IsNullOrEmpty(taskCreationVM.SelectedProject));
+                Debug.Assert(!String.IsNullOrEmpty(taskCreationVM.SelectedTaskType));
+                Debug.Assert(!String.IsNullOrEmpty(taskCreationVM.SelectedPriority));
 
-                double? estimation = SafeParseDouble(taskCreationVM.Estimation);
-                                
+                Priority priority = (Priority)Enum.Parse(typeof(Priority), taskCreationVM.SelectedPriority);
+
+                double? estimation = ConversionUtils.SafeParseDouble(taskCreationVM.Estimation);
+                string selAssignee = taskCreationVM.SelectedAssignee;
+
                 var task = new Task
                 {
                     Summary = taskCreationVM.Summary,
                     Description = taskCreationVM.Description,
                     Priority = priority,
                     Creator = defaultUser,
-                    Assignee = repository.GetUsers().First(u => u.Name == taskCreationVM.SelectedAssignee),
-                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name == taskCreationVM.SelectedTaskType).Id,
-                    Project = repository.GetProjects().First(p => p.Name == taskCreationVM.SelectedProject),
+                    Assignee = !String.IsNullOrEmpty(selAssignee) ? repository.GetUsers().First(u => u.Name.Equals(selAssignee)) : null,
+                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name.Equals(taskCreationVM.SelectedTaskType)).Id,
+                    Project = repository.GetProjects().First(p => p.Name.Equals(taskCreationVM.SelectedProject)),
                     Estimation = estimation,
                     Status = defaultStatus
                 };
