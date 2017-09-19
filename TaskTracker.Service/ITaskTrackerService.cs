@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 
-using TaskTracker.Common;
 using TaskTracker.Model;
+using TaskTracker.Filters;
+using TaskTracker.SyntaxUtils;
 
 namespace TaskTracker.Service
 {

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 
 using TaskTracker.Model;
-using TaskTracker.Common;
+using TaskTracker.Filters;
+using TaskTracker.SyntaxUtils;
 
 namespace TaskTracker.Repository
 {

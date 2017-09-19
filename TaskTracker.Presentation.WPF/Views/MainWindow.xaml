@@ -1,0 +1,106 @@
+﻿<Window x:Class="TaskTracker.Presentation.WPF.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="clr-namespace:TaskTracker.Presentation.WPF.Converters"
+        xmlns:views="clr-namespace:TaskTracker.Presentation.WPF.Views"
+        xmlns:vm="clr-namespace:TaskTracker.Presentation.WPF.ViewModels"
+        mc:Ignorable="d"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        Title="Task Tracker" Height="659.209" Width="1112.569">
+    <Window.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </Window.Resources>
+    <DockPanel x:Name="pnlMainFormLayout" Margin="0">
+        <TabControl x:Name="tabTaskTrackerPages" SelectedIndex="0">
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <Border x:Name="brdTabBorder" BorderThickness="1" Margin="0">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                        </Border.BorderBrush>
+                        <DockPanel x:Name="pnlTab" Margin="0">
+                            <Grid x:Name="pnlHeader" DockPanel.Dock="Top" VerticalAlignment="Top" Height="55">
+                                <Grid.Background>
+                                    <LinearGradientBrush EndPoint="1,1" StartPoint="0,1">
+                                        <GradientStop Color="{DynamicResource {x:Static SystemColors.GradientActiveCaptionColorKey}}" Offset="0"/>
+                                        <GradientStop Color="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionColorKey}}" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                                <Label x:Name="lblTabTitle" Content="{Binding Tag}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0"/>
+                            </Grid>
+                            <ContentPresenter Content="{Binding}"/>
+                        </DockPanel>
+                    </Border>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+            <TabItem x:Name="tabTasks" Header="Tasks">
+                <DockPanel x:Name="pnlTasksTab" Margin="0,0,0,2" Tag="Tasks Management">
+                    <Grid x:Name="gridTaskControls" HorizontalAlignment="Left" Width="295">
+                        <Separator Height="2" Margin="88,24,10,0" VerticalAlignment="Top"/>
+                        <Button x:Name="btnAllTasks" Content="All Tasks" Margin="88,138,10,0" VerticalAlignment="Top" Command="{Binding ShowAllTasksCommand}" Height="22"/>
+                        <views:CheckableComboBox x:Name="cboStatusFilter" ItemsSource="{Binding StatusFilterVM}" DefaultText="Choose statuses..."
+                                                 Height="22" Margin="88,41,10,0" VerticalAlignment="Top"/>
+                        <Label x:Name="lblStatusFilter" Content="Status:" HorizontalAlignment="Left" Margin="9,39,0,0" VerticalAlignment="Top"/>
+                        <views:CheckableComboBox x:Name="cboProjectFilter" ItemsSource="{Binding ProjectFilterVM}" DefaultText="Choose projects..."
+                                                 VerticalAlignment="Top" Height="22" Margin="88,72,10,0" />
+                        <Label x:Name="lblProjectFilter" Content="Project:" HorizontalAlignment="Left" Margin="9,70,0,0" VerticalAlignment="Top"/>
+                        <views:CheckableComboBox x:Name="cboPriorityFilter" ItemsSource="{Binding PriorityFilterVM}" DefaultText="Choose priorities..."
+                                                 Height="22" Margin="88,102,10,0" VerticalAlignment="Top"/>
+                        <Label x:Name="lblPriorityFilter" Content="Priority:" HorizontalAlignment="Left" Margin="9,100,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="lblFilters" Content="Task Filters" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+                        <Separator Height="2" Margin="88,185,10,0" VerticalAlignment="Top"/>
+                        <Label x:Name="lblNewTasks" Content="New Tasks" HorizontalAlignment="Left" Margin="10,170,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+                        <Button x:Name="btnCreateRandomTask" Content="Create Task" Margin="88,202,10,0" VerticalAlignment="Top" 
+                                            Command="{Binding CreateTaskCommand}"/>
+                    </Grid>
+                    <Grid x:Name="gridTaskList" Margin="0" Width="381">
+                        <ListView x:Name="lvTasks" ItemsSource="{Binding TaskViewerViewModels}" IsEnabled="{Binding HasItems, ElementName=lvTasks}"
+                                    SelectedItem="{Binding SelectedTask, Mode=TwoWay}" Margin="10" 
+                                    IsHitTestVisible="True" IsSynchronizedWithCurrentItem="True">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Margin" Value="0,0,10,0" />
+                                                <Setter Property="FontSize" Value="12" />
+                                            </Style>
+                                        </StackPanel.Resources>
+                                        <TextBlock x:Name="tbTaskId" Text="{Binding ShortTaskName}" FontWeight="Bold"/>
+                                        <TextBlock x:Name="tbSummary" Text="{Binding Summary}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                    <DockPanel x:Name="pnlTaskDetails">
+                        <Border x:Name="brdTaskDetails" BorderThickness="1" Margin="0">
+                            <views:TaskViewer x:Name="taskDetailsViewerControl" DataContext="{Binding SelectedItem, ElementName=lvTasks}" 
+                                        Width="Auto" Height="Auto" Margin="0"
+                                        Visibility="{Binding SelectedItem, Converter={StaticResource NullToVisibilityConverter}, ElementName=lvTasks}"/>
+                        </Border>
+                    </DockPanel>
+                </DockPanel>
+            </TabItem>
+            <TabItem x:Name="tabSchedule" Header="Schedule">
+                <DockPanel x:Name="pnlScheduleTab" LastChildFill="True" Tag="Tasks Scheduling">
+                    <views:StageTasksEditor x:Name="taskStageEditor" DataContext="{Binding TaskStageEditorVM}" Width="Auto" Height="Auto"/>
+                </DockPanel>
+            </TabItem>
+            <TabItem x:Name="tabReports" Header="Reports">
+                <DockPanel x:Name="pnlReportsTab" LastChildFill="True" DataContext="{Binding ReportsVM}" Margin="0" Tag="Display Reports">
+                    <StackPanel x:Name="stackReports">
+                        <views:MaxActivitiesStageReport x:Name="maxActivitiesStageReport" DataContext="{Binding MaxActivitiesStageReportVM}" Width="Auto" Height="Auto"/>
+                        <Separator Height="1" Margin="0"/>
+                        <views:MaxTasksStagesReport x:Name="maxTasksStagesReport" DataContext="{Binding MaxTasksStagesReportVM}" />
+                        <Separator Height="1" Margin="0"/>
+                        <views:TotalActivitiesTimeOfStageReport x:Name="timeOfStageReport" DataContext="{Binding TotalActivitiesTimeOfStageReportVM}"/>
+                        <Separator Height="1" Margin="0"/>
+                    </StackPanel>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

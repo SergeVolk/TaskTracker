@@ -8,8 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 
-using TaskTracker.Common;
 using TaskTracker.Model;
+using TaskTracker.ExceptionUtils;
+using TaskTracker.SyntaxUtils;
+using TaskTracker.Filters;
 
 // Workaround: otherwise "EntityFramework.SqlServer.dll" is not copyied to client-app's "bin" along with "Repository.dll"
 using SqlProviderServices = System.Data.Entity.SqlServer.SqlProviderServices;

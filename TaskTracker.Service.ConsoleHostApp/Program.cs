@@ -6,7 +6,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
-using TaskTracker.Common;
+using TaskTracker.ExceptionUtils;
 using TaskTracker.Repository.Sql;
 
 namespace TaskTracker.Service.ConsoleHostApp

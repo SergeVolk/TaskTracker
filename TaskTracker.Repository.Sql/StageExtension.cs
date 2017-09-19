@@ -1,11 +1,11 @@
 ﻿using System;
 
 using TaskTracker.Model;
-using TaskTracker.Common;
+using TaskTracker.ExceptionUtils;
 
 namespace TaskTracker.Repository.Sql
 {
-    public static class StageUtils
+    internal static class StageUtils
     {
         private static Stage CreateStage(int level, Stage parent, string name) 
         {
