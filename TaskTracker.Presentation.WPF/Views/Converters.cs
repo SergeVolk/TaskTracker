@@ -8,83 +8,63 @@ using TaskTracker.Model;
 
 namespace TaskTracker.Presentation.WPF.Converters
 {
-    #region TaskTracker Specific
-    internal class StatusToVisibilityConverter : IValueConverter
+    internal abstract class OneWayValueConverterBase : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public abstract object Convert(object value, Type targetType, object parameter, CultureInfo culture);        
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #region TaskTracker Specific
+    internal class StatusToVisibilityConverter : OneWayValueConverterBase
+    {
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (Status)value == Status.Closed ? Visibility.Collapsed : Visibility.Visible;
         }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
     }
 
-    internal class ProgressOperationStatusToStringConverter : IValueConverter
+    internal class ProgressOperationStatusToStringConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (Status)value == Status.InProgress ? "Stop Progress" : "Start Progress";            
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
-    internal class CloseTaskStatusToStringConverter : IValueConverter
+    internal class CloseTaskStatusToStringConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (Status)value == Status.Closed ? "Reopen Task" : "Close Task";            
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
-    internal class UserToStringConverter : IValueConverter
+    internal class UserToStringConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return ((User)value).Name;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
-    internal class ProjectToStringConverter : IValueConverter
+    internal class ProjectToStringConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return ((Project)value).Name;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
-    internal class TaskTypeToStringConverter : IValueConverter
+    internal class TaskTypeToStringConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return ((TaskType)value).Name;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
     internal class StatusToStringConverter : IValueConverter
@@ -113,18 +93,13 @@ namespace TaskTracker.Presentation.WPF.Converters
         }
     }
 
-    internal class StageToTimeIntervalStringConverter : IValueConverter
+    internal class StageToTimeIntervalStringConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var stage = (Stage)value;
             return $"{stage.StartTime} - {stage.EndTime}";
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
     #endregion
 
@@ -144,30 +119,20 @@ namespace TaskTracker.Presentation.WPF.Converters
         }
     }
 
-    internal class BoolToVisibilityConverter : IValueConverter
+    internal class BoolToVisibilityConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (bool)value ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
-    internal class NullToVisibilityConverter : IValueConverter
+    internal class NullToVisibilityConverter : OneWayValueConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value != null ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 
     // For debug purposes
