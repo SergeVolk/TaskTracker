@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-using TaskTracker.ExceptionUtils;
-
 namespace TaskTracker.SyntaxUtils
 {   
     [Serializable]
@@ -23,7 +21,8 @@ namespace TaskTracker.SyntaxUtils
                 
         public PropertySelector<T> Select(string propertyPath)
         {
-            ArgumentValidation.ThrowIfNullOrEmpty(propertyPath, nameof(propertyPath));
+            if (String.IsNullOrEmpty(propertyPath))
+                throw new ArgumentException($"Argument '{nameof(propertyPath)}' cannot be null or empty.");
 
             Type parent = typeof(T);            
 
@@ -47,8 +46,9 @@ namespace TaskTracker.SyntaxUtils
 
         public PropertySelector<T> Select<TProperty>(Expression<Func<T, TProperty>> property)
         {
-            ArgumentValidation.ThrowIfNull(property, nameof(property));
-
+            if (property == null)
+                throw new ArgumentNullException(nameof(property));
+            
             var member = property.Body as MemberExpression;
             if (member == null || member.Member.MemberType != MemberTypes.Property)
                 throw new InvalidOperationException("Provided expression cannot be used for selecting the property.");
