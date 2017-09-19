@@ -74,7 +74,6 @@
     <Compile Include="Stage.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>
-    <Compile Include="StageExtension.cs" />
     <Compile Include="Status.cs">
       <DependentUpon>Entities.tt</DependentUpon>
     </Compile>

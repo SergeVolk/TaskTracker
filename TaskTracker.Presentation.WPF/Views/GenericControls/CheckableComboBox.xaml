@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="TaskTracker.Presentation.WPF.Views.CheckableComboBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TaskTracker.Presentation.WPF.Views"
+             x:Name="UserControlRoot">
+    <UserControl.Resources>
+        <LinearGradientBrush x:Key="NormalBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientBrush.GradientStops>
+                <GradientStopCollection>
+                    <GradientStop Color="#FFF" Offset="0.0"/>
+                    <GradientStop Color="#CCC" Offset="1.0"/>
+                </GradientStopCollection>
+            </GradientBrush.GradientStops>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="NormalBorderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientBrush.GradientStops>
+                <GradientStopCollection>
+                    <GradientStop Color="#CCC" Offset="0.0"/>
+                    <GradientStop Color="#444" Offset="1.0"/>
+                </GradientStopCollection>
+            </GradientBrush.GradientStops>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="TogglePressedBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientBrush.GradientStops>
+                <GradientStopCollection>
+                    <GradientStop Color="#BBB" Offset="0.0"/>
+                    <GradientStop Color="#EEE" Offset="0.1"/>
+                    <GradientStop Color="#EEE" Offset="0.9"/>
+                    <GradientStop Color="#FFF" Offset="1.0"/>
+                </GradientStopCollection>
+            </GradientBrush.GradientStops>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="SolidBorderBrush" Color="#CCC" />
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFF" />
+        <SolidColorBrush x:Key="GlyphBrush" Color="#444" />        
+
+        <ControlTemplate x:Key="CheckComboToggleButton" TargetType="ToggleButton">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                </Grid.ColumnDefinitions>
+                <Border x:Name="Border" Grid.ColumnSpan="2" CornerRadius="2" Background="{StaticResource NormalBrush}" 
+                        BorderBrush="{StaticResource NormalBorderBrush}" BorderThickness="1" />
+                <Border Grid.Column="0" CornerRadius="2,0,0,2" Margin="1" Background="{StaticResource WindowBackgroundBrush}" 
+                        BorderBrush="{StaticResource NormalBorderBrush}" BorderThickness="0,0,1,0" />
+                <Path x:Name="Arrow" Grid.Column="1" Fill="{StaticResource GlyphBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                      Data="M 0 0 L 4 4 L 8 0 Z"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="ToggleButton.IsChecked" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="{StaticResource TogglePressedBrush}" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Resources>
+    
+    <DockPanel x:Name="pnlLaoyout" Margin="0">
+        <ComboBox x:Name="comboBox" Height="22" MinWidth="100" ItemsSource="{Binding ItemsSource, ElementName=UserControlRoot}">
+            <ComboBox.ItemTemplate>
+                <HierarchicalDataTemplate>
+                    <CheckBox x:Name="checkBoxItem" Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                </HierarchicalDataTemplate>
+            </ComboBox.ItemTemplate>
+            <ComboBox.Template>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton Name="ToggleButton" Grid.Column="2" Template="{StaticResource CheckComboToggleButton}" Focusable="false" 
+                                      IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      ClickMode="Press">
+                        </ToggleButton>
+                        <ContentPresenter x:Name="Presenter" IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                          Margin="3,3,23,3">
+                            <ContentPresenter.Content>
+                                <TextBlock TextTrimming="CharacterEllipsis" Text="{Binding Text, ElementName=UserControlRoot, UpdateSourceTrigger=PropertyChanged}"/>
+                            </ContentPresenter.Content>
+                        </ContentPresenter>
+                        <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" 
+                               Focusable="False" PopupAnimation="Slide">
+                            <Grid Name="DropDown" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" 
+                                  SnapsToDevicePixels="True" >
+                                <Border x:Name="DropDownBorder" Background="{StaticResource WindowBackgroundBrush}" BorderThickness="1" 
+                                    BorderBrush="{StaticResource SolidBorderBrush}"/>
+                                <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True" DataContext="{Binding}">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="false">
+                            <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </ComboBox.Template>
+        </ComboBox>
+    </DockPanel>
+</UserControl>

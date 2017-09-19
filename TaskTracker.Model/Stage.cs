@@ -35,7 +35,7 @@ namespace TaskTracker.Model
         public Nullable<System.DateTime> EndTime { get; set; }
 
         [DataMember]
-        public int Level { get; private set; }
+        public int Level { get; set; }
 
         [DataMember]
         public string Description { get; set; }

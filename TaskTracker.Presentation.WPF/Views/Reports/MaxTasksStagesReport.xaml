@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="TaskTracker.Presentation.WPF.Views.MaxTasksStagesReport"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TaskTracker.Presentation.WPF.Views"
+             xmlns:converters="clr-namespace:TaskTracker.Presentation.WPF.Converters"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:StageToTimeIntervalStringConverter x:Key="StageToTimeIntervalStringConverter"/>
+    </UserControl.Resources>
+
+    <Grid x:Name="pnlLayout" Margin="0,0,0,19">
+        <DataGrid x:Name="dataGrid" ItemsSource="{Binding Stages}" HeadersVisibility="Column" AutoGenerateColumns="False" Margin="19,44,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" CanUserReorderColumns="False" CanUserResizeRows="False">
+            <DataGrid.VerticalGridLinesBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
+            </DataGrid.VerticalGridLinesBrush>
+            <DataGrid.HorizontalGridLinesBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}"/>
+            </DataGrid.HorizontalGridLinesBrush>
+            <DataGrid.BorderBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+            </DataGrid.BorderBrush>
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Stage.Name}" Header="Stage"/>
+                <DataGridTextColumn Binding="{Binding Stage.Level}" Header="Level"/>
+                <DataGridTextColumn Binding="{Binding Stage, Converter={StaticResource StageToTimeIntervalStringConverter}}" Header="Time Interval"/>
+                <DataGridTextColumn Binding="{Binding TaskCount}" Header="Task Count"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label x:Name="lblReportHint" Content="What stages do include a maximal number of tasks?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold"/>
+    </Grid>
+</UserControl>

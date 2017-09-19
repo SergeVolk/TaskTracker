@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
-using TaskTracker.Common;
+
 using TaskTracker.Model;
+using TaskTracker.Filters;
+using TaskTracker.SyntaxUtils;
 
 namespace TaskTracker.Service
 {
@@ -14,40 +12,40 @@ namespace TaskTracker.Service
     public interface ITaskTrackerService
     {
         [OperationContract]
-        IEnumerable<User> GetUsers(SelectedProperties<User> propertiesToInclude = null);
+        IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null);
 
         [OperationContract]
-        IEnumerable<Project> GetProjects(SelectedProperties<Project> propertiesToInclude = null);
+        IEnumerable<Project> GetProjects(PropertySelector<Project> propertiesToInclude = null);
 
         [OperationContract]
         IEnumerable<TaskType> GetTaskTypes();
             
         [OperationContract]
-        IEnumerable<Task> GetTasks(TaskFilter filter = null, SelectedProperties<Task> sel = null);
+        IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null);
         
         [OperationContract]
-        IEnumerable<Task> GetOpenTasksOfUser(int userId, SelectedProperties<Task> propertiesToInclude = null);
+        IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null);
 
         [OperationContract]
-        IEnumerable<Task> GetOpenTasksOfProject(int projectId, SelectedProperties<Task> propertiesToInclude = null);
+        IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null);
         
         [OperationContract]
-        IEnumerable<Stage> GetStages(int level, SelectedProperties<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false);
+        IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false);
         
         [OperationContract]
-        IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null);
+        IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null);
         
         [OperationContract]
-        IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, SelectedProperties<Stage> propertiesToInclude = null);
+        IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null);
 
         [OperationContract]
         double GetTotalActivityTimeOfStage(int stageId);
         
         [OperationContract]
-        Task FindTask(int taskId, SelectedProperties<Task> propertiesToInclude = null);
+        Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null);
 
         [OperationContract]
-        Stage FindStage(int stageId, SelectedProperties<Stage> propertiesToInclude = null);
+        Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null);
         
         [OperationContract]
         TaskType FindTaskType(int taskTypeId);

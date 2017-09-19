@@ -6,6 +6,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
+using TaskTracker.ExceptionUtils;
 using TaskTracker.Repository.Sql;
 
 namespace TaskTracker.Service.ConsoleHostApp
@@ -36,6 +37,7 @@ namespace TaskTracker.Service.ConsoleHostApp
 
         public DependencyInjectionInstanceProvider(Type serviceType)
         {
+            ArgumentValidation.ThrowIfNull(serviceType, nameof(serviceType));
             this.serviceType = serviceType;
         }
 
@@ -46,7 +48,7 @@ namespace TaskTracker.Service.ConsoleHostApp
 
         public object GetInstance(InstanceContext instanceContext, Message message)
         {            
-            return new TaskTrackerService(new SqlRepositoryFactory().CreateRepository(dbConnectionString));            
+            return new TaskTrackerService(new SqlRepositoryFactory(false).CreateRepository(dbConnectionString));            
         }
 
         public void ReleaseInstance(InstanceContext instanceContext, object instance)
@@ -57,6 +59,9 @@ namespace TaskTracker.Service.ConsoleHostApp
     {
         public void ApplyDispatchBehavior(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase)
         {
+            ArgumentValidation.ThrowIfNull(serviceDescription, nameof(serviceDescription));
+            ArgumentValidation.ThrowIfNull(serviceHostBase, nameof(serviceHostBase));
+
             foreach (ChannelDispatcherBase cdb in serviceHostBase.ChannelDispatchers)
             {
                 ChannelDispatcher cd = cdb as ChannelDispatcher;
