@@ -28,4 +28,13 @@ namespace TaskTracker.Presentation.WPF.Utils
             }
         }
     }
+
+    internal static class ConversionUtils
+    {
+        public static Double? SafeParseDouble(string str)
+        {
+            double tmp;
+            return Double.TryParse(str, out tmp) ? tmp : (double?)null;
+        }
+    }
 }
