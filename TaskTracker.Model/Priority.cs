@@ -14,7 +14,7 @@ namespace TaskTracker.Model
     public enum Priority : byte
     {
         Normal = 0,
-        High = 1,
-        Low = 2
+        Low = 1,        
+        High = 2        
     }
 }

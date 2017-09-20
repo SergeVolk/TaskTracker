@@ -26,5 +26,10 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         {
             return new NotSupportedException(String.Format("Status '{0}' not supported.", status.ToString()));
         }
+
+        public static Exception NotSupported(Priority priority)
+        {
+            return new NotSupportedException(String.Format("Priority '{0}' not supported.", priority.ToString()));
+        }
     }
 }

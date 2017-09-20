@@ -133,6 +133,21 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             QueryTasks();
         }
 
+        private static int PriorityOrderer(Priority p)
+        {
+            switch (p)
+            {
+                case Priority.Low:
+                    return 0;
+                case Priority.Normal:
+                    return 1;
+                case Priority.High:
+                    return 2;
+                default:
+                    throw ExceptionFactory.NotSupported(p);
+            }
+        }
+                
         private void QueryTasks()
         {                
             var selectedStatuses = (StatusFilterVM != null) ? StatusFilterVM.GetSelectedItems() : Enumerable.Empty<string>();
@@ -151,7 +166,9 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                     Select(t => t.Creator).
                     Select("Stage.Task"));            
 
-            TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository));
+            TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository)).
+                OrderByDescending(ks => ks.TaskId).
+                OrderByDescending(ks => ks.Priority, Comparer<Priority>.Create((l, r) => PriorityOrderer(l).CompareTo(PriorityOrderer(r))));
             SelectedTask = TaskViewerViewModels.FirstOrDefault();
         }
 
