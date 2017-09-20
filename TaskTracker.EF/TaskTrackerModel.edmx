@@ -338,8 +338,8 @@
         </EntityType>
         <EnumType Name="Priority" UnderlyingType="Byte">
           <Member Name="Normal" Value="0" />
-          <Member Name="High" Value="1" />
-          <Member Name="Low" Value="2" />
+          <Member Name="Low" Value="1" />
+          <Member Name="High" Value="2" />
         </EnumType>
         <EntityType Name="Project">
           <Key>

@@ -29,7 +29,7 @@ namespace TaskTracker.Repository.Sql
 
         public override IRepository CreateRepository(string connectionString)
         {
-            return new SqlRepository(connectionString, proxyCreationEnabled);
+            return new SqlRepository(connectionString, new ModelContainerFactory(), proxyCreationEnabled);
         }
     }
 
@@ -39,7 +39,203 @@ namespace TaskTracker.Repository.Sql
         {
             ArgumentValidation.ThrowIfNullOrEmpty(connectionString, nameof(connectionString));
         }
-    }    
+    }
+        
+    internal interface IModelContainerFactory
+    {
+        TaskTrackerModelContainer CreateModelContainer(string connectionString);
+    }
+
+    internal class ModelContainerFactory : IModelContainerFactory
+    {
+        public TaskTrackerModelContainer CreateModelContainer(string connectionString)
+        {
+            return new TaskTrackerModelContainer(GetEmdAwareConnectionString(connectionString));
+        }
+
+        private static string GetEmdAwareConnectionString(string srcConnectionString)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(srcConnectionString));
+
+            EntityConnectionStringBuilder entityBuilder = new EntityConnectionStringBuilder();
+
+            var entityFrameworkDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDi‌​rectory, @"..\..\..\TaskTracker.EF"));
+
+            entityBuilder.Provider = "System.Data.SqlClient";
+            entityBuilder.ProviderConnectionString = srcConnectionString;
+            entityBuilder.Metadata = $@"{entityFrameworkDir}\TaskTrackerModel.csdl|" +
+                                     $@"{entityFrameworkDir}\TaskTrackerModel.ssdl|" +
+                                     $@"{entityFrameworkDir}\TaskTrackerModel.msl";
+            return entityBuilder.ToString();
+        }
+    }
+
+    internal static class DBUtils
+    {        
+        private static readonly string DefaultReporter = "Admin";
+        private static readonly string DefaultAssignee = "User1";
+
+        private static User defaultUser;
+        private static Status defaultStatus = Status.Open;
+
+        public static void Init(string connectionString)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(connectionString));
+
+            using (var ctx = new ModelContainerFactory().CreateModelContainer(connectionString))
+            {
+                using (var transaction = ctx.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        EnsureProjectsGenerated(ctx);
+                        EnsureUsersGenerated(ctx);
+                        EnsureTaskTypesGenerated(ctx);
+                        EnsureTasksGenerated(ctx);
+                        EnsureStagesGenerated(ctx);
+
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }          
+        }
+
+        private static void AddTask(string summary, string desc, string prio, string assignee, string reporter, string tt, string project,
+         double? estimation, TaskTrackerModelContainer ctx)
+        {
+            Debug.Assert(!String.IsNullOrEmpty(reporter));
+            Debug.Assert(!String.IsNullOrEmpty(tt));
+            Debug.Assert(!String.IsNullOrEmpty(project));
+
+            var task = new Task()
+            {
+                Summary = summary,
+                Description = desc,
+                Priority = (Priority)Enum.Parse(typeof(Priority), prio),
+                Creator = ctx.UserSet.First(u => u.Name.Equals(reporter)),
+                Assignee = !String.IsNullOrEmpty(assignee) ? ctx.UserSet.First(u => u.Name.Equals(assignee)) : null,
+                TaskTypeId = ctx.TaskTypeSet.First(ttype => ttype.Name.Equals(tt)).Id,
+                Project = ctx.ProjectSet.First(p => p.Name.Equals(project)),
+                Estimation = estimation,
+                Status = defaultStatus
+            };
+
+            ctx.TaskSet.Add(task);
+        }
+
+        private static void EnsureTasksGenerated(TaskTrackerModelContainer ctx)
+        {
+            if (ctx.TaskSet.Any())
+                return;
+
+            AddTask("DO 1", "Do 1.1 ... do 1.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 12, ctx);
+            AddTask("DO 2", "Do 2.1 ... do 2.2", "High", DefaultReporter, DefaultReporter, "Continuous", "Project 2", 1, ctx);
+            AddTask("DO 3", "Do 3.1 ... do 3.2", "Low", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 3", 120, ctx);
+            AddTask("DO 4", "Do 4.1 ... do 4.2", "High", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", null, ctx);
+            AddTask("DO 5", "Do 5.1 ... do 5.2", "High", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 1, ctx);
+            AddTask("DO 6", "Do 6.1 ... do 6.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 2", 1, ctx);
+
+            ctx.SaveChanges();
+        }
+
+        private static void EnsureProjectsGenerated(TaskTrackerModelContainer ctx)
+        {
+            if (ctx.ProjectSet.Any())
+                return;
+
+            var projects = new List<Project>()
+            {
+                new Project()
+                {
+                    Name = "Project 1",
+                    ShortName = "PRJ1"
+                },
+                new Project()
+                {
+                    Name = "Project 2",
+                    ShortName = "PRJ2"
+                },
+                new Project()
+                {
+                    Name = "Project 3",
+                    ShortName = "PRJ3"
+                }
+            };
+            ctx.ProjectSet.AddRange(projects);
+            ctx.SaveChanges();
+        }
+
+        private static void EnsureUsersGenerated(TaskTrackerModelContainer ctx)
+        {
+            if (!ctx.UserSet.Any())
+            {
+                defaultUser = new User { Name = DefaultReporter };
+                var users = new List<User>()
+                {
+                    defaultUser,
+                    new User() { Name = DefaultAssignee }
+                };
+                ctx.UserSet.AddRange(users);
+                ctx.SaveChanges();
+            }
+            defaultUser = ctx.UserSet.Where(u => u.Name.Equals(DefaultReporter)).First();
+        }
+
+        private static void EnsureTaskTypesGenerated(TaskTrackerModelContainer ctx)
+        {
+            if (ctx.TaskTypeSet.Any())
+                return;
+
+            var taskTypes = new List<TaskType>()
+            {
+                new TaskType { Name = "Accomplishable" },
+                new TaskType { Name = "Continuous" }
+            };
+            ctx.TaskTypeSet.AddRange(taskTypes);
+            ctx.SaveChanges();
+        }
+
+        private static void EnsureStagesGenerated(TaskTrackerModelContainer ctx)
+        {
+            if (ctx.StageSet.Any())
+                return;
+
+            var calendar = CultureInfo.CurrentCulture.Calendar;
+
+            var rootStartTime = new DateTime(2017, 6, 5);
+            var rootEndTime = new DateTime(2017, 8, 31);
+
+            var stage2 = StageUtils.CreateTopLevelStage("Stage #2");
+            stage2.StartTime = rootStartTime;
+            stage2.EndTime = rootEndTime;
+
+            int weeks = (int)Math.Ceiling((stage2.EndTime.Value - stage2.StartTime.Value).TotalDays / 7f);
+            for (int i = 0; i < weeks; i++)
+            {
+                var weekStage = stage2.AddSubStage($"Week #{i}");
+                weekStage.StartTime = stage2.StartTime + TimeSpan.FromDays(i * 7);
+
+                var weekEndTime = weekStage.StartTime + TimeSpan.FromDays(7);
+                weekStage.EndTime = weekEndTime > stage2.EndTime ? stage2.EndTime : weekEndTime;
+
+                int days = (int)Math.Ceiling((weekStage.EndTime.Value - weekStage.StartTime.Value).TotalDays);
+                for (int j = 0; j < days; j++)
+                {
+                    var startTime = weekStage.StartTime.Value + TimeSpan.FromDays(j);
+                    var dayStage = weekStage.AddSubStage(calendar.GetDayOfWeek(startTime).ToString());
+                    dayStage.StartTime = startTime;
+                    dayStage.EndTime = startTime + TimeSpan.FromDays(1);
+                }
+            }
+            stage2.VisitAll(s => ctx.StageSet.Add(s));
+            ctx.SaveChanges();
+        }
+    }
 
     internal class SqlRepository : IRepository
     {
@@ -98,17 +294,12 @@ namespace TaskTracker.Repository.Sql
             }
         }
 
-        private static readonly string DefaultReporter = "Admin";
-        private static readonly string DefaultAssignee = "Serge";
-
         private delegate void ContextOperation(TaskTrackerModelContainer context);
         private delegate TResult ContextOperation<TResult>(TaskTrackerModelContainer context);
 
-        private static bool isInitialized = false;
-        private static User defaultUser;
-        private static Status defaultStatus = Status.Open;
-
+        private bool isInitialized = false;
         private string connectionString;
+        private IModelContainerFactory modelContainerFactory;
         private TaskTrackerModelContainer context;
         private bool proxyCreationEnabled;
 
@@ -118,11 +309,13 @@ namespace TaskTracker.Repository.Sql
             this.context = context;            
         }
 
-        public SqlRepository(string connectionString, bool proxyCreationEnabled)
+        public SqlRepository(string connectionString, IModelContainerFactory modelContainerFactory, bool proxyCreationEnabled)
         {
             ArgumentValidation.ThrowIfNullOrEmpty(connectionString, nameof(connectionString));
+            ArgumentValidation.ThrowIfNull(modelContainerFactory, nameof(modelContainerFactory));
 
             this.connectionString = connectionString;
+            this.modelContainerFactory = modelContainerFactory;
             this.proxyCreationEnabled = proxyCreationEnabled;
             Init(connectionString);
         }
@@ -192,25 +385,25 @@ namespace TaskTracker.Repository.Sql
                     if (filter.Statuses != null)
                     {
                         tasks = from t in tasks
-                              where filter.Statuses.Contains(t.Status.ToString())
-                              select t;
+                                where filter.Statuses.Contains(t.Status.ToString())
+                                select t;
                     }
 
                     if (filter.Projects != null)
                     {
                         tasks = from t in tasks
-                              where filter.Projects.Contains(t.Project.Name)
-                              select t;
+                                where filter.Projects.Contains(t.Project.Name)
+                                select t;
                     }
 
                     if (filter.Priorities != null)
                     {
                         tasks = from t in tasks
-                              where filter.Priorities.Contains(t.Priority.ToString())
-                              select t;
+                                where filter.Priorities.Contains(t.Priority.ToString())
+                                select t;
                     }
-                }
-                
+                }                
+
                 return GetTasks(tasks, sel, ctx).ToList();
             });
         }
@@ -275,8 +468,7 @@ namespace TaskTracker.Repository.Sql
             ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             return DoContextOperations(ctx => 
             {
-                var result = ctx.GetTotalActivitiesTimeOfStage(stageId).Single();
-                Debug.Assert(result.HasValue);                
+                var result = ctx.GetTotalActivitiesTimeOfStage(stageId).Single();                                
                 return (double)result.GetValueOrDefault();
             });
         }
@@ -365,25 +557,9 @@ namespace TaskTracker.Repository.Sql
             }
         }
 
-        private static TaskTrackerModelContainer CreateContext(string connectionString)
+        private TaskTrackerModelContainer CreateContext(string connectionString)
         {
-            return new TaskTrackerModelContainer(GetEmdAwareConnectionString(connectionString));
-        }
-
-        private static string GetEmdAwareConnectionString(string srcConnectionString)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(srcConnectionString));
-
-            EntityConnectionStringBuilder entityBuilder = new EntityConnectionStringBuilder();
-
-            var entityFrameworkDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDi‌​rectory, @"..\..\..\TaskTracker.EF"));
-
-            entityBuilder.Provider = "System.Data.SqlClient";
-            entityBuilder.ProviderConnectionString = srcConnectionString;
-            entityBuilder.Metadata = $@"{entityFrameworkDir}\TaskTrackerModel.csdl|" +
-                                     $@"{entityFrameworkDir}\TaskTrackerModel.ssdl|" +
-                                     $@"{entityFrameworkDir}\TaskTrackerModel.msl";
-            return entityBuilder.ToString();
+            return modelContainerFactory.CreateModelContainer(connectionString);
         }
 
         private void DoContextOperations(ContextOperation operations)
@@ -430,24 +606,22 @@ namespace TaskTracker.Repository.Sql
 
         private IQueryable<Task> GetTasks(Expression<Func<Task, bool>> taskCondition, 
             PropertySelector<Task> propertiesToInclude, TaskTrackerModelContainer ctx)
-        {            
-            ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
+        {
+            Debug.Assert(ctx != null);
 
             IQueryable<Task> tasks = ctx.TaskSet;
             Debug.Assert(tasks != null);
 
             if (taskCondition != null)
-                tasks = tasks.Where(taskCondition);
-
-            if (propertiesToInclude != null)
-                tasks = PropertySelectionQueryBuilder.Select(tasks, propertiesToInclude);  
+                tasks = tasks.Where(taskCondition);  
 				                                      
-            return tasks;
+            return GetTasks(tasks, propertiesToInclude, ctx);
         }
 
         private IQueryable<Task> GetTasks(IQueryable<Task> tasks, PropertySelector<Task> propertiesToInclude, TaskTrackerModelContainer ctx)
         {
             Debug.Assert(tasks != null);
+            Debug.Assert(ctx != null);
 
             ctx.Configuration.ProxyCreationEnabled = proxyCreationEnabled;
             
@@ -568,222 +742,15 @@ namespace TaskTracker.Repository.Sql
             }
             ctx.SaveChanges();
         }
-
-        /*private void UpdateStage(Stage stage, TaskTrackerModelContainer ctx)
-        {
-            ctx.StageSet.Attach(stage);
-
-            var newTasks = new List<Task>(stage.Task);
-
-            //((IObjectContextAdapter)ctx).ObjectContext.ObjectStateManager.ChangeRelationshipState(lodging, lodging.Destination, l => l.Destination, EntityState.Added);
-            //var mgr = ((IObjectContextAdapter)ctx).ObjectContext.ObjectStateManager.GetRelationshipManager(stage);
-            //var ends = mgr.GetAllRelatedEnds();            
-
-            //mgr = ((IObjectContextAdapter)ctx).ObjectContext.ObjectStateManager.GetRelationshipManager(stage);
-            //ends = mgr.GetAllRelatedEnds();
-
-            var stateMgr = ((IObjectContextAdapter)ctx).ObjectContext.ObjectStateManager;
-            foreach (var t in newTasks)
-            {
-                stateMgr.ChangeRelationshipState(stage, t, s => s.Task, EntityState.Deleted);
-            }
-            //stage.Task.Clear();
-
-            ((IObjectContextAdapter)ctx).ObjectContext.Refresh(RefreshMode.StoreWins, stage.Task);
-
-            var dbTasks = stage.Task.ToList();
-
-            var addedTasks = newTasks.Except(dbTasks, new TaskComparer()).ToList();
-            var deletedTasks = dbTasks.Except(newTasks, new TaskComparer()).ToList();
-
-            deletedTasks.ForEach(t =>
-            {
-                stateMgr.ChangeRelationshipState(stage, t, s => s.Task, EntityState.Deleted);
-                //stage.Task.Remove(t);
-            });
-
-            addedTasks.ForEach(t =>
-            {
-                stateMgr.ChangeRelationshipState(stage, t, s => s.Task, EntityState.Added);
-                //stage.Task.Add(t);
-            });
-
-            ctx.SaveChanges();
-
-            //ctx.Entry(dbStage).CurrentValues.SetValues(stage);
-
-            //addedTasks.ForEach(t => dbStage.Task.Add(t));
-            //deletedTasks.ForEach(t => dbStage.Task.Remove(t));
-
-            //            ctx.SaveChanges();
-
-            //stage.Task.Add(task);
-            //ctx.TaskSet.Attach(task);
-            //ctx.StageSet.Attach(stage);
-            //ctx.SaveChanges();
-        }*/
-
-        private static void AddTask(string summary, string desc, string prio, string assignee, string reporter, string tt, string project, 
-            double? estimation, TaskTrackerModelContainer ctx)
-        {
-            Debug.Assert(!String.IsNullOrEmpty(reporter));
-            Debug.Assert(!String.IsNullOrEmpty(tt));
-            Debug.Assert(!String.IsNullOrEmpty(project));
-
-            var task = new Task()
-            {
-                Summary = summary,
-                Description = desc,
-                Priority = (Priority)Enum.Parse(typeof(Priority), prio),
-                Creator = ctx.UserSet.First(u => u.Name.Equals(reporter)),
-                Assignee = !String.IsNullOrEmpty(assignee) ? ctx.UserSet.First(u => u.Name.Equals(assignee)) : null,
-                TaskTypeId = ctx.TaskTypeSet.First(ttype => ttype.Name.Equals(tt)).Id,
-                Project = ctx.ProjectSet.First(p => p.Name.Equals(project)),
-                Estimation = estimation,
-                Status = defaultStatus
-            };
-
-            ctx.TaskSet.Add(task);
-        }       
-
-        private static void EnsureTasksGenerated(TaskTrackerModelContainer ctx)
-        {
-            if (ctx.TaskSet.Any())
-                return;
-
-            AddTask("DO 1", "Do 1.1 ... do 1.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 12,   ctx);
-            AddTask("DO 2", "Do 2.1 ... do 2.2", "High",   DefaultReporter, DefaultReporter, "Continuous",     "Project 2", 1,    ctx);
-            AddTask("DO 3", "Do 3.1 ... do 3.2", "Low",    DefaultAssignee, DefaultReporter, "Accomplishable", "Project 3", 120,  ctx);
-            AddTask("DO 4", "Do 4.1 ... do 4.2", "High",   DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", null, ctx);
-            AddTask("DO 5", "Do 5.1 ... do 5.2", "High",   DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 1,    ctx);
-            AddTask("DO 6", "Do 6.1 ... do 6.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 2", 1,    ctx);
-
-            ctx.SaveChanges();
-        }
-
-        private static void EnsureProjectsGenerated(TaskTrackerModelContainer ctx)
-        {
-            if (ctx.ProjectSet.Any())
-                return;
-            
-            var projects = new List<Project>()
-            {
-                new Project()
-                {
-                    Name = "Project 1",
-                    ShortName = "PRJ1"
-                },
-                new Project()
-                {
-                    Name = "Project 2",
-                    ShortName = "PRJ2"
-                },
-                new Project()
-                {
-                    Name = "Project 3",
-                    ShortName = "PRJ3"
-                }
-            };
-            ctx.ProjectSet.AddRange(projects);
-            ctx.SaveChanges();                    
-        }
-
-        private static void EnsureUsersGenerated(TaskTrackerModelContainer ctx)
-        {
-            if (!ctx.UserSet.Any())
-            {
-                defaultUser = new User { Name = DefaultReporter };
-                var users = new List<User>()
-                {
-                    defaultUser,
-                    new User() { Name = DefaultAssignee }
-                };
-                ctx.UserSet.AddRange(users);
-                ctx.SaveChanges();
-            }
-            defaultUser = ctx.UserSet.Where(u => u.Name.Equals(DefaultReporter)).First(); 
-        }
-
-        private static void EnsureTaskTypesGenerated(TaskTrackerModelContainer ctx)
-        {
-            if (ctx.TaskTypeSet.Any())
-                return;
-            
-            var taskTypes = new List<TaskType>()
-            {
-                new TaskType { Name = "Accomplishable" },
-                new TaskType { Name = "Continuous" }
-            };
-            ctx.TaskTypeSet.AddRange(taskTypes);
-            ctx.SaveChanges();                       
-        }
-
-        private static void EnsureStagesGenerated(TaskTrackerModelContainer ctx)
-        {
-            if (ctx.StageSet.Any())
-                return;
-            
-            var calendar = CultureInfo.CurrentCulture.Calendar;
-
-            var rootStartTime = new DateTime(2017, 6, 5); 
-            var rootEndTime = new DateTime(2017, 8, 31);
-
-            var stage2 = StageUtils.CreateTopLevelStage("Stage #2");
-            stage2.StartTime = rootStartTime;
-            stage2.EndTime = rootEndTime;
-            
-            int weeks = (int)Math.Ceiling((stage2.EndTime.Value - stage2.StartTime.Value).TotalDays / 7f);
-            for (int i = 0; i < weeks; i++)
-            {
-                var weekStage = stage2.AddSubStage($"Week #{i}");
-                weekStage.StartTime = stage2.StartTime + TimeSpan.FromDays(i * 7);
-
-                var weekEndTime = weekStage.StartTime + TimeSpan.FromDays(7);
-                weekStage.EndTime = weekEndTime > stage2.EndTime ? stage2.EndTime : weekEndTime;
-
-                int days = (int)Math.Ceiling((weekStage.EndTime.Value - weekStage.StartTime.Value).TotalDays);
-                for (int j = 0; j < days; j++)
-                {
-                    var startTime = weekStage.StartTime.Value + TimeSpan.FromDays(j);
-                    var dayStage = weekStage.AddSubStage(calendar.GetDayOfWeek(startTime).ToString());
-                    dayStage.StartTime = startTime;
-                    dayStage.EndTime = startTime + TimeSpan.FromDays(1);
-                }
-            }            
-            stage2.VisitAll(s => ctx.StageSet.Add(s));
-            ctx.SaveChanges();            
-        }
-
-        private static void Init(string connectionString)
+      
+        private void Init(string connectionString)
         {
             Debug.Assert(!String.IsNullOrEmpty(connectionString));
 
             if (isInitialized)
                 return;
 
-            using (var taskTrackerContainer = CreateContext(connectionString))
-            {
-                using (var transaction = taskTrackerContainer.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        EnsureProjectsGenerated(taskTrackerContainer);
-                        EnsureUsersGenerated(taskTrackerContainer);
-                        EnsureTaskTypesGenerated(taskTrackerContainer);
-                        EnsureTasksGenerated(taskTrackerContainer);
-                        EnsureStagesGenerated(taskTrackerContainer);
-
-                        transaction.Commit();
-
-                        isInitialized = true;
-                    }
-                    catch (Exception)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            }            
+            DBUtils.Init(connectionString);                                        
         }
     }
 }

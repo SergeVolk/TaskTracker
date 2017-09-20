@@ -16,7 +16,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
     internal class MainWindowViewModel : ViewModelBase
     {
         private static readonly string DefaultReporter = "Admin";
-        private static readonly string DefaultAssignee = "Serge";
+        private static readonly string DefaultAssignee = "User1";
 
         private IRepository repository;
         private Status defaultStatus;
@@ -24,6 +24,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private IUIService uiService;
         private TaskViewerViewModel selectedTask;
         private IEnumerable<TaskViewerViewModel> taskViewerViewModels;
+        private UpdateManager queryTasksMgr;
         
         public MainWindowViewModel(IUIService uiService, IRepository repository)
         {
@@ -31,7 +32,9 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             ArgumentValidation.ThrowIfNull(repository, nameof(repository));
 
             this.uiService = uiService;
-            this.repository = repository; 
+            this.repository = repository;
+
+            queryTasksMgr = new UpdateManager(QueryTasks);
 
             defaultStatus = Status.Open;
             defaultUser = repository.GetUsers().First(u => u.Name.Equals(DefaultReporter));
@@ -44,13 +47,21 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             StatusFilterVM.ItemSelectionChanged += OnFilterItemChanged;
             PriorityFilterVM.ItemSelectionChanged += OnFilterItemChanged;
 
-            ProjectFilterVM.SetSelection(true);
+            queryTasksMgr.BeginUpdate();
+            try
+            {
+                ProjectFilterVM.SetSelection(true);
 
-            var statusesToDisplay = new[] { Status.Open, Status.InProgress };
-            StatusFilterVM.SetSelection(true, statusesToDisplay.Select(s => s.ToString()));
+                var statusesToDisplay = new[] { Status.Open, Status.InProgress };
+                StatusFilterVM.SetSelection(true, statusesToDisplay.Select(s => s.ToString()));
 
-            var prioritiesToDisplay = new[] { Priority.High, Priority.Normal };
-            PriorityFilterVM.SetSelection(true, prioritiesToDisplay.Select(p => p.ToString()));
+                var prioritiesToDisplay = new[] { Priority.High, Priority.Normal };
+                PriorityFilterVM.SetSelection(true, prioritiesToDisplay.Select(p => p.ToString()));
+            }
+            finally
+            {
+                queryTasksMgr.EndUpdate();
+            }
                         
             CreateTaskCommand = new Command<object>(OnButtonCreateTaskClicked);
             ShowAllTasksCommand = new Command<object>(OnButtonAllTasksClicked);
@@ -82,7 +93,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         public TaskViewerViewModel SelectedTask
         {
             get { return selectedTask; }
-            private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
+            set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
         private void OnButtonCreateTaskClicked(object sender)
@@ -126,13 +137,34 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         private void OnButtonAllTasksClicked(object sender)
         {
-            StatusFilterVM.SetSelection(true);
-            ProjectFilterVM.SetSelection(true);
-            PriorityFilterVM.SetSelection(true);
-
-            QueryTasks();
+            queryTasksMgr.BeginUpdate();
+            try
+            {
+                StatusFilterVM.SetSelection(true);
+                ProjectFilterVM.SetSelection(true);
+                PriorityFilterVM.SetSelection(true);
+            }
+            finally
+            {
+                queryTasksMgr.EndUpdate();
+            }            
         }
 
+        private static int PriorityOrderer(Priority p)
+        {
+            switch (p)
+            {
+                case Priority.Low:
+                    return 0;
+                case Priority.Normal:
+                    return 1;
+                case Priority.High:
+                    return 2;
+                default:
+                    throw ExceptionFactory.NotSupported(p);
+            }
+        }
+                
         private void QueryTasks()
         {                
             var selectedStatuses = (StatusFilterVM != null) ? StatusFilterVM.GetSelectedItems() : Enumerable.Empty<string>();
@@ -149,15 +181,17 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                     Select(t => t.Project).
                     Select(t => t.Assignee).
                     Select(t => t.Creator).
-                    Select("Stage.Task"));            
+                    Select($"{nameof(Task.Stage)}.{nameof(Stage.Task)}"));                        
 
-            TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository));
+            TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository)).
+                OrderByDescending(ks => ks.TaskId).
+                OrderByDescending(ks => ks.Priority, Comparer<Priority>.Create((l, r) => PriorityOrderer(l).CompareTo(PriorityOrderer(r))));
             SelectedTask = TaskViewerViewModels.FirstOrDefault();
         }
 
         private void OnFilterItemChanged(object sender, int itemIndex, bool newSelectinoState)
         {
-            QueryTasks();
+            queryTasksMgr.RequestUpdate();            
         }
     }
 }

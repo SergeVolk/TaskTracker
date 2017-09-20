@@ -7,7 +7,7 @@
              mc:Ignorable="d">
     <Grid x:Name="gridLayout" Margin="0,0,0,19">
         <TextBlock x:Name="txtBlockMaxActivitiesStage" HorizontalAlignment="Left" Margin="19,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top">
-            Stage: <TextBlock Text="{Binding Stage}"/> <LineBreak/>
+            Stage: <TextBlock Text="{Binding StageSummary}"/> <LineBreak/>
             The number of activities: <TextBlock Text="{Binding ActivityCount}"/>                
         </TextBlock>
         <Label x:Name="lblHint" Content="What stage does include a maximal number of activities?" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>

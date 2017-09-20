@@ -60,6 +60,11 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             get { return stage.Name; }
         }
 
+        public int StageId
+        {
+            get { return stage.Id; }
+        }
+
         public void Remove(StageTaskViewModel taskVM)
         {
             ArgumentValidation.ThrowIfNull(taskVM, nameof(taskVM));            
@@ -92,15 +97,13 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             get { return selectedStageTask; }
             set { SetProperty(ref selectedStageTask, value, nameof(SelectedStageTask)); }
         }
-
+        
         public event Action<StageViewModel> Selected;
 
         protected override void AfterSelectedChanged(bool newIsSelected)
         {
-            base.AfterSelectedChanged(newIsSelected);
-
-            if (newIsSelected)
-                NotifySelected();
+            base.AfterSelectedChanged(newIsSelected);            
+            NotifySelected();
         }
 
         private void NotifySelected()
@@ -146,7 +149,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
             repository.GroupOperations(op =>
             {
-                var stagePropsSelector = new PropertySelector<Stage>().Select("Task.Stage").Select("Task.Project");
+                var stagePropsSelector = new PropertySelector<Stage>().Select($"{nameof(Stage.Task)}.{nameof(Task.Stage)}").Select("Task.Project");
                 topLevelStages = op.GetStages(0, stagePropsSelector, true);                
 
                 var taskFilter = new TaskFilter();
@@ -155,7 +158,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                 tasks = op.GetTasks(taskFilter, new PropertySelector<Task>().
                     Select(t => t.Project).
                     Select(t => t.Assignee).
-                    Select("Stage.Task"));                
+                    Select($"{nameof(Task.Stage)}.{nameof(Stage.Task)}"));                
             });
 
             TopLevelStagesVM = topLevelStages.Select(s => new StageViewModel(s, null, OnStageSelected, repository, true)).ToList();
@@ -179,7 +182,10 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                 if (selectedStageVM != value)
                 {
                     if (selectedStageVM != null)
+                    {
                         selectedStageVM.PropertyChanged -= OnPropertyChanged;
+                        selectedStageVM.IsSelected = false;
+                    }
 
                     selectedStageVM = value;
 
@@ -195,7 +201,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         public StageTaskViewModel SelectedTask
         {
             get { return selectedTask; }
-            private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
+            set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
         public StageTaskViewModel SelectedStageTask
@@ -205,7 +211,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         public ICommand RemoveTaskCommand { get; private set; }
         public ICommand AddTaskCommand { get; private set; }
-
+        
         public IEnumerable<StageTaskViewModel> AllTasks { get; private set; }
 
         private void OnRemoveTaskCommand(object sender)
