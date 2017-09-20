@@ -60,6 +60,11 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             get { return stage.Name; }
         }
 
+        public int StageId
+        {
+            get { return stage.Id; }
+        }
+
         public void Remove(StageTaskViewModel taskVM)
         {
             ArgumentValidation.ThrowIfNull(taskVM, nameof(taskVM));            

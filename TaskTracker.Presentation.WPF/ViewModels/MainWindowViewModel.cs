@@ -16,7 +16,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
     internal class MainWindowViewModel : ViewModelBase
     {
         private static readonly string DefaultReporter = "Admin";
-        private static readonly string DefaultAssignee = "Serge";
+        private static readonly string DefaultAssignee = "User1";
 
         private IRepository repository;
         private Status defaultStatus;

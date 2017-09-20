@@ -35,6 +35,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.App.WPF.Service
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Service.ConsoleHostApp", "TaskTracker.Service.ConsoleHostApp\TaskTracker.Service.ConsoleHostApp.csproj", "{E302792A-D0E0-4F59-9B7D-C1B27836A4C0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. QA", "6. QA", "{8C765DCC-EC54-4DA8-AC12-368F8E245D77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Common.Tests", "TaskTracker.Common.Tests\TaskTracker.Common.Tests.csproj", "{65C69244-34E2-40B4-9459-DB0B834ACD63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Presentation.WPF.Tests", "TaskTracker.Presentation.WPF.Tests\TaskTracker.Presentation.WPF.Tests.csproj", "{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +87,14 @@ Global
 		{E302792A-D0E0-4F59-9B7D-C1B27836A4C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E302792A-D0E0-4F59-9B7D-C1B27836A4C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E302792A-D0E0-4F59-9B7D-C1B27836A4C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65C69244-34E2-40B4-9459-DB0B834ACD63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65C69244-34E2-40B4-9459-DB0B834ACD63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65C69244-34E2-40B4-9459-DB0B834ACD63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65C69244-34E2-40B4-9459-DB0B834ACD63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,5 +110,7 @@ Global
 		{B2E7F62F-349E-4EC8-8895-DB69F1156C61} = {1E7884F8-02B6-49F0-9FEC-2289019E36D3}
 		{31B01C09-7983-4FE6-B9FC-B418ABFA821F} = {1E7884F8-02B6-49F0-9FEC-2289019E36D3}
 		{E302792A-D0E0-4F59-9B7D-C1B27836A4C0} = {1E7884F8-02B6-49F0-9FEC-2289019E36D3}
+		{65C69244-34E2-40B4-9459-DB0B834ACD63} = {8C765DCC-EC54-4DA8-AC12-368F8E245D77}
+		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D} = {8C765DCC-EC54-4DA8-AC12-368F8E245D77}
 	EndGlobalSection
 EndGlobal

@@ -1,28 +1,34 @@
 ﻿using System;
 using System.Linq;
 
+using TaskTracker.Model;
 using TaskTracker.Repository;
 
 namespace TaskTracker.Presentation.WPF.ViewModels
 {
     internal class MaxActivitiesStageReportViewModel : ReportViewModelBase
     {
-        private string stage;
+        private Stage stage;
         private int? activityCount;
 
         public MaxActivitiesStageReportViewModel(IRepository repository) : base(repository)
         { }
 
-        public string Stage
+        public Stage Stage
         {
             get
             {
-                if (String.IsNullOrEmpty(stage))
+                if (stage == null)
                     Update();
                 
                 return stage;
             }
             private set { SetProperty(ref stage, value, nameof(Stage)); }
+        }
+
+        public string StageSummary
+        {
+            get { return $"{Stage.Name} [Level: {Stage.Level}, {Stage.StartTime}-{Stage.EndTime}]"; }
         }
 
         public int ActivityCount
@@ -40,8 +46,8 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         protected override void OnUpdateCommand(object sender)
         {
             var maxActivityStageEntry = Repository.GetStagesWithMaxActivities(1).FirstOrDefault();
-            var maxActivityStage = maxActivityStageEntry.Item1;
-            Stage = $"{maxActivityStage.Name} [Level: {maxActivityStage.Level}, {maxActivityStage.StartTime}-{maxActivityStage.EndTime}]";
+
+            Stage = maxActivityStageEntry.Item1;            
             ActivityCount = maxActivityStageEntry.Item2;
         }
     }

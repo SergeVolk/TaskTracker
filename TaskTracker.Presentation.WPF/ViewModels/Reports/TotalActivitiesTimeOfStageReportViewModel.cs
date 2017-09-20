@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 
@@ -11,7 +12,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
     internal class TotalActivitiesTimeOfStageReportViewModel : ReportViewModelBase
     {
         private double totalStageTime;
-        private StageTreeViewModel selectedStage;
+        private int? selectedStageId;
 
         public TotalActivitiesTimeOfStageReportViewModel(IRepository repository) : base(repository)
         {
@@ -27,7 +28,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             private set { SetProperty(ref totalStageTime, value, nameof(TotalStageTime)); }
         }
         
-        public object TopLevelStages
+        public IEnumerable<StageTreeViewModel> TopLevelStages
         {
             get
             {
@@ -40,22 +41,33 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         protected override void OnUpdateCommand(object sender)
         {
-            SetSelectedStage(selectedStage);
+            SetSelectedStage(selectedStageId);
         }
 
         private void OnStageSelected(object sender)
         {
-            var stageVM = sender as StageTreeViewModel;
-            if (stageVM != null)
-                SetSelectedStage(stageVM);
+            int? stageId = null;
+            if (sender != null)
+            {
+                if (sender is StageTreeViewModel)
+                {
+                    stageId = ((StageTreeViewModel)sender).Stage.Id;
+                }
+                else if (sender is Int32)
+                {
+                    stageId = (int)sender;
+                }
+            }
+
+            SetSelectedStage(stageId);
         }
 
-        private void SetSelectedStage(StageTreeViewModel stage)
+        private void SetSelectedStage(int? stageId)
         {
-            if (selectedStage != stage)
+            if (selectedStageId != stageId)
             {
-                selectedStage = stage;
-                TotalStageTime = selectedStage != null ? Repository.GetTotalActivityTimeOfStage(selectedStage.Stage.Id) : 0;
+                selectedStageId = stageId;
+                TotalStageTime = selectedStageId.HasValue ? Repository.GetTotalActivityTimeOfStage(selectedStageId.Value) : 0;
             }
         }
     }
