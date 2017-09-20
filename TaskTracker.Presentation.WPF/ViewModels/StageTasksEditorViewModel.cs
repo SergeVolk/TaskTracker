@@ -149,7 +149,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
             repository.GroupOperations(op =>
             {
-                var stagePropsSelector = new PropertySelector<Stage>().Select("Task.Stage").Select("Task.Project");
+                var stagePropsSelector = new PropertySelector<Stage>().Select($"{nameof(Stage.Task)}.{nameof(Task.Stage)}").Select("Task.Project");
                 topLevelStages = op.GetStages(0, stagePropsSelector, true);                
 
                 var taskFilter = new TaskFilter();
@@ -158,7 +158,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                 tasks = op.GetTasks(taskFilter, new PropertySelector<Task>().
                     Select(t => t.Project).
                     Select(t => t.Assignee).
-                    Select("Stage.Task"));                
+                    Select($"{nameof(Task.Stage)}.{nameof(Stage.Task)}"));                
             });
 
             TopLevelStagesVM = topLevelStages.Select(s => new StageViewModel(s, null, OnStageSelected, repository, true)).ToList();
