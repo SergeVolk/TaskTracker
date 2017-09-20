@@ -48,9 +48,9 @@ namespace TaskTracker.SyntaxUtils
         {
             if (property == null)
                 throw new ArgumentNullException(nameof(property));
-            
+
             var member = property.Body as MemberExpression;
-            if (member == null || member.Member.MemberType != MemberTypes.Property)
+            if (member == null || member.Member.MemberType != MemberTypes.Property || member.Expression.NodeType != ExpressionType.Parameter)
                 throw new InvalidOperationException("Provided expression cannot be used for selecting the property.");
 
             properties.Add(member.Member.Name);            
@@ -67,11 +67,9 @@ namespace TaskTracker.SyntaxUtils
         {
             itemType = null;
 
-            var types = type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)).ToArray();
-            
-            if (types.Length == 1)
+            if (IsGenericEnumerable(type))
             {
-                itemType = types[0].GetGenericArguments()[0];
+                itemType = type.GetGenericArguments()[0];
             }
             else if (type.IsArray)
             {
@@ -79,10 +77,23 @@ namespace TaskTracker.SyntaxUtils
             }
             else
             {
-                itemType = type.GetProperty("Item")?.PropertyType;
-            }            
+                var types = type.GetInterfaces().Where(x => IsGenericEnumerable(x)).ToArray();
+                if (types.Length == 1)
+                {
+                    itemType = types[0].GetGenericArguments()[0];
+                }
+                else
+                {
+                    itemType = type.GetProperty("Item")?.PropertyType;
+                }
+            }           
 
             return itemType != null;
+        }
+
+        private static bool IsGenericEnumerable(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>);
         }
     }
 }
