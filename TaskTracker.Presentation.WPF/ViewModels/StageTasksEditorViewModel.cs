@@ -97,15 +97,13 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             get { return selectedStageTask; }
             set { SetProperty(ref selectedStageTask, value, nameof(SelectedStageTask)); }
         }
-
+        
         public event Action<StageViewModel> Selected;
 
         protected override void AfterSelectedChanged(bool newIsSelected)
         {
-            base.AfterSelectedChanged(newIsSelected);
-
-            if (newIsSelected)
-                NotifySelected();
+            base.AfterSelectedChanged(newIsSelected);            
+            NotifySelected();
         }
 
         private void NotifySelected()
@@ -184,7 +182,10 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                 if (selectedStageVM != value)
                 {
                     if (selectedStageVM != null)
+                    {
                         selectedStageVM.PropertyChanged -= OnPropertyChanged;
+                        selectedStageVM.IsSelected = false;
+                    }
 
                     selectedStageVM = value;
 
@@ -200,7 +201,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         public StageTaskViewModel SelectedTask
         {
             get { return selectedTask; }
-            private set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
+            set { SetProperty(ref selectedTask, value, nameof(SelectedTask)); }
         }
 
         public StageTaskViewModel SelectedStageTask
@@ -210,7 +211,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         public ICommand RemoveTaskCommand { get; private set; }
         public ICommand AddTaskCommand { get; private set; }
-
+        
         public IEnumerable<StageTaskViewModel> AllTasks { get; private set; }
 
         private void OnRemoveTaskCommand(object sender)
