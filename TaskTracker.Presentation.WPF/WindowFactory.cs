@@ -11,6 +11,10 @@ namespace TaskTracker.Presentation.WPF
     {
         public Window CreateMainWindow(IRepository repository)
         {
+            var repoInitializer = repository as IRepositoryInitializer;
+            if (repoInitializer != null && !repoInitializer.HasAnyData)
+                repoInitializer.InitPreset();
+
             var mainWindowVM = new MainWindowViewModel(new UIService(), repository);
             return new MainWindow { DataContext = mainWindowVM };
         }

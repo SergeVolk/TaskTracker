@@ -62,4 +62,11 @@ namespace TaskTracker.Repository
 
         void GroupOperations(RepositoryOperations operations);
     }
+
+    public interface IRepositoryInitializer
+    {
+        bool HasAnyData { get; }
+
+        void InitPreset();
+    }
 }

@@ -32,7 +32,7 @@ namespace TaskTracker.Service.ConsoleHostApp
 
         static DependencyInjectionInstanceProvider()
         {
-            dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerModelContainer"].ConnectionString;
+            dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
         }
 
         public DependencyInjectionInstanceProvider(Type serviceType)

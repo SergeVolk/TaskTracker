@@ -13,7 +13,7 @@ namespace TaskTracker.App.WPF
         {
             base.OnStartup(e);
 
-            var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerModelContainer"].ConnectionString;            
+            var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;            
             var mainWindow = new WindowFactory().CreateMainWindow(new SqlRepositoryFactory(true).CreateRepository(dbConnectionString));
             mainWindow.Show();
         }        

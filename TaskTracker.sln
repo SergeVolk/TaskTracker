@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.EF", "TaskTracker.EF\TaskTracker.EF.csproj", "{AA8E57D5-9998-403E-A4EA-F6D78FD694F1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Model", "TaskTracker.Model\TaskTracker.Model.csproj", "{D428C11D-851F-4B75-8DAE-10C1FE49CD21}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Repository", "TaskTracker.Repository\TaskTracker.Repository.csproj", "{2FC979F8-2872-412A-B528-3D6AE3B9227A}"
@@ -27,15 +25,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Common", "4. Common", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Applications", "0. Applications", "{1E7884F8-02B6-49F0-9FEC-2289019E36D3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. Tools", "5. Tools", "{E6A3FA2F-9D32-48F0-9BFB-A25883CE93F7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.App.WPF", "TaskTracker.App.WPF\TaskTracker.App.WPF.csproj", "{B2E7F62F-349E-4EC8-8895-DB69F1156C61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.App.WPF.ServiceClient", "TaskTracker.App.WPF.ServiceClient\TaskTracker.App.WPF.ServiceClient.csproj", "{31B01C09-7983-4FE6-B9FC-B418ABFA821F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Service.ConsoleHostApp", "TaskTracker.Service.ConsoleHostApp\TaskTracker.Service.ConsoleHostApp.csproj", "{E302792A-D0E0-4F59-9B7D-C1B27836A4C0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. QA", "6. QA", "{8C765DCC-EC54-4DA8-AC12-368F8E245D77}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5. QA", "5. QA", "{8C765DCC-EC54-4DA8-AC12-368F8E245D77}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Common.Tests", "TaskTracker.Common.Tests\TaskTracker.Common.Tests.csproj", "{65C69244-34E2-40B4-9459-DB0B834ACD63}"
 EndProject
@@ -47,10 +43,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AA8E57D5-9998-403E-A4EA-F6D78FD694F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA8E57D5-9998-403E-A4EA-F6D78FD694F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA8E57D5-9998-403E-A4EA-F6D78FD694F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA8E57D5-9998-403E-A4EA-F6D78FD694F1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D428C11D-851F-4B75-8DAE-10C1FE49CD21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D428C11D-851F-4B75-8DAE-10C1FE49CD21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D428C11D-851F-4B75-8DAE-10C1FE49CD21}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -100,7 +92,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{AA8E57D5-9998-403E-A4EA-F6D78FD694F1} = {E6A3FA2F-9D32-48F0-9BFB-A25883CE93F7}
 		{D428C11D-851F-4B75-8DAE-10C1FE49CD21} = {8EEAA7D8-54F0-475D-9C5B-87D26AE55118}
 		{2FC979F8-2872-412A-B528-3D6AE3B9227A} = {08EDB33C-0089-4CDF-AB93-0F78D912C8DF}
 		{D4626570-899A-423A-9A67-3688E834BEBF} = {08EDB33C-0089-4CDF-AB93-0F78D912C8DF}

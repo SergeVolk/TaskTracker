@@ -134,7 +134,10 @@ namespace TaskTracker.Presentation.WPF.Tests
 
                 if (stages != null)
                 {
-                    result.Stage.AddRange(stages);
+                    foreach (var s in stages)
+                    {
+                        result.Stage.Add(s);
+                    }                    
                     stages.ForEach(s => s.Task.Add(result));
                 }
 
@@ -533,13 +536,19 @@ namespace TaskTracker.Presentation.WPF.Tests
                     if (existingTask.Stage.SequenceEqual(task.Stage))
                     {
                         existingTask.Stage.Clear();
-                        existingTask.Stage.AddRange(task.Stage);
+                        foreach (var s in task.Stage)
+                        {
+                            existingTask.Stage.Add(s);
+                        }                        
                     }
 
                     if (existingTask.Activity.SequenceEqual(task.Activity))
                     {
                         existingTask.Activity.Clear();
-                        existingTask.Activity.AddRange(task.Activity);
+                        foreach (var a in task.Activity)
+                        {
+                            existingTask.Activity.Add(a);
+                        }                        
                     }
                 });
             }
@@ -665,7 +674,7 @@ namespace TaskTracker.Presentation.WPF.Tests
         {
             public override IRepository CreateRepository()
             {
-                var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerModelContainer"].ConnectionString;
+                var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
                 return new SqlRepositoryFactory(true).CreateRepository(dbConnectionString);
             }
         }
