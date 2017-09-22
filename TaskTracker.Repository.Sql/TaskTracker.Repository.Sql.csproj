@@ -49,11 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DB.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DB.Context.tt</DependentUpon>
+    <Compile Include="DBContext.cs">
     </Compile>
+    <Compile Include="Migrations\201709220447566_DBSchemaV0_Existing.cs" />
+    <Compile Include="Migrations\201709220447566_DBSchemaV0_Existing.Designer.cs">
+      <DependentUpon>201709220447566_DBSchemaV0_Existing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="StageExtension.cs" />
@@ -64,12 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="DB.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DB.Context.cs</LastGenOutput>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskTracker.Common\TaskTracker.Common.csproj">
@@ -84,6 +80,20 @@
       <Project>{2fc979f8-2872-412a-b528-3d6ae3b9227a}</Project>
       <Name>TaskTracker.Repository</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201709220447566_DBSchemaV0_Existing.resx">
+      <DependentUpon>201709220447566_DBSchemaV0_Existing.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\dbo.GetOpenTaskOfProject.sql" />
+    <Content Include="Scripts\dbo.GetOpenTasksOfUser.sql" />
+    <Content Include="Scripts\dbo.GetStagesWithMaxActivities.sql" />
+    <Content Include="Scripts\dbo.GetStagesWithMaxTasks.sql" />
+    <Content Include="Scripts\dbo.GetTotalActivitiesTimeOfStage.sql" />
+    <Content Include="Scripts\dbo.SetTaskStatus.sql" />
+    <Content Include="Scripts\TaskTrackerModel.edmx.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
