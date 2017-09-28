@@ -21,15 +21,33 @@ namespace TaskTracker.Repository.Sql
     public class SqlRepositoryFactory : RepositoryFactory
     {
         private bool proxyCreationEnabled;
+        private Dictionary<string, SqlRepository> repositories;
 
         public SqlRepositoryFactory(bool proxyCreationEnabled)
         {
             this.proxyCreationEnabled = proxyCreationEnabled;
+            this.repositories = new Dictionary<string, SqlRepository>();
+        }        
+
+        public override IRepositoryQueries CreateRepositoryQueries(string connectionString)
+        {
+            return GetRepo(connectionString) as IRepositoryQueries;
         }
 
-        public override IRepository CreateRepository(string connectionString)
+        public override ITransactionalRepositoryCommands CreateRepositoryCommands(string connectionString)
         {
-            return new SqlRepository(connectionString, new TaskTrackerDBContextFactory(), proxyCreationEnabled);
+            return GetRepo(connectionString) as ITransactionalRepositoryCommands;
+        }
+
+        private SqlRepository GetRepo(string connectionString)
+        {
+            SqlRepository result;
+            if (!repositories.TryGetValue(connectionString, out result))
+            {
+                result = new SqlRepository(connectionString, new TaskTrackerDBContextFactory(), proxyCreationEnabled);
+                repositories.Add(connectionString, result);
+            }
+            return result;
         }
     }
 
@@ -46,7 +64,7 @@ namespace TaskTracker.Repository.Sql
         }
     }
 
-    internal class SqlRepository : IRepository, IRepositoryInitializer
+    internal class SqlRepository : IRepositoryQueries, IRepositoryCommands, ITransactionalRepositoryCommands, IRepositoryTransaction, IRepositoryInitializer
     {
         private class PropertySelectionQueryBuilder
         {
@@ -94,12 +112,22 @@ namespace TaskTracker.Repository.Sql
         {
             public static Exception StageNotFound(int stageId)
             {
-                return new InvalidOperationException(String.Format("Stage '{0}' not found in repository.", stageId));
+                return new InvalidOperationException($"Stage '{stageId}' not found in repository.");
             }
 
             public static Exception TaskNotFound(int taskId)
             {
-                return new InvalidOperationException(String.Format("Task '{0}' not found in repository.", taskId));
+                return new InvalidOperationException($"Task '{taskId}' not found in repository.");
+            }
+
+            public static Exception TransactionAlreadyStarted()
+            {
+                return new InvalidOperationException("Transaction is already started.");
+            }
+
+            public static Exception TransactionNotStarted()
+            {
+                return new InvalidOperationException("Transaction is not started yet.");
             }
         }
 
@@ -276,6 +304,7 @@ namespace TaskTracker.Repository.Sql
         private string connectionString;
         private ITaskTrackerDBContextFactory modelContainerFactory;
         private TaskTrackerDBContext context;
+        private DbContextTransaction transaction;
         private bool proxyCreationEnabled;
 
         private SqlRepository(TaskTrackerDBContext context)
@@ -520,15 +549,42 @@ namespace TaskTracker.Repository.Sql
             ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
             DoContextOperations(ctx => UpdateTaskStageReference(taskId, stageId, false, ctx));
         }
-
-        public void GroupOperations(RepositoryOperations operations)
+       
+        public IRepositoryTransaction BeginTransaction()
         {
-            ArgumentValidation.ThrowIfNull(operations, nameof(operations));
+            if (transaction != null)
+                throw RepositoryExceptions.TransactionAlreadyStarted();
 
-            using (var taskTrackerContainer = CreateContext(connectionString))
+            using (var ctx = CreateContext(connectionString))
             {
-                operations(new SqlRepository(taskTrackerContainer));                
+                transaction = ctx.Database.BeginTransaction();
             }
+            return this as IRepositoryTransaction;
+        }
+
+        public void CommitTransaction()
+        {
+            if (transaction == null)
+                throw RepositoryExceptions.TransactionNotStarted();
+
+            transaction.Commit();
+            transaction = null;
+        }
+
+        public void RollbackTransaction()
+        {
+            if (transaction == null)
+                throw RepositoryExceptions.TransactionNotStarted();
+
+            transaction.Rollback();
+            transaction = null;
+        }
+
+        // IDisposable
+        public void Dispose()
+        {
+            if (transaction != null)
+                RollbackTransaction();            
         }
 
         // IRepositoryInitializer

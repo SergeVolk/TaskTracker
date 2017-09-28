@@ -9,7 +9,7 @@ using TaskTracker.SyntaxUtils;
 namespace TaskTracker.Service
 {
     [ServiceContract]
-    public interface ITaskTrackerService
+    public interface ITaskTrackerService : IDisposable
     {
         [OperationContract]
         IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null);
@@ -78,9 +78,12 @@ namespace TaskTracker.Service
         void RemoveTaskFromStage(int taskId, int stageId);
         
         [OperationContract]
-        Guid BeginGroupOperation();
+        void BeginTransaction();
 
         [OperationContract]
-        void EndGroupOperation(Guid operationId);
+        void CommitTransaction();
+
+        [OperationContract]
+        void RollbackTransaction();
     }
 }

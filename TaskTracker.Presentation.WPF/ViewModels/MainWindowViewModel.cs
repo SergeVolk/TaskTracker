@@ -18,7 +18,8 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private static readonly string DefaultReporter = "Admin";
         private static readonly string DefaultAssignee = "User1";
 
-        private IRepository repository;
+        private IRepositoryQueries repositoryQueries;
+        private ITransactionalRepositoryCommands repositoryCommands;
         private Status defaultStatus;
         private User defaultUser;
         private IUIService uiService;
@@ -26,20 +27,22 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private IEnumerable<TaskViewerViewModel> taskViewerViewModels;
         private UpdateManager queryTasksMgr;
         
-        public MainWindowViewModel(IUIService uiService, IRepository repository)
+        public MainWindowViewModel(IUIService uiService, IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
         {
             ArgumentValidation.ThrowIfNull(uiService, nameof(uiService));
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(MainWindowViewModel.repositoryQueries));
+            ArgumentValidation.ThrowIfNull(repositoryCommands, nameof(MainWindowViewModel.repositoryCommands));
 
             this.uiService = uiService;
-            this.repository = repository;
+            this.repositoryQueries = repositoryQueries;
+            this.repositoryCommands = repositoryCommands;
 
             queryTasksMgr = new UpdateManager(QueryTasks);
 
             defaultStatus = Status.Open;
-            defaultUser = repository.GetUsers().First(u => u.Name.Equals(DefaultReporter));
+            defaultUser = repositoryQueries.GetUsers().First(u => u.Name.Equals(DefaultReporter));
 
-            ProjectFilterVM = new ProjectFilterViewModel(repository.GetProjects().Select(p => new ProjectFilterItemViewModel(p)));
+            ProjectFilterVM = new ProjectFilterViewModel(repositoryQueries.GetProjects().Select(p => new ProjectFilterItemViewModel(p)));
             StatusFilterVM = new StatusFilterViewModel(EnumUtils.GetValues<Status>().Select(s => new StatusFilterItemViewModel(s)));
             PriorityFilterVM = new PriorityFilterViewModel(EnumUtils.GetValues<Priority>().Select(p => new PriorityFilterItemViewModel(p)));
 
@@ -66,8 +69,8 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             CreateTaskCommand = new Command<object>(OnButtonCreateTaskClicked);
             ShowAllTasksCommand = new Command<object>(OnButtonAllTasksClicked);
 
-            TaskStageEditorVM = new StageTasksEditorViewModel(repository);
-            ReportsVM = new ReportsVM(repository);
+            TaskStageEditorVM = new StageTasksEditorViewModel(repositoryQueries, repositoryCommands);
+            ReportsVM = new ReportsVM(repositoryQueries);
         }
 
         public ProjectFilterViewModel ProjectFilterVM { get; private set; }       
@@ -100,10 +103,10 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         {
             var taskCreationVM = new TaskEditorViewModel()
             {
-                Assignees = repository.GetUsers().Select(u => u.Name),
-                Projects = repository.GetProjects().Select(p => p.Name),
+                Assignees = repositoryQueries.GetUsers().Select(u => u.Name),
+                Projects = repositoryQueries.GetProjects().Select(p => p.Name),
                 Priorities = Enum.GetNames(typeof(Priority)),
-                TaskTypes = repository.GetTaskTypes().Select(tt => tt.Name),
+                TaskTypes = repositoryQueries.GetTaskTypes().Select(tt => tt.Name),
                 SelectedAssignee = DefaultAssignee
             };
                         
@@ -124,14 +127,14 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                     Description = taskCreationVM.Description,
                     Priority = priority,
                     Creator = defaultUser,
-                    Assignee = !String.IsNullOrEmpty(selAssignee) ? repository.GetUsers().First(u => u.Name.Equals(selAssignee)) : null,
-                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name.Equals(taskCreationVM.SelectedTaskType)).Id,
-                    Project = repository.GetProjects().First(p => p.Name.Equals(taskCreationVM.SelectedProject)),
+                    Assignee = !String.IsNullOrEmpty(selAssignee) ? repositoryQueries.GetUsers().First(u => u.Name.Equals(selAssignee)) : null,
+                    TaskTypeId = repositoryQueries.GetTaskTypes().First(tt => tt.Name.Equals(taskCreationVM.SelectedTaskType)).Id,
+                    Project = repositoryQueries.GetProjects().First(p => p.Name.Equals(taskCreationVM.SelectedProject)),
                     Estimation = estimation,
                     Status = defaultStatus
                 };
 
-                repository.Add(task);
+                repositoryCommands.Add(task);
             }
         }
 
@@ -176,14 +179,14 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             taskFilter.Projects = selectedProjects.ToList();
             taskFilter.Priorities = selectedPriorities.ToList();
                 
-            var tasks = repository.GetTasks(taskFilter, 
+            var tasks = repositoryQueries.GetTasks(taskFilter, 
                 new PropertySelector<Task>().
                     Select(t => t.Project).
                     Select(t => t.Assignee).
                     Select(t => t.Creator).
                     Select($"{nameof(Task.Stage)}.{nameof(Stage.Task)}"));                        
 
-            TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repository)).
+            TaskViewerViewModels = tasks.Select(t => new TaskViewerViewModel(t, uiService, repositoryQueries, repositoryCommands)).
                 OrderByDescending(ks => ks.TaskId).
                 OrderByDescending(ks => ks.Priority, Comparer<Priority>.Create((l, r) => PriorityOrderer(l).CompareTo(PriorityOrderer(r))));
             SelectedTask = TaskViewerViewModels.FirstOrDefault();

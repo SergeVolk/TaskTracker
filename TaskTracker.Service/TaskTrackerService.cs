@@ -11,68 +11,35 @@ namespace TaskTracker.Service
 {
     public class TaskTrackerService : ITaskTrackerService
     {
-        /*private class ThreadSafeList<T>
+        private IRepositoryQueries repositoryQueries;
+        private ITransactionalRepositoryCommands repositoryCommands;
+        private IRepositoryTransaction transaction;
+
+        public TaskTrackerService(IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
         {
-            private List<T> list;
+            ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(repositoryQueries));
+            ArgumentValidation.ThrowIfNull(repositoryCommands, nameof(repositoryCommands));
 
-            public ThreadSafeList()
-            {
-                this.list = new List<T>();
-            }
-
-            public List<T> Lock()
-            {
-                Monitor.Enter(list);
-                return list;
-            }
-
-            public void Unlock()
-            {
-                Monitor.Exit(list);
-            }
-
-            public int Count()
-            {
-                var list = Lock();
-                try
-                {
-                    return list.Count;
-                }
-                finally
-                {
-                    Unlock();
-                }
-
-            }
-        }*/
-
-        private IRepository repository;
-        //private ThreadSafeList<Guid> groupOperations;
-
-        public TaskTrackerService(IRepository repository)
-        {
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
-            
-            this.repository = repository;
-            //this.groupOperations = new ThreadSafeList<Guid>();
+            this.repositoryQueries = repositoryQueries;
+            this.repositoryCommands = repositoryCommands;
         }
 
         public void Add(Activity activity)
         {
             ArgumentValidation.ThrowIfNull(activity, nameof(activity));
-            repository.Add(activity);
+            GetRepositoryCommands().Add(activity);
         }
 
         public void Add(Stage stage)
         {
             ArgumentValidation.ThrowIfNull(stage, nameof(stage));
-            repository.Add(stage);
+            GetRepositoryCommands().Add(stage);
         }
 
         public void Add(Task task)
         {
             ArgumentValidation.ThrowIfNull(task, nameof(task));
-            repository.Add(task);
+            GetRepositoryCommands().Add(task);
         }
 
         public void AddTaskToStage(int taskId, int stageId)
@@ -80,131 +47,141 @@ namespace TaskTracker.Service
             ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
             ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
 
-            repository.AddTaskToStage(taskId, stageId);
+            GetRepositoryCommands().AddTaskToStage(taskId, stageId);
         }
 
         public Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null)
         {
             ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
-            return repository.FindStage(stageId, propertiesToInclude);
+            return repositoryQueries.FindStage(stageId, propertiesToInclude);
         }
 
         public Task FindTask(int taskId, PropertySelector<Task> propertiesToInclude = null)
         {
             ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
-            return repository.FindTask(taskId, propertiesToInclude);
+            return repositoryQueries.FindTask(taskId, propertiesToInclude);
         }
 
         public TaskType FindTaskType(int taskTypeId)
         {
             ArgumentValidation.ThrowIfLess(taskTypeId, 0, nameof(taskTypeId));
-            return repository.FindTaskType(taskTypeId);
+            return repositoryQueries.FindTaskType(taskTypeId);
         }
 
         public IEnumerable<Task> GetOpenTasksOfProject(int projectId, PropertySelector<Task> propertiesToInclude = null)
         {
             ArgumentValidation.ThrowIfLess(projectId, 0, nameof(projectId));
-            return repository.GetOpenTasksOfProject(projectId, propertiesToInclude);
+            return repositoryQueries.GetOpenTasksOfProject(projectId, propertiesToInclude);
         }
 
         public IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null)
         {
             ArgumentValidation.ThrowIfLess(userId, 0, nameof(userId));
-            return repository.GetOpenTasksOfUser(userId, propertiesToInclude);
+            return repositoryQueries.GetOpenTasksOfUser(userId, propertiesToInclude);
         }
 
         public IEnumerable<Project> GetProjects(PropertySelector<Project> propertiesToInclude = null)
         {
-            return repository.GetProjects(propertiesToInclude);
+            return repositoryQueries.GetProjects(propertiesToInclude);
         }
 
         public IEnumerable<Stage> GetStages(int level, PropertySelector<Stage> propertiesToInclude = null, bool applySelectionToEntireGraph = false)
         {
             ArgumentValidation.ThrowIfLess(level, 0, nameof(level));
-            return repository.GetStages(level, propertiesToInclude, applySelectionToEntireGraph);
+            return repositoryQueries.GetStages(level, propertiesToInclude, applySelectionToEntireGraph);
         }
 
         public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxActivities(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             ArgumentValidation.ThrowIfLess(stageLimit, 0, nameof(stageLimit));
-            return repository.GetStagesWithMaxActivities(stageLimit, propertiesToInclude);
+            return repositoryQueries.GetStagesWithMaxActivities(stageLimit, propertiesToInclude);
         }
 
         public IEnumerable<Tuple<Stage, int>> GetStagesWithMaxTasks(int stageLimit, PropertySelector<Stage> propertiesToInclude = null)
         {
             ArgumentValidation.ThrowIfLess(stageLimit, 0, nameof(stageLimit));
-            return repository.GetStagesWithMaxTasks(stageLimit, propertiesToInclude);
+            return repositoryQueries.GetStagesWithMaxTasks(stageLimit, propertiesToInclude);
         }        
 
         public IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null)
         {
-            return repository.GetTasks(filter, sel);
+            return repositoryQueries.GetTasks(filter, sel);
         }
 
         public IEnumerable<TaskType> GetTaskTypes()
         {
-            return repository.GetTaskTypes();
+            return repositoryQueries.GetTaskTypes();
         }
 
         public double GetTotalActivityTimeOfStage(int stageId)
         {
             ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
-            return repository.GetTotalActivityTimeOfStage(stageId);
+            return repositoryQueries.GetTotalActivityTimeOfStage(stageId);
         }
 
         public IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null)
         {
-            return repository.GetUsers(propertiesToInclude);            
+            return repositoryQueries.GetUsers(propertiesToInclude);            
         }        
 
-        public Guid BeginGroupOperation()
-        {            
-            return Guid.NewGuid();
+        public void BeginTransaction()
+        {
+            transaction = repositoryCommands.BeginTransaction();
         }
 
-        public void EndGroupOperation(Guid operationId)
+        public void CommitTransaction()
         {
-            ArgumentValidation.ThrowIf(
-                operationId.Equals(Guid.Empty), 
-                () => new[] { $"Argument '{operationId}' has invalid value: {operationId.ToString()}." });
+            transaction.CommitTransaction();
+            transaction = null;
+        }
 
-            // empty
+        public void RollbackTransaction()
+        {
+            transaction.RollbackTransaction();
+            transaction = null;
         }
 
         public void Dispose()
-        {            
-            repository = null;
+        {
+            repositoryQueries = null;
+            repositoryCommands = null;
+            transaction = null;
         }
 
         public void RemoveTaskFromStage(int taskId, int stageId)
         {
             ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
             ArgumentValidation.ThrowIfLess(stageId, 0, nameof(stageId));
-            repository.RemoveTaskFromStage(taskId, stageId);
+            GetRepositoryCommands().RemoveTaskFromStage(taskId, stageId);
         }
 
         public void SetTaskStatus(int taskId, Status newStatus)
         {
             ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
-            repository.SetTaskStatus(taskId, newStatus);
+            GetRepositoryCommands().SetTaskStatus(taskId, newStatus);
         }
 
         public void Update(Stage stage)
         {
             ArgumentValidation.ThrowIfNull(stage, nameof(stage));
-            repository.Update(stage);
+            GetRepositoryCommands().Update(stage);
         }
 
         public void Update(Activity activity)
         {
             ArgumentValidation.ThrowIfNull(activity, nameof(activity));
-            repository.Update(activity);
+            GetRepositoryCommands().Update(activity);
         }
 
         public void Update(Task task)
         {
             ArgumentValidation.ThrowIfNull(task, nameof(task));
-            repository.Update(task);
+            GetRepositoryCommands().Update(task);
+        }
+
+        private IRepositoryCommands GetRepositoryCommands()
+        {
+            return transaction ?? repositoryCommands as IRepositoryCommands;
         }
     }
 }

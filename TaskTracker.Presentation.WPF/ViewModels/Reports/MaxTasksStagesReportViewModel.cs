@@ -27,7 +27,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
     {
         private IEnumerable<StageWithTaskCountVM> stages;
         
-        public MaxTasksStagesReportViewModel(IRepository repository) : base(repository)
+        public MaxTasksStagesReportViewModel(IRepositoryQueries repositoryQueries) : base(repositoryQueries)
         { }
 
         public IEnumerable<StageWithTaskCountVM> Stages
@@ -45,7 +45,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         protected override void OnUpdateCommand(object sender)
         {
-            var stagesWithTC = Repository.GetStagesWithMaxTasks(5);
+            var stagesWithTC = RepositoryQueries.GetStagesWithMaxTasks(5);
             Stages = stagesWithTC.Select(e => new StageWithTaskCountVM(e.Item1, e.Item2));            
         }
     }

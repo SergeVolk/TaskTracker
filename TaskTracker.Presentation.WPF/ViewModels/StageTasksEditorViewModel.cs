@@ -21,20 +21,21 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private Stage stage;
         private ObservableCollection<StageTaskViewModel> stageTasks;
         private StageTaskViewModel selectedStageTask;
-        private IRepository repository;
+        private TaskTrackerManager taskTrackerManager;
 
-        public StageViewModel(Stage stage, StageViewModel parent, Action<StageViewModel> selectionHandler, IRepository repository, bool isExpanded = false)
+        public StageViewModel(Stage stage, StageViewModel parent, Action<StageViewModel> selectionHandler, 
+            TaskTrackerManager taskTrackerManager, bool isExpanded = false)
         {
             ArgumentValidation.ThrowIfNull(stage, nameof(stage));
             ArgumentValidation.ThrowIfNull(selectionHandler, nameof(selectionHandler));
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            ArgumentValidation.ThrowIfNull(taskTrackerManager, nameof(taskTrackerManager));
 
             this.stage = stage;
             this.parent = parent;            
-            this.repository = repository;
+            this.taskTrackerManager = taskTrackerManager;
             this.isExpanded = isExpanded;
             this.Selected += selectionHandler;
-            this.SubStagesVM = stage.SubStages.Select(s => new StageViewModel(s, this, selectionHandler, repository)).ToList();
+            this.SubStagesVM = stage.SubStages.Select(s => new StageViewModel(s, this, selectionHandler, taskTrackerManager)).ToList();
             this.stageTasks = new ObservableCollection<StageTaskViewModel>(stage.Task.Select(t => new StageTaskViewModel(t)).ToList());
         }        
 
@@ -70,9 +71,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             ArgumentValidation.ThrowIfNull(taskVM, nameof(taskVM));            
 
             stageTasks.Remove(taskVM);
-
-            var ttMgr = new TaskTrackerManager(repository);
-            ttMgr.RemoveTaskFromStage(taskVM.Task, stage);            
+            taskTrackerManager.RemoveTaskFromStage(taskVM.Task, stage);            
         }
 
         public void Add(StageTaskViewModel taskVM)
@@ -80,9 +79,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             ArgumentValidation.ThrowIfNull(taskVM, nameof(taskVM));
 
             stageTasks.Add(taskVM);
-
-            var ttMgr = new TaskTrackerManager(repository);
-            ttMgr.AddTaskToStage(taskVM.Task, stage);
+            taskTrackerManager.AddTaskToStage(taskVM.Task, stage);
         }
 
         public IEnumerable<StageViewModel> SubStagesVM { get; private set; }
@@ -133,35 +130,30 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
     internal class StageTasksEditorViewModel : ViewModelBase
     {
-        private IRepository repository;
+        private IRepositoryQueries repositoryQueries;
         private StageViewModel selectedStageVM;
         private StageTaskViewModel selectedTask;
         private IEnumerable<StageViewModel> topLevelStagesVM;
 
-        public StageTasksEditorViewModel(IRepository repository)
+        public StageTasksEditorViewModel(IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
         {
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(repositoryQueries));
 
-            this.repository = repository;
+            this.repositoryQueries = repositoryQueries;
 
-            IEnumerable<Stage> topLevelStages = null;
-            IEnumerable<Task> tasks = null;
+            var stagePropsSelector = new PropertySelector<Stage>().Select($"{nameof(Stage.Task)}.{nameof(Task.Stage)}").Select("Task.Project");
+            var topLevelStages = repositoryQueries.GetStages(0, stagePropsSelector, true);                
 
-            repository.GroupOperations(op =>
-            {
-                var stagePropsSelector = new PropertySelector<Stage>().Select($"{nameof(Stage.Task)}.{nameof(Task.Stage)}").Select("Task.Project");
-                topLevelStages = op.GetStages(0, stagePropsSelector, true);                
+            var taskFilter = new TaskFilter();
+            taskFilter.Statuses = new List<string> { "Open", "InProgress" };
 
-                var taskFilter = new TaskFilter();
-                taskFilter.Statuses = new List<string> { "Open", "InProgress" };
+            var tasks = repositoryQueries.GetTasks(taskFilter, new PropertySelector<Task>().
+                Select(t => t.Project).
+                Select(t => t.Assignee).
+                Select($"{nameof(Task.Stage)}.{nameof(Stage.Task)}"));
 
-                tasks = op.GetTasks(taskFilter, new PropertySelector<Task>().
-                    Select(t => t.Project).
-                    Select(t => t.Assignee).
-                    Select($"{nameof(Task.Stage)}.{nameof(Stage.Task)}"));                
-            });
-
-            TopLevelStagesVM = topLevelStages.Select(s => new StageViewModel(s, null, OnStageSelected, repository, true)).ToList();
+            var taskTrackerManager = new TaskTrackerManager(repositoryQueries, repositoryCommands);
+            TopLevelStagesVM = topLevelStages.Select(s => new StageViewModel(s, null, OnStageSelected, taskTrackerManager, true)).ToList();
             AllTasks = tasks.Select(t => new StageTaskViewModel(t)).ToList();
 
             RemoveTaskCommand = new Command<object>(OnRemoveTaskCommand);

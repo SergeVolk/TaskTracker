@@ -9,13 +9,13 @@ namespace TaskTracker.Presentation.WPF
 {
     public class WindowFactory
     {
-        public Window CreateMainWindow(IRepository repository)
+        public Window CreateMainWindow(IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
         {
-            var repoInitializer = repository as IRepositoryInitializer;
+            var repoInitializer = repositoryCommands as IRepositoryInitializer;
             if (repoInitializer != null && !repoInitializer.HasAnyData)
                 repoInitializer.InitPreset();
 
-            var mainWindowVM = new MainWindowViewModel(new UIService(), repository);
+            var mainWindowVM = new MainWindowViewModel(new UIService(), repositoryQueries, repositoryCommands);
             return new MainWindow { DataContext = mainWindowVM };
         }
     }

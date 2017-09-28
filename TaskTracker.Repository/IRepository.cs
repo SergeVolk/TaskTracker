@@ -9,20 +9,19 @@ namespace TaskTracker.Repository
 {
     public abstract class RepositoryFactory
     {
-        public abstract IRepository CreateRepository(string connectionString);
-    }
+        public abstract IRepositoryQueries CreateRepositoryQueries(string connectionString);
+        public abstract ITransactionalRepositoryCommands CreateRepositoryCommands(string connectionString);
+    }    
 
-    public delegate void RepositoryOperations(IRepository repository);
-
-    public interface IRepository
+    public interface IRepositoryQueries
     {
         IEnumerable<User> GetUsers(PropertySelector<User> propertiesToInclude = null);
 
         IEnumerable<Project> GetProjects(PropertySelector<Project> propertiesToInclude = null);
 
-        IEnumerable<TaskType> GetTaskTypes();   
+        IEnumerable<TaskType> GetTaskTypes();
 
-        IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null);        
+        IEnumerable<Task> GetTasks(TaskFilter filter = null, PropertySelector<Task> sel = null);
 
         IEnumerable<Task> GetOpenTasksOfUser(int userId, PropertySelector<Task> propertiesToInclude = null);
 
@@ -41,7 +40,10 @@ namespace TaskTracker.Repository
         Stage FindStage(int stageId, PropertySelector<Stage> propertiesToInclude = null);
 
         TaskType FindTaskType(int taskTypeId);
+    }
 
+    public interface IRepositoryCommands
+    {
         void Add(Task task);
 
         void Add(Activity activity);
@@ -59,8 +61,18 @@ namespace TaskTracker.Repository
         void AddTaskToStage(int taskId, int stageId);
 
         void RemoveTaskFromStage(int taskId, int stageId);
+    }
 
-        void GroupOperations(RepositoryOperations operations);
+    public interface ITransactionalRepositoryCommands : IRepositoryCommands
+    {
+        IRepositoryTransaction BeginTransaction();        
+    }
+
+    public interface IRepositoryTransaction : IRepositoryCommands, IDisposable
+    {
+        void CommitTransaction();
+
+        void RollbackTransaction();
     }
 
     public interface IRepositoryInitializer
