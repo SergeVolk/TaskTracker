@@ -7,6 +7,12 @@ using System.Runtime.Serialization;
 
 namespace TaskTracker.SyntaxUtils
 {   
+    /// <summary>
+    /// This class is used to "mark" (or select) properties of a class in a useful manner 
+    /// and return them as a list of strings.
+    /// It is used to inform the Repository which properties are required to be intialized.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [Serializable]
     [DataContract]
     public class PropertySelector<T>

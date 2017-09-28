@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.ExceptionUtils
 {   
+    /// <summary>
+    /// Helper class for typical cases of argument validation.
+    /// </summary>
     public static class ArgumentValidation 
     {
         private static class Throw
@@ -60,26 +63,59 @@ namespace TaskTracker.ExceptionUtils
             }
         }
 
+        /// <summary>
+        /// Throws ArgumentException if the input condition is false.
+        /// </summary>
+        /// <param name="throwCondition"></param>
+        /// <param name="exceptionParametersProvider">
+        /// Callback that provide parameters for the exception. It is called only when the condition is false.
+        /// </param>
         public static void ThrowIf(bool throwCondition, Func<IEnumerable<object>> exceptionParametersProvider)
         {
             Throw.If<ArgumentException>(throwCondition, exceptionParametersProvider);
         }
 
+        /// <summary>
+        /// Throws exception of the provided type if the input condition is false.
+        /// </summary>
+        /// <typeparam name="E">Exception to be thrown</typeparam>
+        /// <param name="throwCondition"></param>
+        /// <param name="exceptionParametersProvider">
+        /// Callback that provide parameters for the exception. It is called only when the condition is false.
+        /// </param>
         public static void ThrowIf<E>(bool throwCondition, Func<IEnumerable<object>> exceptionParametersProvider) where E : ArgumentException
         {
             Throw.If<E>(throwCondition, exceptionParametersProvider);
         }
 
+        /// <summary>
+        /// Throws ArgumentException if the input enumerable is null or empty.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerableObject"></param>
+        /// <param name="objectName">Argument name</param>
         public static void ThrowIfNullOrEmpty<T>(IEnumerable<T> enumerableObject, string objectName)
         {
             Throw.IfNullOrEmpty<ArgumentException, T>(enumerableObject, $"Argument '{objectName}' cannot be null or empty.", objectName);
         }
 
+        /// <summary>
+        /// Throws ArgumentNullException if the input object is null.
+        /// </summary>
+        /// <param name="object"></param>
+        /// <param name="objectName">Argument name</param>
         public static void ThrowIfNull(object @object, string objectName)
         {
             Throw.IfNull<ArgumentNullException>(@object, objectName);
         }
 
+        /// <summary>
+        /// Throws ArgumentOutOfRangeException if the input value is strictly less than the provided minimum.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="objectName">Argument name</param>
         public static void ThrowIfLess<T>(T value, T min, string objectName)
         {
             Throw.If<ArgumentOutOfRangeException>(
@@ -91,6 +127,13 @@ namespace TaskTracker.ExceptionUtils
                 }));
         }
 
+        /// <summary>
+        /// Throws ArgumentOutOfRangeException if the input value is strictly greater than the provided maximim.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="max"></param>
+        /// <param name="objectName">Argument name</param>
         public static void ThrowIfGreater<T>(T value, T max, string objectName)
         {
             Throw.If<ArgumentOutOfRangeException>(
@@ -102,6 +145,14 @@ namespace TaskTracker.ExceptionUtils
                 }));
         }
 
+        /// <summary>
+        /// Throws ArgumentOutOfRangeException if the input value is not exclusively inside the range (min; max). 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <param name="objectName">Argument name</param>
         public static void ThrowIfOutOfRange<T>(T value, T min, T max, string objectName)
         {
             Throw.IfOutOfRange<ArgumentOutOfRangeException, T>(value, min, max, objectName);                

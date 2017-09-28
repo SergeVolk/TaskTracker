@@ -2,6 +2,9 @@ using System;
 
 namespace TaskTracker.Model
 {    
+    /// <summary>
+    /// This enumeration defines available statuses of a task.
+    /// </summary>
     public enum Status : byte
     {
         Open = 0,
