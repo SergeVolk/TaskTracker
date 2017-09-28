@@ -41,6 +41,7 @@ namespace TaskTracker.Model
         /// <summary>
         /// Defines the current time estimation of the task in minutes. Optional.
         /// </summary>
+        [DataMember]
         public double? Estimation { get; set; }
 
         [DataMember]
