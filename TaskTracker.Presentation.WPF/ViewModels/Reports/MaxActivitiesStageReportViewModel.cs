@@ -11,7 +11,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private Stage stage;
         private int? activityCount;
 
-        public MaxActivitiesStageReportViewModel(IRepository repository) : base(repository)
+        public MaxActivitiesStageReportViewModel(IRepositoryQueries repositoryQueries) : base(repositoryQueries)
         { }
 
         public Stage Stage
@@ -45,7 +45,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         protected override void OnUpdateCommand(object sender)
         {
-            var maxActivityStageEntry = Repository.GetStagesWithMaxActivities(1).FirstOrDefault();
+            var maxActivityStageEntry = RepositoryQueries.GetStagesWithMaxActivities(1).FirstOrDefault();
 
             Stage = maxActivityStageEntry.Item1;            
             ActivityCount = maxActivityStageEntry.Item2;

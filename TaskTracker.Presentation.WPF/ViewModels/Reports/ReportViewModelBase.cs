@@ -8,13 +8,13 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 {
     internal abstract class ReportViewModelBase : ViewModelBase
     {
-        protected IRepository Repository { get; private set; }
+        protected IRepositoryQueries RepositoryQueries { get; private set; }
 
-        protected ReportViewModelBase(IRepository repository)
+        protected ReportViewModelBase(IRepositoryQueries repositoryQueries)
         {
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(repositoryQueries));
 
-            this.Repository = repository;
+            this.RepositoryQueries = repositoryQueries;
             UpdateCommand = new Command<object>(OnUpdateCommand);
         }
 

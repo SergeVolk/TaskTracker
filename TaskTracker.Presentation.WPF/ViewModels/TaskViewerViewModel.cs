@@ -23,17 +23,20 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private string reporter;
         private string taskType;
         private string project;
-        private IRepository repository;
+        private IRepositoryQueries repositoryQueries;
+        private ITransactionalRepositoryCommands repositoryCommands;
         private IUIService uiService;
 
-        public TaskViewerViewModel(Task task, IUIService uiService, IRepository repository)
+        public TaskViewerViewModel(Task task, IUIService uiService, IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
         {
             ArgumentValidation.ThrowIfNull(task, nameof(task));
             ArgumentValidation.ThrowIfNull(uiService, nameof(uiService));
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(repositoryQueries));
+            ArgumentValidation.ThrowIfNull(repositoryCommands, nameof(repositoryCommands));
 
             this.uiService = uiService;
-            this.repository = repository;
+            this.repositoryQueries = repositoryQueries;
+            this.repositoryCommands = repositoryCommands;
 
             EditTaskCommand = new Command<object>(OnButtonEditClicked);
             CloseTaskCommand = new Command<object>(OnButtonCloseTaskClicked);
@@ -120,10 +123,10 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         {
             var taskEditorVM = new TaskEditorViewModel()
             {
-                Assignees = repository.GetUsers().Select(u => u.Name),
-                Projects = repository.GetProjects().Select(p => p.Name),
+                Assignees = repositoryQueries.GetUsers().Select(u => u.Name),
+                Projects = repositoryQueries.GetProjects().Select(p => p.Name),
                 Priorities = Enum.GetNames(typeof(Priority)),
-                TaskTypes = repository.GetTaskTypes().Select(tt => tt.Name),
+                TaskTypes = repositoryQueries.GetTaskTypes().Select(tt => tt.Name),
                 Description = Description,
                 Estimation = Estimation,
                 Summary = Summary,
@@ -146,15 +149,15 @@ namespace TaskTracker.Presentation.WPF.ViewModels
                 {
                     Id = TaskId,
                     Priority = (Priority)Enum.Parse(typeof(Priority), taskEditorVM.SelectedPriority),
-                    Assignee = !String.IsNullOrEmpty(selAssignee) ? repository.GetUsers().First(u => u.Name.Equals(selAssignee)) : null,
-                    Creator = repository.GetUsers().First(u => u.Name.Equals(Reporter)),
-                    Project = repository.GetProjects().First(p => p.Name.Equals(taskEditorVM.SelectedProject)),
-                    TaskTypeId = repository.GetTaskTypes().First(tt => tt.Name.Equals(taskEditorVM.SelectedTaskType)).Id,
+                    Assignee = !String.IsNullOrEmpty(selAssignee) ? repositoryQueries.GetUsers().First(u => u.Name.Equals(selAssignee)) : null,
+                    Creator = repositoryQueries.GetUsers().First(u => u.Name.Equals(Reporter)),
+                    Project = repositoryQueries.GetProjects().First(p => p.Name.Equals(taskEditorVM.SelectedProject)),
+                    TaskTypeId = repositoryQueries.GetTaskTypes().First(tt => tt.Name.Equals(taskEditorVM.SelectedTaskType)).Id,
                     Description = taskEditorVM.Description,
                     Estimation = estimation,
                     Summary = taskEditorVM.Summary
                 };
-                repository.Update(task);
+                repositoryCommands.Update(task);
                 Assign(task);
             }
         }
@@ -194,7 +197,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         {
             Debug.Assert(Status != newStatus);
             
-            var ttMgr = new TaskTrackerManager(repository);
+            var ttMgr = new TaskTrackerManager(repositoryQueries, repositoryCommands);
             switch (newStatus)
             {
                 case Status.Open:
@@ -231,7 +234,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             Debug.Assert(!String.IsNullOrEmpty(task.Summary));
             Debug.Assert(task.Creator != null);
 
-            var taskType = repository.FindTaskType(task.TaskTypeId);
+            var taskType = repositoryQueries.FindTaskType(task.TaskTypeId);
             Debug.Assert(taskType != null);
             Debug.Assert(!String.IsNullOrEmpty(taskType.Name));
 

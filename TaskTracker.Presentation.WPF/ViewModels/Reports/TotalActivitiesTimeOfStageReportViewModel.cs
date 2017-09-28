@@ -14,7 +14,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         private double totalStageTime;
         private int? selectedStageId;
 
-        public TotalActivitiesTimeOfStageReportViewModel(IRepository repository) : base(repository)
+        public TotalActivitiesTimeOfStageReportViewModel(IRepositoryQueries repositoryQueries) : base(repositoryQueries)
         {
             StageSelectedCommand = new Command<object>(OnStageSelected);
         }
@@ -32,7 +32,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         {
             get
             {
-                var stages = Repository.GetStages(0, new PropertySelector<Stage>().Select(s => s.Task), true);
+                var stages = RepositoryQueries.GetStages(0, new PropertySelector<Stage>().Select(s => s.Task), true);
                 return stages.Select(s => new StageTreeViewModel(s, true));
             }
         }
@@ -67,7 +67,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             if (selectedStageId != stageId)
             {
                 selectedStageId = stageId;
-                TotalStageTime = selectedStageId.HasValue ? Repository.GetTotalActivityTimeOfStage(selectedStageId.Value) : 0;
+                TotalStageTime = selectedStageId.HasValue ? RepositoryQueries.GetTotalActivityTimeOfStage(selectedStageId.Value) : 0;
             }
         }
     }

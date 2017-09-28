@@ -10,7 +10,7 @@ using TaskTracker.Filters;
 
 namespace TaskTracker.App.WPF.ServiceClient
 {
-    public class ServiceRepository : IRepository
+    public class ServiceRepository : IRepositoryQueries, IRepositoryCommands, ITransactionalRepositoryCommands, IRepositoryTransaction
     {
         private ITaskTrackerService service;
 
@@ -119,18 +119,20 @@ namespace TaskTracker.App.WPF.ServiceClient
             return service.GetUsers(propertiesToInclude);
         }
 
-        public void GroupOperations(RepositoryOperations operations)
+        public IRepositoryTransaction BeginTransaction()
         {
-            ArgumentValidation.ThrowIfNull(operations, nameof(operations));
-            var opId = service.BeginGroupOperation();
-            try
-            {
-                operations(this);
-            }
-            finally
-            {
-                service.EndGroupOperation(opId);
-            }            
+            service.BeginTransaction();
+            return this as IRepositoryTransaction;
+        }
+
+        public void CommitTransaction()
+        {
+            service.CommitTransaction();
+        }
+
+        public void RollbackTransaction()
+        {
+            service.RollbackTransaction();
         }
 
         public void RemoveTaskFromStage(int taskId, int stageId)
@@ -162,6 +164,12 @@ namespace TaskTracker.App.WPF.ServiceClient
         {
             ArgumentValidation.ThrowIfNull(task, nameof(task));
             service.Update(task);
+        }
+
+        public void Dispose()
+        {
+            service?.Dispose();
+            service = null;
         }
     }
 }

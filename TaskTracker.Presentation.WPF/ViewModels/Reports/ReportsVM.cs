@@ -8,18 +8,18 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 {
     internal class ReportsVM : ViewModelBase
     {
-        private IRepository repository;
+        private IRepositoryQueries repositoryQueries;
         private CompositeCommand updateCommand;
 
-        public ReportsVM(IRepository repository)
+        public ReportsVM(IRepositoryQueries repositoryQueries)
         {
-            ArgumentValidation.ThrowIfNull(repository, nameof(repository));
+            ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(repositoryQueries));
 
-            this.repository = repository;            
+            this.repositoryQueries = repositoryQueries;            
 
-            MaxActivitiesStageReportVM = new MaxActivitiesStageReportViewModel(repository);
-            MaxTasksStagesReportVM = new MaxTasksStagesReportViewModel(repository);
-            TotalActivitiesTimeOfStageReportVM = new TotalActivitiesTimeOfStageReportViewModel(repository);
+            MaxActivitiesStageReportVM = new MaxActivitiesStageReportViewModel(repositoryQueries);
+            MaxTasksStagesReportVM = new MaxTasksStagesReportViewModel(repositoryQueries);
+            TotalActivitiesTimeOfStageReportVM = new TotalActivitiesTimeOfStageReportViewModel(repositoryQueries);
 
             updateCommand = new CompositeCommand();
             updateCommand.Add(MaxActivitiesStageReportVM.UpdateCommand);
