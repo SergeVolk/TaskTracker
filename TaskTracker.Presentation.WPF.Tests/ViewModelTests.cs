@@ -308,14 +308,26 @@ namespace TaskTracker.Presentation.WPF.Tests
                 ExpectedData = new TestData();
             }
 
-            public abstract IRepository CreateRepository();            
+            public abstract IRepositoryQueries CreateRepositoryQueries();
 
-            public virtual void Verify<TResult>(Expression<Func<IRepository, TResult>> expression, Times times)
+            public abstract ITransactionalRepositoryCommands CreateRepositoryCommands();
+
+            public virtual void Verify<TResult>(Expression<Func<IRepositoryQueries, TResult>> expression, Times times)
             {
                 // empty
             }
 
-            public virtual void Verify(Expression<Action<IRepository>> expression, Times times)
+            public virtual void Verify(Expression<Action<IRepositoryQueries>> expression, Times times)
+            {
+                // empty
+            }
+
+            public virtual void Verify<TResult>(Expression<Func<ITransactionalRepositoryCommands, TResult>> expression, Times times)
+            {
+                // empty
+            }
+
+            public virtual void Verify(Expression<Action<ITransactionalRepositoryCommands>> expression, Times times)
             {
                 // empty
             }
@@ -325,27 +337,43 @@ namespace TaskTracker.Presentation.WPF.Tests
 
         public class MockedRepoContext : Context
         {
-            private Mock<IRepository> mockedRepo;
-            
+            private Mock<IRepositoryQueries> mockedRepoQueries;
+            private Mock<ITransactionalRepositoryCommands> mockedRepoCommands;
+
             public MockedRepoContext()
             { }
 
-            public override IRepository CreateRepository()
+            public override IRepositoryQueries CreateRepositoryQueries()
             {
-                return GetMockedRepo().Object;
+                return GetMockedRepoQueries().Object;
             }
 
-            public override void Verify<TResult>(Expression<Func<IRepository, TResult>> expression, Times times)
+            public override ITransactionalRepositoryCommands CreateRepositoryCommands()
             {
-                GetMockedRepo().Verify(expression, times);
+                return GetMockedRepoCommands().Object;
             }
 
-            public override void Verify(Expression<Action<IRepository>> expression, Times times)
+            public override void Verify<TResult>(Expression<Func<IRepositoryQueries, TResult>> expression, Times times)
             {
-                GetMockedRepo().Verify(expression, times);
+                GetMockedRepoQueries().Verify(expression, times);
             }
 
-            private static void Setup_GetProjects(Mock<IRepository> repo, TestData testData)
+            public override void Verify(Expression<Action<IRepositoryQueries>> expression, Times times)
+            {
+                GetMockedRepoQueries().Verify(expression, times);
+            }
+
+            public override void Verify<TResult>(Expression<Func<ITransactionalRepositoryCommands, TResult>> expression, Times times)
+            {
+                GetMockedRepoCommands().Verify(expression, times);
+            }
+
+            public override void Verify(Expression<Action<ITransactionalRepositoryCommands>> expression, Times times)
+            {
+                GetMockedRepoCommands().Verify(expression, times);
+            }
+
+            private static void Setup_GetProjects(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetProjects(It.IsAny<PropertySelector<Project>>())).Returns<PropertySelector<Project>>((ps) =>
                 {
@@ -365,7 +393,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GetUsers(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetUsers(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetUsers(It.IsAny<PropertySelector<User>>())).Returns<PropertySelector<Project>>((ps) =>
                 {
@@ -373,7 +401,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GetTaskTypes(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetTaskTypes(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetTaskTypes()).Returns(() =>
                 {
@@ -381,7 +409,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GetStages(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetStages(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetStages(It.IsAny<int>(), It.IsAny<PropertySelector<Stage>>(), It.IsAny<bool>())).
                     Returns<int, PropertySelector<Stage>, bool>((level, ps, selectionScope) =>
@@ -390,7 +418,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GetTasks(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetTasks(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetTasks(It.IsAny<TaskFilter>(), It.IsAny<PropertySelector<Task>>())).
                     Returns<TaskFilter, PropertySelector<Task>>((filter, ps) =>
@@ -413,7 +441,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_FindStage(Mock<IRepository> repo, TestData testData)
+            private static void Setup_FindStage(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.FindStage(It.IsAny<int>(), It.IsAny<PropertySelector<Stage>>())).
                     Returns<int, PropertySelector<Stage>>((id, ps) =>
@@ -422,7 +450,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_FindTask(Mock<IRepository> repo, TestData testData)
+            private static void Setup_FindTask(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.FindTask(It.IsAny<int>(), It.IsAny<PropertySelector<Task>>())).
                     Returns<int, PropertySelector<Task>>((id, ps) =>
@@ -431,7 +459,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_FindTaskType(Mock<IRepository> repo, TestData testData)
+            private static void Setup_FindTaskType(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.FindTaskType(It.IsAny<int>())).Returns<int>((id) =>
                 {
@@ -439,15 +467,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GroupOperations(Mock<IRepository> repo)
-            {
-                repo.Setup(r => r.GroupOperations(It.IsAny<RepositoryOperations>())).Callback<RepositoryOperations>((op) =>
-                {
-                    op(repo.Object);
-                });
-            }
-
-            private static void Setup_GetStagesWithMaxActivities(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetStagesWithMaxActivities(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetStagesWithMaxActivities(It.IsAny<int>(), It.IsAny<PropertySelector<Stage>>())).
                     Returns<int, PropertySelector<Stage>>((stageLimit, ps) =>
@@ -464,7 +484,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GetTotalActivityTimeOfStage(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetTotalActivityTimeOfStage(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetTotalActivityTimeOfStage(It.IsAny<int>())).Returns<int>((stageId) =>
                 {
@@ -478,7 +498,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_GetStagesWithMaxTasks(Mock<IRepository> repo, TestData testData)
+            private static void Setup_GetStagesWithMaxTasks(Mock<IRepositoryQueries> repo, TestData testData)
             {
                 repo.Setup(r => r.GetStagesWithMaxTasks(It.IsAny<int>(), It.IsAny<PropertySelector<Stage>>())).
                     Returns<int, PropertySelector<Stage>>((stageLimit, ps) =>
@@ -495,7 +515,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_UpdateTask(Mock<IRepository> repo, TestData testData)
+            private static void Setup_UpdateTask(Mock<ITransactionalRepositoryCommands> repo, TestData testData)
             {
                 repo.Setup(r => r.Update(It.IsAny<Task>())).Callback<Task>(task =>
                 {
@@ -553,7 +573,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_AddTaskToStage(Mock<IRepository> repo, TestData testData)
+            private static void Setup_AddTaskToStage(Mock<ITransactionalRepositoryCommands> repo, TestData testData)
             {
                 repo.Setup(r => r.AddTaskToStage(It.IsAny<int>(), It.IsAny<int>())).Callback<int, int>((taskId, stageId) =>
                 {
@@ -570,7 +590,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_RemoveTaskFromStage(Mock<IRepository> repo, TestData testData)
+            private static void Setup_RemoveTaskFromStage(Mock<ITransactionalRepositoryCommands> repo, TestData testData)
             {
                 repo.Setup(r => r.RemoveTaskFromStage(It.IsAny<int>(), It.IsAny<int>())).Callback<int, int>((taskId, stageId) =>
                 {
@@ -587,7 +607,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_AddTask(Mock<IRepository> repo)
+            private static void Setup_AddTask(Mock<ITransactionalRepositoryCommands> repo)
             {
                 repo.Setup(r => r.Add(It.IsAny<Task>())).Callback<Task>(t =>
                 {
@@ -595,7 +615,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_AddActivity(Mock<IRepository> repo)
+            private static void Setup_AddActivity(Mock<ITransactionalRepositoryCommands> repo)
             {
                 repo.Setup(r => r.Add(It.IsAny<Activity>())).Callback<Activity>(a =>
                 {
@@ -603,7 +623,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_AddStage(Mock<IRepository> repo)
+            private static void Setup_AddStage(Mock<ITransactionalRepositoryCommands> repo)
             {
                 repo.Setup(r => r.Add(It.IsAny<Stage>())).Callback<Stage>(s =>
                 {
@@ -611,7 +631,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_UpdateActivity(Mock<IRepository> repo)
+            private static void Setup_UpdateActivity(Mock<ITransactionalRepositoryCommands> repo)
             {
                 repo.Setup(r => r.Update(It.IsAny<Activity>())).Callback<Activity>(a =>
                 {
@@ -619,7 +639,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_UpdateStage(Mock<IRepository> repo)
+            private static void Setup_UpdateStage(Mock<ITransactionalRepositoryCommands> repo)
             {
                 repo.Setup(r => r.Update(It.IsAny<Stage>())).Callback<Stage>(a =>
                 {
@@ -627,7 +647,7 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private static void Setup_SetTaskStatus(Mock<IRepository> repo)
+            private static void Setup_SetTaskStatus(Mock<ITransactionalRepositoryCommands> repo)
             {
                 repo.Setup(r => r.SetTaskStatus(It.IsAny<int>(), It.IsAny<Status>())).Callback<int, Status>((taskId, newStatus) =>
                 {
@@ -635,48 +655,66 @@ namespace TaskTracker.Presentation.WPF.Tests
                 });
             }
 
-            private Mock<IRepository> GetMockedRepo()
+            private Mock<IRepositoryQueries> GetMockedRepoQueries()
             {                
-                if (mockedRepo != null)
-                    return mockedRepo;
+                if (mockedRepoQueries != null)
+                    return mockedRepoQueries;
 
-                mockedRepo = new Mock<IRepository>();
+                mockedRepoQueries = new Mock<IRepositoryQueries>();
 
-                Setup_GetProjects(mockedRepo, ExpectedData);
-                Setup_GetUsers(mockedRepo, ExpectedData);
-                Setup_GetTaskTypes(mockedRepo, ExpectedData);
-                Setup_GetStages(mockedRepo, ExpectedData);
-                Setup_GetTasks(mockedRepo, ExpectedData);
-                Setup_FindStage(mockedRepo, ExpectedData);
-                Setup_FindTask(mockedRepo, ExpectedData);
-                Setup_FindTaskType(mockedRepo, ExpectedData);
-                Setup_GroupOperations(mockedRepo);
-                Setup_GetStagesWithMaxActivities(mockedRepo, ExpectedData);
-                Setup_GetStagesWithMaxTasks(mockedRepo, ExpectedData);
-                Setup_GetTotalActivityTimeOfStage(mockedRepo, ExpectedData);
-                Setup_UpdateTask(mockedRepo, ExpectedData);
-                Setup_AddTaskToStage(mockedRepo, ExpectedData);
-                Setup_RemoveTaskFromStage(mockedRepo, ExpectedData);
+                Setup_GetProjects(mockedRepoQueries, ExpectedData);
+                Setup_GetUsers(mockedRepoQueries, ExpectedData);
+                Setup_GetTaskTypes(mockedRepoQueries, ExpectedData);
+                Setup_GetStages(mockedRepoQueries, ExpectedData);
+                Setup_GetTasks(mockedRepoQueries, ExpectedData);
+                Setup_FindStage(mockedRepoQueries, ExpectedData);
+                Setup_FindTask(mockedRepoQueries, ExpectedData);
+                Setup_FindTaskType(mockedRepoQueries, ExpectedData);
+                Setup_GetStagesWithMaxActivities(mockedRepoQueries, ExpectedData);
+                Setup_GetStagesWithMaxTasks(mockedRepoQueries, ExpectedData);
+                Setup_GetTotalActivityTimeOfStage(mockedRepoQueries, ExpectedData);
+
+                return mockedRepoQueries;
+            }
+
+            private Mock<ITransactionalRepositoryCommands> GetMockedRepoCommands()
+            {
+                if (mockedRepoCommands != null)
+                    return mockedRepoCommands;
+
+                mockedRepoCommands = new Mock<ITransactionalRepositoryCommands>();
+
+                Setup_UpdateTask(mockedRepoCommands, ExpectedData);
+                Setup_AddTaskToStage(mockedRepoCommands, ExpectedData);
+                Setup_RemoveTaskFromStage(mockedRepoCommands, ExpectedData);
 
                 // Not Implemented
-                Setup_AddTask(mockedRepo);
-                Setup_AddActivity(mockedRepo);
-                Setup_AddStage(mockedRepo);
-                Setup_UpdateActivity(mockedRepo);
-                Setup_UpdateStage(mockedRepo);
-                Setup_SetTaskStatus(mockedRepo);
+                Setup_AddTask(mockedRepoCommands);
+                Setup_AddActivity(mockedRepoCommands);
+                Setup_AddStage(mockedRepoCommands);
+                Setup_UpdateActivity(mockedRepoCommands);
+                Setup_UpdateStage(mockedRepoCommands);
+                Setup_SetTaskStatus(mockedRepoCommands);
 
-                return mockedRepo;
+                return mockedRepoCommands;
             }
         }
 
         public class SqlRepoContext : Context
         {
-            public override IRepository CreateRepository()
+            private SqlRepositoryFactory repoFactory = new SqlRepositoryFactory(true);
+
+            public override IRepositoryQueries CreateRepositoryQueries()
             {
                 var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
-                return new SqlRepositoryFactory(true).CreateRepository(dbConnectionString);
+                return repoFactory.CreateRepositoryQueries(dbConnectionString);
             }
+
+            public override ITransactionalRepositoryCommands CreateRepositoryCommands()
+            {
+                var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
+                return repoFactory.CreateRepositoryCommands(dbConnectionString);
+            }            
         }
 
         private class Utils
@@ -763,7 +801,7 @@ namespace TaskTracker.Presentation.WPF.Tests
         {
             var ctx = GetContext(ctxType);
 
-            var mainWindowVM = new MainWindowViewModel(new UIService(), ctx.CreateRepository());
+            var mainWindowVM = CreateMainWindowVM(ctx);
 
             ctx.Verify(r => r.GetTasks(It.IsAny<TaskFilter>(), It.IsAny<PropertySelector<Task>>()), Times.AtLeastOnce());
             ctx.Verify(r => r.GetProjects(It.IsAny<PropertySelector<Project>>()), Times.AtLeastOnce());
@@ -820,7 +858,7 @@ namespace TaskTracker.Presentation.WPF.Tests
         {
             var ctx = GetContext(ctxType);
 
-            var mainWindowVM = new MainWindowViewModel(new UIService(), ctx.CreateRepository());
+            var mainWindowVM = CreateMainWindowVM(ctx);
             var taskStageEditor = mainWindowVM.TaskStageEditorVM;
 
             var actualTasks = taskStageEditor.AllTasks.Select(t => t.Task.Id);
@@ -885,7 +923,7 @@ namespace TaskTracker.Presentation.WPF.Tests
         {
             var ctx = GetContext(ctxType);
 
-            var mainWindowVM = new MainWindowViewModel(new UIService(), ctx.CreateRepository());
+            var mainWindowVM = CreateMainWindowVM(ctx);
             var reports = mainWindowVM.ReportsVM;
 
             //
@@ -940,7 +978,7 @@ namespace TaskTracker.Presentation.WPF.Tests
             var ctx = GetContext(ctxType);
 
             var uiService = new UIService();
-            var mainWindowVM = new MainWindowViewModel(uiService, ctx.CreateRepository());
+            var mainWindowVM = CreateMainWindowVM(ctx, uiService);
             mainWindowVM.ShowAllTasksCommand.Execute(null);
 
             ctx.Verify(r => r.GetTasks(It.IsAny<TaskFilter>(), It.IsAny<PropertySelector<Task>>()), Times.AtLeastOnce());
@@ -1020,6 +1058,14 @@ namespace TaskTracker.Presentation.WPF.Tests
                 lastRepositoryFactoryType = repositoryFactoryType;
             }
             return lastFactory;
+        }
+
+        private MainWindowViewModel CreateMainWindowVM(Context ctx, UIService uiService = null)
+        {
+            return new MainWindowViewModel(
+                uiService ?? new UIService(), 
+                ctx.CreateRepositoryQueries(), 
+                ctx.CreateRepositoryCommands());
         }
 
         private StageViewModel FindStageByPath(IEnumerable<StageViewModel> stages, string stagePath)
