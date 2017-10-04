@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 using TaskTracker.Presentation.WPF.Utils;
+using TaskTracker.SyntaxUtils;
 
 namespace TaskTracker.Presentation.WPF.ViewModels
 {

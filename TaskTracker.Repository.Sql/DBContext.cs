@@ -4,6 +4,7 @@ using System.Linq;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data.Entity.ModelConfiguration;
+using System.Data.Entity.Infrastructure;
 
 using TaskTracker.Model;
 using TaskTracker.ExceptionUtils;
@@ -88,16 +89,20 @@ namespace TaskTracker.Repository.Sql
         {
             public ActivityCountOfStageConfig()
             { }
-        } 
+        }
         #endregion
 
-        public TaskTrackerDBContext() : this("name=TaskTrackerDB")
-        { }
-
-        public TaskTrackerDBContext(string connectionString) : base(connectionString)
+        private void EnsureDBInitialized(string connectionString)
         {
-            ArgumentValidation.ThrowIfNullOrEmpty(connectionString, nameof(connectionString));
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<TaskTrackerDBContext, Configuration>(true));
+            if (!Database.Exists(connectionString))
+            {
+                Database.Create();
+                Database.Initialize(true);
+
+                var adapter = (IObjectContextAdapter)this;
+                var script = adapter.ObjectContext.CreateDatabaseScript();
+                Database.ExecuteSqlCommand(script);
+            }
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -113,6 +118,17 @@ namespace TaskTracker.Repository.Sql
 
             base.OnModelCreating(modelBuilder);
         }
+
+        public TaskTrackerDBContext() : this("name=TaskTrackerDB")
+        { }
+
+        public TaskTrackerDBContext(string connectionString) : base(connectionString)
+        {
+            ArgumentValidation.ThrowIfNullOrEmpty(connectionString, nameof(connectionString));
+
+            EnsureDBInitialized(connectionString);
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<TaskTrackerDBContext, Configuration>(true));
+        }        
 
         #region Entity sets
         public virtual DbSet<Task> TaskSet { get; set; }

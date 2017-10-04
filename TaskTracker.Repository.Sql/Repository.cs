@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 
 using TaskTracker.Model;
+using TaskTracker.Model.Utils;
 using TaskTracker.ExceptionUtils;
 using TaskTracker.SyntaxUtils;
 using TaskTracker.Filters;
@@ -27,7 +28,12 @@ namespace TaskTracker.Repository.Sql
         {
             this.proxyCreationEnabled = proxyCreationEnabled;
             this.repositories = new Dictionary<string, SqlRepository>();
-        }        
+        }
+
+        public IITaskTrackerRepositoryManager CreateManager(string connectionString)
+        {
+            return GetRepo(connectionString) as IITaskTrackerRepositoryManager;
+        }
 
         public override IRepositoryQueries CreateRepositoryQueries(string connectionString)
         {
@@ -51,6 +57,11 @@ namespace TaskTracker.Repository.Sql
         }
     }
 
+    public interface IITaskTrackerRepositoryManager
+    {
+        void CreateIfNotExists();
+    }
+
     internal interface ITaskTrackerDBContextFactory
     {
         TaskTrackerDBContext CreateDBContext(string connectionString);
@@ -64,7 +75,8 @@ namespace TaskTracker.Repository.Sql
         }
     }
 
-    internal class SqlRepository : IRepositoryQueries, IRepositoryCommands, ITransactionalRepositoryCommands, IRepositoryTransaction, IRepositoryInitializer
+    internal class SqlRepository : IRepositoryQueries, IRepositoryCommands, ITransactionalRepositoryCommands, 
+                                   IRepositoryTransaction, IITaskTrackerRepositoryManager
     {
         private class PropertySelectionQueryBuilder
         {
@@ -128,173 +140,6 @@ namespace TaskTracker.Repository.Sql
             public static Exception TransactionNotStarted()
             {
                 return new InvalidOperationException("Transaction is not started yet.");
-            }
-        }
-
-        private static class DBPresetInitializer
-        {
-            private static readonly string DefaultReporter = "Admin";
-            private static readonly string DefaultAssignee = "User1";
-
-            private static User defaultUser;
-            private static Status defaultStatus = Status.Open;
-
-            public static void Init(string connectionString)
-            {
-                Debug.Assert(!String.IsNullOrEmpty(connectionString));
-
-                using (var ctx = new TaskTrackerDBContextFactory().CreateDBContext(connectionString))
-                {
-                    using (var transaction = ctx.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            EnsureProjectsGenerated(ctx);
-                            EnsureUsersGenerated(ctx);
-                            EnsureTaskTypesGenerated(ctx);
-                            EnsureTasksGenerated(ctx);
-                            EnsureStagesGenerated(ctx);
-
-                            transaction.Commit();
-                        }
-                        catch (Exception)
-                        {
-                            transaction.Rollback();
-                            throw;
-                        }
-                    }
-                }
-            }
-
-            private static void AddTask(string summary, string desc, string prio, string assignee, string reporter, string tt, string project,
-             double? estimation, TaskTrackerDBContext ctx)
-            {
-                Debug.Assert(!String.IsNullOrEmpty(reporter));
-                Debug.Assert(!String.IsNullOrEmpty(tt));
-                Debug.Assert(!String.IsNullOrEmpty(project));
-
-                var task = new Task()
-                {
-                    Summary = summary,
-                    Description = desc,
-                    Priority = (Priority)Enum.Parse(typeof(Priority), prio),
-                    Creator = ctx.UserSet.First(u => u.Name.Equals(reporter)),
-                    Assignee = !String.IsNullOrEmpty(assignee) ? ctx.UserSet.First(u => u.Name.Equals(assignee)) : null,
-                    TaskTypeId = ctx.TaskTypeSet.First(ttype => ttype.Name.Equals(tt)).Id,
-                    Project = ctx.ProjectSet.First(p => p.Name.Equals(project)),
-                    Estimation = estimation,
-                    Status = defaultStatus
-                };
-
-                ctx.TaskSet.Add(task);
-            }
-
-            private static void EnsureTasksGenerated(TaskTrackerDBContext ctx)
-            {
-                if (ctx.TaskSet.Any())
-                    return;
-
-                AddTask("DO 1", "Do 1.1 ... do 1.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 12, ctx);
-                AddTask("DO 2", "Do 2.1 ... do 2.2", "High", DefaultReporter, DefaultReporter, "Continuous", "Project 2", 1, ctx);
-                AddTask("DO 3", "Do 3.1 ... do 3.2", "Low", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 3", 120, ctx);
-                AddTask("DO 4", "Do 4.1 ... do 4.2", "High", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", null, ctx);
-                AddTask("DO 5", "Do 5.1 ... do 5.2", "High", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 1", 1, ctx);
-                AddTask("DO 6", "Do 6.1 ... do 6.2", "Normal", DefaultAssignee, DefaultReporter, "Accomplishable", "Project 2", 1, ctx);
-
-                ctx.SaveChanges();
-            }
-
-            private static void EnsureProjectsGenerated(TaskTrackerDBContext ctx)
-            {
-                if (ctx.ProjectSet.Any())
-                    return;
-
-                var projects = new List<Project>()
-                {
-                    new Project()
-                    {
-                        Name = "Project 1",
-                        ShortName = "PRJ1"
-                    },
-                    new Project()
-                    {
-                        Name = "Project 2",
-                        ShortName = "PRJ2"
-                    },
-                    new Project()
-                    {
-                        Name = "Project 3",
-                        ShortName = "PRJ3"
-                    }
-                };
-                ctx.ProjectSet.AddRange(projects);
-                ctx.SaveChanges();
-            }
-
-            private static void EnsureUsersGenerated(TaskTrackerDBContext ctx)
-            {
-                if (!ctx.UserSet.Any())
-                {
-                    defaultUser = new User { Name = DefaultReporter };
-                    var users = new List<User>()
-                    {
-                        defaultUser,
-                        new User() { Name = DefaultAssignee }
-                    };
-                    ctx.UserSet.AddRange(users);
-                    ctx.SaveChanges();
-                }
-                defaultUser = ctx.UserSet.Where(u => u.Name.Equals(DefaultReporter)).First();
-            }
-
-            private static void EnsureTaskTypesGenerated(TaskTrackerDBContext ctx)
-            {
-                if (ctx.TaskTypeSet.Any())
-                    return;
-
-                var taskTypes = new List<TaskType>()
-                {
-                    new TaskType { Name = "Accomplishable" },
-                    new TaskType { Name = "Continuous" }
-                };
-                ctx.TaskTypeSet.AddRange(taskTypes);
-                ctx.SaveChanges();
-            }
-
-            private static void EnsureStagesGenerated(TaskTrackerDBContext ctx)
-            {
-                if (ctx.StageSet.Any())
-                    return;
-
-                var calendar = CultureInfo.CurrentCulture.Calendar;
-
-                var rootStartTime = new DateTime(2017, 6, 5);
-                var rootEndTime = new DateTime(2017, 8, 31);
-
-                var stage2 = StageUtils.CreateTopLevelStage("Stage #2");
-                stage2.StartTime = rootStartTime;
-                stage2.EndTime = rootEndTime;
-
-                int weeks = (int)Math.Ceiling((stage2.EndTime.Value - stage2.StartTime.Value).TotalDays / 7f);
-                for (int i = 0; i < weeks; i++)
-                {
-                    var weekStage = stage2.AddSubStage($"Week #{i}");
-                    weekStage.StartTime = stage2.StartTime + TimeSpan.FromDays(i * 7);
-
-                    var weekEndTime = weekStage.StartTime + TimeSpan.FromDays(7);
-                    weekStage.EndTime = weekEndTime > stage2.EndTime ? stage2.EndTime : weekEndTime;
-
-                    int days = (int)Math.Ceiling((weekStage.EndTime.Value - weekStage.StartTime.Value).TotalDays);
-                    for (int j = 0; j < days; j++)
-                    {
-                        var startTime = weekStage.StartTime.Value + TimeSpan.FromDays(j);
-                        var dayStage = weekStage.AddSubStage(calendar.GetDayOfWeek(startTime).ToString());
-                        dayStage.StartTime = startTime;
-                        dayStage.EndTime = startTime + TimeSpan.FromDays(1);
-                    }
-                }
-                stage2.VisitAll(s => ctx.StageSet.Add(s));
-                ctx.SaveChanges();
             }
         }
 
@@ -512,6 +357,24 @@ namespace TaskTracker.Repository.Sql
             DoContextOperations(ctx => Add(stage, ctx));
         }
 
+        public void Add(IEnumerable<Project> projects)
+        {
+            ArgumentValidation.ThrowIfNull(projects, nameof(projects));
+            DoContextOperations(ctx => Add(projects, ctx));
+        }
+
+        public void Add(IEnumerable<User> users)
+        {
+            ArgumentValidation.ThrowIfNull(users, nameof(users));
+            DoContextOperations(ctx => Add(users, ctx));
+        }
+
+        public void Add(IEnumerable<TaskType> taskTypes)
+        {
+            ArgumentValidation.ThrowIfNull(taskTypes, nameof(taskTypes));
+            DoContextOperations(ctx => Add(taskTypes, ctx));
+        }
+
         public void Update(Task task)
         {
             ArgumentValidation.ThrowIfNull(task, nameof(task));
@@ -555,20 +418,20 @@ namespace TaskTracker.Repository.Sql
             if (transaction != null)
                 throw RepositoryExceptions.TransactionAlreadyStarted();
 
-            using (var ctx = CreateContext(connectionString))
-            {
-                transaction = ctx.Database.BeginTransaction();
-            }
+            Debug.Assert(context == null);
+
+            context = CreateContext(connectionString);
+            transaction = context.Database.BeginTransaction();            
             return this as IRepositoryTransaction;
         }
 
         public void CommitTransaction()
         {
             if (transaction == null)
-                throw RepositoryExceptions.TransactionNotStarted();
+                throw RepositoryExceptions.TransactionNotStarted();            
 
             transaction.Commit();
-            transaction = null;
+            ReleaseTransaction();
         }
 
         public void RollbackTransaction()
@@ -577,7 +440,7 @@ namespace TaskTracker.Repository.Sql
                 throw RepositoryExceptions.TransactionNotStarted();
 
             transaction.Rollback();
-            transaction = null;
+            ReleaseTransaction();
         }
 
         // IDisposable
@@ -587,19 +450,23 @@ namespace TaskTracker.Repository.Sql
                 RollbackTransaction();            
         }
 
-        // IRepositoryInitializer
-        public bool HasAnyData
+        // IITaskTrackerRepositoryManager
+        public void CreateIfNotExists()
         {
-            get
-            {
-                return DoContextOperations(ctx => 
-                    ctx.ProjectSet.Any() || ctx.UserSet.Any() || ctx.StageSet.Any() || ctx.TaskTypeSet.Any() || ctx.ActivitySet.Any());                
-            }
+            using (var ctx = CreateContext(connectionString))
+            { }
         }
 
-        public void InitPreset()
+        private void ReleaseTransaction()
         {
-            DBPresetInitializer.Init(connectionString);
+            Debug.Assert(transaction != null);
+            Debug.Assert(context != null);
+
+            transaction.Dispose();
+            transaction = null;
+
+            context.Dispose();
+            context = null;
         }
 
         private TaskTrackerDBContext CreateContext(string connectionString)
@@ -714,9 +581,38 @@ namespace TaskTracker.Repository.Sql
             ctx.ProjectSet.Attach(task.Project);
             ctx.UserSet.Attach(task.Assignee);
             ctx.UserSet.Attach(task.Creator);
+            
+            task.Stage.ForEach(s =>
+            {
+                s.VisitAll(ss => ctx.StageSet.Attach(ss));
+            });
 
             ctx.TaskSet.Add(task);
             ctx.SaveChanges();            
+        }
+
+        private void Add(IEnumerable<Project> projects, TaskTrackerDBContext ctx)
+        {
+            Debug.Assert(projects != null);
+
+            ctx.ProjectSet.AddRange(projects);
+            ctx.SaveChanges();
+        }
+
+        private void Add(IEnumerable<User> users, TaskTrackerDBContext ctx)
+        {
+            Debug.Assert(users != null);
+
+            ctx.UserSet.AddRange(users);
+            ctx.SaveChanges();
+        }
+
+        private void Add(IEnumerable<TaskType> taskTypes, TaskTrackerDBContext ctx)
+        {
+            Debug.Assert(taskTypes != null);
+
+            ctx.TaskTypeSet.AddRange(taskTypes);
+            ctx.SaveChanges();
         }
 
         private void Add(Activity activity, TaskTrackerDBContext ctx)

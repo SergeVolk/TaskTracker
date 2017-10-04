@@ -6,6 +6,7 @@ using System.Linq;
 
 using TaskTracker.ExceptionUtils;
 using TaskTracker.Presentation.WPF.Utils;
+using TaskTracker.SyntaxUtils;
 
 namespace TaskTracker.Presentation.WPF.ViewModels
 {

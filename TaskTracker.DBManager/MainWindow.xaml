@@ -1,0 +1,29 @@
+﻿<Window x:Class="TaskTracker.DBManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskTracker.DBManager"
+        xmlns:converters="clr-namespace:TaskTracker.DBManager"
+        mc:Ignorable="d"
+        Title="DB Manager" Height="334" Width="601"
+        Name="MainWnd">
+    <Window.Resources>
+        <converters:StringPathToEnableConverter x:Key="StringPathToEnableConverter"/>
+    </Window.Resources>
+    <DockPanel x:Name="pnlRoot" Margin="0">
+        <Grid x:Name="gridDBSelection" Margin="0" VerticalAlignment="Top" Height="101" DockPanel.Dock="Top">
+            <Label x:Name="lblDBLocation" Content="Select Database:" HorizontalAlignment="Left" Margin="27,36,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="tbxDBPath" Text="{Binding DBLocation}" Height="22" Margin="129,40,32,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+            <Button x:Name="tbnSearchDB" Content="..." Margin="0,40,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="22" Click="tbnSearchDB_Click"/>
+            <Label x:Name="lblDBLocationSectionTitle" Content="Database Location" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+            <Separator Height="1" Margin="129,24,10,0" VerticalAlignment="Top"/>
+            <Button x:Name="btnCreateDB" Content="Create new database ..." HorizontalAlignment="Left" Margin="129,67,0,0" VerticalAlignment="Top" Width="194" Click="btnCreateDB_Click"/>
+        </Grid>
+        <Grid x:Name="gridDBOperations" IsEnabled="{Binding DBLocation, Converter={StaticResource StringPathToEnableConverter}}">
+            <Button x:Name="btnInitPreset" Content="Apply Preset #1" Margin="129,20,0,0" VerticalAlignment="Top" Click="btnInitPreset_Click" HorizontalAlignment="Left" Width="195"/>
+            <Label x:Name="lblDBOperationsTitle" Content="Operations" HorizontalAlignment="Left" Margin="10,-3,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+            <Separator Height="5" Margin="129,10,10,0" VerticalAlignment="Top"/>
+        </Grid>
+    </DockPanel>
+</Window>

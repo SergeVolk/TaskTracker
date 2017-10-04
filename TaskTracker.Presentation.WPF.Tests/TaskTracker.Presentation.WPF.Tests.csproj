@@ -66,6 +66,10 @@
       <Project>{1AD359AD-DCCF-497E-94EE-2522DCB50023}</Project>
       <Name>TaskTracker.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TaskTracker.Model.Utils\TaskTracker.Model.Utils.csproj">
+      <Project>{2eb9dda6-1650-4851-9e38-8ef200d67af1}</Project>
+      <Name>TaskTracker.Model.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TaskTracker.Model\TaskTracker.Model.csproj">
       <Project>{D428C11D-851F-4B75-8DAE-10C1FE49CD21}</Project>
       <Name>TaskTracker.Model</Name>

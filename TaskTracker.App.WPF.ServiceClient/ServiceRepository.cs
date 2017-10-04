@@ -38,6 +38,24 @@ namespace TaskTracker.App.WPF.ServiceClient
             service.Add(task);
         }
 
+        public void Add(IEnumerable<Project> projects)
+        {
+            ArgumentValidation.ThrowIfNull(projects, nameof(projects));
+            service.Add(projects);
+        }
+
+        public void Add(IEnumerable<User> users)
+        {
+            ArgumentValidation.ThrowIfNull(users, nameof(users));
+            service.Add(users);
+        }
+
+        public void Add(IEnumerable<TaskType> taskTypes)
+        {
+            ArgumentValidation.ThrowIfNull(taskTypes, nameof(taskTypes));
+            service.Add(taskTypes);
+        }
+
         public void AddTaskToStage(int taskId, int stageId)
         {
             ArgumentValidation.ThrowIfLess(taskId, 0, nameof(taskId));
