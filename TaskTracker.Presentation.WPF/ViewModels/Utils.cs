@@ -16,19 +16,6 @@ namespace TaskTracker.Presentation.WPF.Utils
         }       
     }
 
-    internal static class EnumerableUtils
-    {
-        public static void ForEach<T>(this IEnumerable<T> target, Action<T> action)
-        {
-            ArgumentValidation.ThrowIfNull(action, nameof(action));
-
-            foreach (var item in target)
-            {
-                action(item);
-            }
-        }
-    }
-
     internal static class ConversionUtils
     {
         public static Double? SafeParseDouble(string str)

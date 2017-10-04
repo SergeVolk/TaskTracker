@@ -37,6 +37,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Common.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Presentation.WPF.Tests", "TaskTracker.Presentation.WPF.Tests\TaskTracker.Presentation.WPF.Tests.csproj", "{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Tools", "6. Tools", "{8FCB5E8A-6C1A-4282-A3C2-9BAA115C5E38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.DBManager", "TaskTracker.DBManager\TaskTracker.DBManager.csproj", "{128FEB2C-3E9B-4419-A8D7-83D10272677F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Model.Utils", "TaskTracker.Model.Utils\TaskTracker.Model.Utils.csproj", "{2EB9DDA6-1650-4851-9E38-8EF200D67AF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +93,14 @@ Global
 		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{128FEB2C-3E9B-4419-A8D7-83D10272677F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{128FEB2C-3E9B-4419-A8D7-83D10272677F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{128FEB2C-3E9B-4419-A8D7-83D10272677F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{128FEB2C-3E9B-4419-A8D7-83D10272677F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EB9DDA6-1650-4851-9E38-8EF200D67AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EB9DDA6-1650-4851-9E38-8EF200D67AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EB9DDA6-1650-4851-9E38-8EF200D67AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EB9DDA6-1650-4851-9E38-8EF200D67AF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,5 +117,7 @@ Global
 		{E302792A-D0E0-4F59-9B7D-C1B27836A4C0} = {1E7884F8-02B6-49F0-9FEC-2289019E36D3}
 		{65C69244-34E2-40B4-9459-DB0B834ACD63} = {8C765DCC-EC54-4DA8-AC12-368F8E245D77}
 		{7493AA4A-C3A1-40AF-8DB2-181917E13F7D} = {8C765DCC-EC54-4DA8-AC12-368F8E245D77}
+		{128FEB2C-3E9B-4419-A8D7-83D10272677F} = {8FCB5E8A-6C1A-4282-A3C2-9BAA115C5E38}
+		{2EB9DDA6-1650-4851-9E38-8EF200D67AF1} = {8EEAA7D8-54F0-475D-9C5B-87D26AE55118}
 	EndGlobalSection
 EndGlobal

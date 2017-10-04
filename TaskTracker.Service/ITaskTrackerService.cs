@@ -58,6 +58,15 @@ namespace TaskTracker.Service
 
         [OperationContract(Name = "AddStage")]
         void Add(Stage stage);
+
+        [OperationContract(Name = "AddProjects")]
+        void Add(IEnumerable<Project> projects);
+
+        [OperationContract(Name = "AddUsers")]
+        void Add(IEnumerable<User> users);
+
+        [OperationContract(Name = "AddTaskTypes")]
+        void Add(IEnumerable<TaskType> taskTypes);
         
         [OperationContract(Name = "UpdateTask")]
         void Update(Task task);

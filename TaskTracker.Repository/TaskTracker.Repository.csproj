@@ -40,8 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IRepositoryCommands.cs" />
+    <Compile Include="IRepositoryQueries.cs" />
+    <Compile Include="ITransactionalRepositoryCommands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IRepository.cs" />
+    <Compile Include="RepositoryFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskTracker.Common\TaskTracker.Common.csproj">

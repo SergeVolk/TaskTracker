@@ -8,9 +8,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+
 using TaskTracker.ExceptionUtils;
 using TaskTracker.Filters;
 using TaskTracker.Model;
+using TaskTracker.Model.Utils;
 using TaskTracker.Presentation.WPF.Utils;
 using TaskTracker.Presentation.WPF.ViewModels;
 using TaskTracker.Repository;

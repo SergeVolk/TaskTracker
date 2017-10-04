@@ -3,9 +3,9 @@
 using TaskTracker.Model;
 using TaskTracker.ExceptionUtils;
 
-namespace TaskTracker.Repository.Sql
+namespace TaskTracker.Model.Utils
 {
-    internal static class StageUtils
+    public static class StageUtils
     {
         private static Stage CreateStage(int level, Stage parent, string name) 
         {
