@@ -66,7 +66,6 @@ namespace TaskTracker.ExceptionUtils
         /// <summary>
         /// Throws ArgumentException if the input condition is false.
         /// </summary>
-        /// <param name="throwCondition"></param>
         /// <param name="exceptionParametersProvider">
         /// Callback that provide parameters for the exception. It is called only when the condition is false.
         /// </param>
@@ -79,7 +78,6 @@ namespace TaskTracker.ExceptionUtils
         /// Throws exception of the provided type if the input condition is false.
         /// </summary>
         /// <typeparam name="E">Exception to be thrown</typeparam>
-        /// <param name="throwCondition"></param>
         /// <param name="exceptionParametersProvider">
         /// Callback that provide parameters for the exception. It is called only when the condition is false.
         /// </param>
@@ -91,8 +89,6 @@ namespace TaskTracker.ExceptionUtils
         /// <summary>
         /// Throws ArgumentException if the input enumerable is null or empty.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="enumerableObject"></param>
         /// <param name="objectName">Argument name</param>
         public static void ThrowIfNullOrEmpty<T>(IEnumerable<T> enumerableObject, string objectName)
         {
@@ -102,7 +98,6 @@ namespace TaskTracker.ExceptionUtils
         /// <summary>
         /// Throws ArgumentNullException if the input object is null.
         /// </summary>
-        /// <param name="object"></param>
         /// <param name="objectName">Argument name</param>
         public static void ThrowIfNull(object @object, string objectName)
         {
@@ -112,9 +107,6 @@ namespace TaskTracker.ExceptionUtils
         /// <summary>
         /// Throws ArgumentOutOfRangeException if the input value is strictly less than the provided minimum.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <param name="min"></param>
         /// <param name="objectName">Argument name</param>
         public static void ThrowIfLess<T>(T value, T min, string objectName)
         {
@@ -130,9 +122,6 @@ namespace TaskTracker.ExceptionUtils
         /// <summary>
         /// Throws ArgumentOutOfRangeException if the input value is strictly greater than the provided maximim.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <param name="max"></param>
         /// <param name="objectName">Argument name</param>
         public static void ThrowIfGreater<T>(T value, T max, string objectName)
         {
@@ -148,10 +137,6 @@ namespace TaskTracker.ExceptionUtils
         /// <summary>
         /// Throws ArgumentOutOfRangeException if the input value is not exclusively inside the range (min; max). 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
         /// <param name="objectName">Argument name</param>
         public static void ThrowIfOutOfRange<T>(T value, T min, T max, string objectName)
         {
