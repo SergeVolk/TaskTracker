@@ -9,5 +9,7 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         bool ShowTaskEditorWindow(object dataContext);
 
         bool ShowInputDialog(string message, out string input);
+
+        bool ShowMessageBox(string message, string caption);
     }
 }

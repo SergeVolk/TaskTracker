@@ -17,8 +17,15 @@ namespace TaskTracker.App.WPF.ServiceClient
             var proxy = channelFactory.CreateChannel();
             var repository = new ServiceRepository(proxy);
 
-            var mainWindow = new WindowFactory().CreateMainWindow(repository, repository);                
-            mainWindow.Show();
+            try
+            {
+                var mainWindow = new WindowFactory().CreateMainWindow(repository, repository);
+                mainWindow.Show();
+            }
+            catch (ApplicationException)
+            {
+                Shutdown();
+            }
         }
     }
 }

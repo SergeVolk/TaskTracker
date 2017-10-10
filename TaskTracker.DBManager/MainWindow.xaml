@@ -22,7 +22,7 @@
         </Grid>
         <Grid x:Name="gridDBOperations" IsEnabled="{Binding DBLocation, Converter={StaticResource StringPathToEnableConverter}}">
             <Button x:Name="btnInitPreset" Content="Apply Preset #1" Margin="129,20,0,0" VerticalAlignment="Top" Click="btnInitPreset_Click" HorizontalAlignment="Left" Width="195"/>
-            <Label x:Name="lblDBOperationsTitle" Content="Operations" HorizontalAlignment="Left" Margin="10,-3,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+            <Label x:Name="lblDBOperationsTitle" Content="Configurations" HorizontalAlignment="Left" Margin="10,-3,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
             <Separator Height="5" Margin="129,10,10,0" VerticalAlignment="Top"/>
         </Grid>
     </DockPanel>

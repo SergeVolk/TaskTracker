@@ -17,10 +17,17 @@ namespace TaskTracker.App.WPF
             var dbConnectionString = ConnectionStringManager.GetConnectionString();
 
             var repoFactory = new SqlRepositoryFactory(true);
-            var mainWindow = new WindowFactory().CreateMainWindow(
-                repoFactory.CreateRepositoryQueries(dbConnectionString), 
-                repoFactory.CreateRepositoryCommands(dbConnectionString));
-            mainWindow.Show();
+            try
+            {
+                var mainWindow = new WindowFactory().CreateMainWindow(
+                    repoFactory.CreateRepositoryQueries(dbConnectionString),
+                    repoFactory.CreateRepositoryCommands(dbConnectionString));
+                mainWindow.Show();
+            }
+            catch (ApplicationException)
+            {
+                Shutdown();
+            }
         }        
     }
 }

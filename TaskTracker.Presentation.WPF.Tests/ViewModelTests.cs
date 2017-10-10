@@ -790,6 +790,11 @@ namespace TaskTracker.Presentation.WPF.Tests
                 return handler != null ? handler(dataContext) : false;
             }
 
+            public bool ShowMessageBox(string message, string caption)
+            {
+                throw new NotImplementedException();
+            }
+
             public ShowWindowDelegate ShowTaskEditorWindowHandler { get; set; }
         }
         

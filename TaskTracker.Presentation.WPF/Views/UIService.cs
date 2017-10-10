@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 
 using TaskTracker.Presentation.WPF.ViewModels;
 using TaskTracker.ExceptionUtils;
@@ -36,6 +37,11 @@ namespace TaskTracker.Presentation.WPF.Views
             var result = inputDialog.ShowDialog().GetValueOrDefault();
             input = dc.Input; 
             return result;
+        }
+
+        bool IUIService.ShowMessageBox(string message, string caption)
+        {
+            return MessageBox.Show(message, caption, MessageBoxButton.OK) == MessageBoxResult.OK;
         }
 
         private class InputDialogDataContext

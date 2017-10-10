@@ -37,6 +37,14 @@ namespace TaskTracker.Presentation.WPF.ViewModels
             this.repositoryQueries = repositoryQueries;
             this.repositoryCommands = repositoryCommands;
 
+            if (!repositoryQueries.GetProjects().Any() || !repositoryQueries.GetTaskTypes().Any() || !repositoryQueries.GetUsers().Any())
+            {
+                uiService.ShowMessageBox(
+                    @"The TaskTracker Repository has not been configured yet. Please configurate it using the tool 'DBManager'.", 
+                    "Repository Error");
+                throw new ApplicationException("Repository is not configured.");
+            }
+
             queryTasksMgr = new UpdateManager(QueryTasks);
 
             defaultStatus = Status.Open;
