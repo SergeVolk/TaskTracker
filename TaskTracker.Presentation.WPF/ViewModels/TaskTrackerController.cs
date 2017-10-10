@@ -8,12 +8,12 @@ using TaskTracker.SyntaxUtils;
 
 namespace TaskTracker.Presentation.WPF.ViewModels
 {
-    internal class TaskTrackerManager
+    internal class TaskTrackerController
     {
         private IRepositoryQueries repositoryQueries;
         private ITransactionalRepositoryCommands repositoryCommands;
 
-        public TaskTrackerManager(IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
+        public TaskTrackerController(IRepositoryQueries repositoryQueries, ITransactionalRepositoryCommands repositoryCommands)
         {
             ArgumentValidation.ThrowIfNull(repositoryQueries, nameof(repositoryQueries));
             ArgumentValidation.ThrowIfNull(repositoryCommands, nameof(repositoryCommands));

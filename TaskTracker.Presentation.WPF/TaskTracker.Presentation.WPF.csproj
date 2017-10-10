@@ -63,7 +63,7 @@
     <Compile Include="ViewModels\StatusFilterViewModel.cs" />
     <Compile Include="ViewModels\TaskEditorViewModel.cs" />
     <Compile Include="ViewModels\TaskTrackerExceptions.cs" />
-    <Compile Include="ViewModels\TaskTrackerManager.cs" />
+    <Compile Include="ViewModels\TaskTrackerController.cs" />
     <Compile Include="ViewModels\TaskViewerViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Converters.cs" />
