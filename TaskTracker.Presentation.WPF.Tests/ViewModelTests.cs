@@ -3,17 +3,14 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-
+using TaskTracker.Common;
 using TaskTracker.ExceptionUtils;
 using TaskTracker.Filters;
 using TaskTracker.Model;
 using TaskTracker.Model.Utils;
-using TaskTracker.Presentation.WPF.Utils;
 using TaskTracker.Presentation.WPF.ViewModels;
 using TaskTracker.Repository;
 using TaskTracker.Repository.Sql;
@@ -706,15 +703,20 @@ namespace TaskTracker.Presentation.WPF.Tests
         {
             private SqlRepositoryFactory repoFactory = new SqlRepositoryFactory(true);
 
+            public SqlRepoContext() : base()
+            {
+                ConnectionStringManager.Initialize("TaskTrackerDB", @"..\..\..\QA");
+            }
+
             public override IRepositoryQueries CreateRepositoryQueries()
             {
-                var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
+                var dbConnectionString = ConnectionStringManager.GetConnectionString();                
                 return repoFactory.CreateRepositoryQueries(dbConnectionString);
             }
 
             public override ITransactionalRepositoryCommands CreateRepositoryCommands()
             {
-                var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
+                var dbConnectionString = ConnectionStringManager.GetConnectionString();
                 return repoFactory.CreateRepositoryCommands(dbConnectionString);
             }            
         }

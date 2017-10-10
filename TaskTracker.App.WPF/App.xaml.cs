@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Configuration;
 using System.Windows;
 
+using TaskTracker.Common;
 using TaskTracker.Presentation.WPF;
 using TaskTracker.Repository.Sql;
 
@@ -13,7 +13,9 @@ namespace TaskTracker.App.WPF
         {
             base.OnStartup(e);
 
-            var dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
+            ConnectionStringManager.Initialize("TaskTrackerDB");
+            var dbConnectionString = ConnectionStringManager.GetConnectionString();
+
             var repoFactory = new SqlRepositoryFactory(true);
             var mainWindow = new WindowFactory().CreateMainWindow(
                 repoFactory.CreateRepositoryQueries(dbConnectionString), 
