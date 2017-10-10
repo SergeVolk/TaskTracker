@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data.Entity.ModelConfiguration;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 
 using TaskTracker.Model;
 using TaskTracker.ExceptionUtils;
@@ -92,6 +93,14 @@ namespace TaskTracker.Repository.Sql
         }
         #endregion
 
+        private void ExecuteLocalScript(string scriptFile)
+        {
+            var scriptPath = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDi‌​rectory, 
+                $@"..\..\..\TaskTracker.Repository.Sql\Scripts\{scriptFile}"));
+            var script = File.ReadAllText(scriptPath);
+            Database.ExecuteSqlCommand(script);
+        }
+
         private void EnsureDBInitialized(string connectionString)
         {
             if (!Database.Exists(connectionString))
@@ -102,6 +111,13 @@ namespace TaskTracker.Repository.Sql
                 var adapter = (IObjectContextAdapter)this;
                 var script = adapter.ObjectContext.CreateDatabaseScript();
                 Database.ExecuteSqlCommand(script);
+
+                ExecuteLocalScript("dbo.GetOpenTasksOfProject.sql");
+                ExecuteLocalScript("dbo.GetOpenTasksOfUser.sql");
+                ExecuteLocalScript("dbo.GetStagesWithMaxActivities.sql");
+                ExecuteLocalScript("dbo.GetStagesWithMaxTasks.sql");
+                ExecuteLocalScript("dbo.GetTotalActivitiesTimeOfStage.sql");
+                ExecuteLocalScript("dbo.SetTaskStatus.sql");
             }
         }
 
