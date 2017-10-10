@@ -10,7 +10,7 @@ namespace TaskTracker.Common
         private static string defaultDataDirectoryRelativePath;
         private static string dataDirectoryConfigName;
 
-        public static void Initialize(string csConfigName, string defaultDataDirectoryRelativePath = @"..\..\..\Data", string dataDirectoryConfigName = "DataDirectory")
+        public static void Initialize(string csConfigName, string defaultDataDirectoryRelativePath = @"..\..\..\Demo", string dataDirectoryConfigName = "DataDirectory")
         {
             ConnectionStringManager.csConfigName = csConfigName;
             ConnectionStringManager.defaultDataDirectoryRelativePath = defaultDataDirectoryRelativePath;
