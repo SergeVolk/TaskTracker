@@ -28,7 +28,10 @@ namespace TaskTracker.Presentation.WPF.ViewModels
 
         public string StageSummary
         {
-            get { return $"{Stage.Name} [Level: {Stage.Level}, {Stage.StartTime}-{Stage.EndTime}]"; }
+            get
+            {                
+                return Stage != null ? $"{Stage.Name} [Level: {Stage.Level}, {Stage.StartTime}-{Stage.EndTime}]" : "<No stages>";
+            }
         }
 
         public int ActivityCount
@@ -46,9 +49,16 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         protected override void OnUpdateCommand(object sender)
         {
             var maxActivityStageEntry = RepositoryQueries.GetStagesWithMaxActivities(1).FirstOrDefault();
-
-            Stage = maxActivityStageEntry.Item1;            
-            ActivityCount = maxActivityStageEntry.Item2;
+            if (maxActivityStageEntry != null)
+            {
+                Stage = maxActivityStageEntry.Item1;
+                ActivityCount = maxActivityStageEntry.Item2;
+            }
+            else
+            {
+                Stage = null;
+                ActivityCount = 0;
+            }
         }
     }
 }
