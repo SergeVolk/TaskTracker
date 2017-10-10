@@ -90,7 +90,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\dbo.GetOpenTaskOfProject.sql" />
+    <Content Include="Scripts\dbo.GetOpenTasksOfProject.sql" />
     <Content Include="Scripts\dbo.GetOpenTasksOfUser.sql" />
     <Content Include="Scripts\dbo.GetStagesWithMaxActivities.sql" />
     <Content Include="Scripts\dbo.GetStagesWithMaxTasks.sql" />

@@ -1,6 +1,6 @@
 # About
-TaskTracker is a tool for task management.
-It provides such functionality as creating tasks, assigning them to a responsible person, scheduling them for a certain time period, displaying them according to selected filters, etc.
+TaskTracker is a task management tool.
+It provides such functionality as creating tasks, assigning to a responsible person, scheduling for a certain time period, displaying according to selected filters, etc.
 
 This repository contains sources of the following parts of the TaskTracker system:
 - TaskTracker core. It contains the domain model, storage, other basic code.
