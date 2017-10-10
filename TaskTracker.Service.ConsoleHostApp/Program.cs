@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Configuration;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
+using TaskTracker.Common;
 using TaskTracker.ExceptionUtils;
 using TaskTracker.Repository.Sql;
 
@@ -32,7 +32,8 @@ namespace TaskTracker.Service.ConsoleHostApp
 
         static DependencyInjectionInstanceProvider()
         {
-            dbConnectionString = ConfigurationManager.ConnectionStrings["TaskTrackerDB"].ConnectionString;
+            ConnectionStringManager.Initialize("TaskTrackerDB");
+            dbConnectionString = ConnectionStringManager.GetConnectionString();
         }
 
         public DependencyInjectionInstanceProvider(Type serviceType)

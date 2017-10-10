@@ -121,6 +121,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TaskTracker.Common\TaskTracker.Common.csproj">
+      <Project>{1AD359AD-DCCF-497E-94EE-2522DCB50023}</Project>
+      <Name>TaskTracker.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TaskTracker.Presentation.WPF\TaskTracker.Presentation.WPF.csproj">
       <Project>{ef582f37-67a4-4eef-8183-7c33431ba8bd}</Project>
       <Name>TaskTracker.Presentation.WPF</Name>

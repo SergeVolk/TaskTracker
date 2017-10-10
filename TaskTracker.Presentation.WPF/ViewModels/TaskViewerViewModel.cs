@@ -197,26 +197,26 @@ namespace TaskTracker.Presentation.WPF.ViewModels
         {
             Debug.Assert(Status != newStatus);
             
-            var ttMgr = new TaskTrackerManager(repositoryQueries, repositoryCommands);
+            var controller = new TaskTrackerController(repositoryQueries, repositoryCommands);
             switch (newStatus)
             {
                 case Status.Open:
                 {
                     if (Status == Status.InProgress)
                     {
-                        ttMgr.StopTaskProgress(TaskId, this);
+                        controller.StopTaskProgress(TaskId, this);
                     }
                     else
                     {
-                        ttMgr.ReopenTask(TaskId);
+                        controller.ReopenTask(TaskId);
                     }
                     break;
                 }
                 case Status.InProgress:
-                    ttMgr.StartTaskProgress(TaskId);
+                    controller.StartTaskProgress(TaskId);
                     break;
                 case Status.Closed:
-                    ttMgr.CloseTask(TaskId, this);
+                    controller.CloseTask(TaskId, this);
                     break;
                 default:
                     throw ExceptionFactory.NotSupported(newStatus);
